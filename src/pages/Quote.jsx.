@@ -1,49 +1,208 @@
+import { useState } from 'react' import { Link, useSearchParams } from 'react-router-dom' import { ArrowLeft, Send } from 'lucide-react' import LaundryCalculator from '../components/LaundryCalculator'
 
-import { Link } from 'react-router-dom'
-import { ArrowLeft, ClipboardList } from 'lucide-react'
+const serviceOptions = [ { value: 'home-cleaning', label: 'Home Cleaning' }, { value: 'commercial-cleaning', label: 'Office & Commercial Cleaning' }, { value: 'fumigation', label: 'Fumigation & Pest Control' }, { value: 'upholstery', label: 'Upholstery & Sofa Cleaning' }, { value: 'post-construction', label: 'Post-Construction Cleaning' }, { value: 'laundry', label: 'Laundry & Garment Care' }, ]
 
-export default function Quote() {
-  return (
-    <>
-      <header className="page-header">
-        <div className="container">
-          <Link to="/" className="button button-outline">
-            <ArrowLeft size={18} />
-            Back Home
-          </Link>
+export default function Quote() { const [searchParams] = useSearchParams() const requestedService = searchParams.get('service') || ''
 
-          <span className="eyebrow">Opet Realms</span>
+const [form, setForm] = useState({ name: '', phone: '', email: '', service: serviceOptions.some( (service) => service.value === requestedService ) ? requestedService : '', location: '', preferredDate: '', details: '', })
 
-          <h1>Request a Quote</h1>
+const [error, setError] = useState('')
 
-          <p>
-            Tell us what you need. We'll help you find the right
-            cleaning, fumigation or garment-care service.
-          </p>
-        </div>
-      </header>
+const updateField = (event) => { const { name, value } = event.target
 
-      <main className="section">
-        <div className="container">
-          <div className="card text-center">
-            <ClipboardList
-              size={44}
-              className="text-green"
-            />
+setForm((current) => ({
+  ...current,
+  [name]: value,
+}))
 
-            <h2>Your spotless experience starts here.</h2>
+setError('')
 
-            <p>
-              Our quote form and laundry item calculator will be
-              added to this page next.
-            </p>
 
-            <Link to="/#services" className="button button-primary">
-              Explore Our Services
-            </Link>
-          </div>
-        </div>
-      </main>
-    </>
-  )
 }
+
+const handleSubmit = (event) => { event.preventDefault()
+
+if (!form.name.trim() || !form.phone.trim() || !form.service) {
+  setError('Please enter your name, phone number and service.')
+  return
+}
+
+const message = [
+  'Hello Opet Realms! I would like to request a quote.',
+  '',
+  `Name: ${form.name.trim()}`,
+  `Phone: ${form.phone.trim()}`,
+  `Email: ${form.email.trim() || 'Not provided'}`,
+  `Service: ${
+    serviceOptions.find((item) => item.value === form.service)?.label
+  }`,
+  `Location: ${form.location.trim() || 'Not provided'}`,
+  `Preferred date: ${form.preferredDate || 'Flexible'}`,
+  `Details: ${form.details.trim() || 'No additional details'}`,
+  '',
+  'Please contact me to discuss availability and pricing.',
+].join('\n')
+
+const whatsappUrl = `https://wa.me/2347079079235?text=${encodeURIComponent(message)}`
+
+window.open(whatsappUrl, '_blank', 'noopener,noreferrer')
+
+
+}
+
+return ( <> <header className="page-header"> <div className="container"> <Link to="/" className="button button-outline"> <ArrowLeft size={18} /> Back Home </Link>
+
+      <span className="eyebrow">Opet Realms</span>
+      <h1>Request a Quote</h1>
+
+      <p>
+        Tell us what you need. We'll help you plan the right
+        cleaning, fumigation or garment-care service.
+      </p>
+    </div>
+  </header>
+
+  <main className="section">
+    <div className="container quote-layout">
+      <section className="card quote-form-card">
+        <h2>Tell us about your request</h2>
+
+        <p>
+          Complete the form below. Required fields are marked with
+          an asterisk.
+        </p>
+
+        <form onSubmit={handleSubmit}>
+          <div className="form-grid">
+            <div className="form-field">
+              <label htmlFor="quote-name">Full name *</label>
+              <input
+                id="quote-name"
+                name="name"
+                value={form.name}
+                onChange={updateField}
+                autoComplete="name"
+                required
+                maxLength={100}
+                placeholder="Your full name"
+              />
+            </div>
+
+            <div className="form-field">
+              <label htmlFor="quote-phone">Phone number *</label>
+              <input
+                id="quote-phone"
+                name="phone"
+                type="tel"
+                value={form.phone}
+                onChange={updateField}
+                autoComplete="tel"
+                required
+                maxLength={30}
+                placeholder="+234..."
+              />
+            </div>
+
+            <div className="form-field">
+              <label htmlFor="quote-email">Email address</label>
+              <input
+                id="quote-email"
+                name="email"
+                type="email"
+                value={form.email}
+                onChange={updateField}
+                autoComplete="email"
+                maxLength={254}
+                placeholder="you@example.com"
+              />
+            </div>
+
+            <div className="form-field">
+              <label htmlFor="quote-service">Service *</label>
+              <select
+                id="quote-service"
+                name="service"
+                value={form.service}
+                onChange={updateField}
+                required
+              >
+                <option value="">Choose a service</option>
+                {serviceOptions.map((service) => (
+                  <option key={service.value} value={service.value}>
+                    {service.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-field">
+              <label htmlFor="quote-location">Service location</label>
+              <input
+                id="quote-location"
+                name="location"
+                value={form.location}
+                onChange={updateField}
+                autoComplete="street-address"
+                maxLength={200}
+                placeholder="Area or address in Lagos"
+              />
+            </div>
+
+            <div className="form-field">
+              <label htmlFor="quote-date">Preferred date</label>
+              <input
+                id="quote-date"
+                name="preferredDate"
+                type="date"
+                value={form.preferredDate}
+                onChange={updateField}
+                min={new Date().toLocaleDateString('en-CA')}
+              />
+            </div>
+
+            <div className="form-field form-field-full">
+              <label htmlFor="quote-details">
+                Tell us more about the job
+              </label>
+              <textarea
+                id="quote-details"
+                name="details"
+                value={form.details}
+                onChange={updateField}
+                rows={5}
+                maxLength={2000}
+                placeholder="Describe your property, garments or service requirements..."
+              />
+            </div>
+          </div>
+
+          {error && (
+            <p className="form-error" role="alert">
+              {error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            className="button button-primary quote-submit"
+          >
+            Continue to WhatsApp <Send size={18} />
+          </button>
+
+          <p className="form-note">
+            WhatsApp will open with a prepared message for you to
+            review and send. Your booking is not confirmed until our
+            team agrees on the service details.
+          </p>
+        </form>
+      </section>
+
+      {form.service === 'laundry' && (
+        <LaundryCalculator />
+      )}
+    </div>
+  </main>
+</>
+
+
+) }
