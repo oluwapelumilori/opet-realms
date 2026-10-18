@@ -1,30 +1,57 @@
-import { useMemo, useState } from 'react' import { GARMENT_PRICES, formatNaira } from '../config' import { Shirt, RotateCcw } from 'lucide-react'
+import { useState } from 'react' import { Shirt, RotateCcw } from 'lucide-react' import { GARMENT_PRICES, formatNaira } from '../config'
 
-export default function LaundryCalculator() { const [quantities, setQuantities] = useState({})
+export default function LaundryCalculator({ onChange }) { const [quantities, setQuantities] = useState({})
 
-const selectedGarments = useMemo( () => GARMENT_PRICES.filter( (garment) => (quantities[garment.id] || 0) > 0 ).map((garment) => ({ ...garment, quantity: quantities[garment.id], subtotal: garment.price * quantities[garment.id], })), [quantities] )
+const selectedGarments = GARMENT_PRICES .filter((garment) => (quantities[garment.id] || 0) > 0) .map((garment) => ({ ...garment, quantity: quantities[garment.id], subtotal: garment.price * quantities[garment.id], }))
 
 const total = selectedGarments.reduce( (sum, garment) => sum + garment.subtotal, 0 )
 
 const totalItems = selectedGarments.reduce( (sum, garment) => sum + garment.quantity, 0 )
 
-const updateQuantity = (id, value) => { const quantity = Math.max( 0, Math.min(999, Number.parseInt(value, 10) || 0) )
+const updateQuantity = (id, value) => { if (value !== '' && !/^\d+$/.test(value)) return
 
-setQuantities((current) => ({
-  ...current,
+const quantity =
+  value === '' ? 0 : Math.min(999, Number(value))
+
+const nextQuantities = {
+  ...quantities,
   [id]: quantity,
-}))
+}
+
+setQuantities(nextQuantities)
+
+const garments = GARMENT_PRICES
+  .filter((garment) => (nextQuantities[garment.id] || 0) > 0)
+  .map((garment) => ({
+    ...garment,
+    quantity: nextQuantities[garment.id],
+    subtotal: garment.price * nextQuantities[garment.id],
+  }))
+
+onChange?.({
+  garments,
+  total: garments.reduce(
+    (sum, garment) => sum + garment.subtotal,
+    0
+  ),
+  totalItems: garments.reduce(
+    (sum, garment) => sum + garment.quantity,
+    0
+  ),
+})
 
 
 }
 
-const resetCalculator = () => setQuantities({})
+const resetCalculator = () => { setQuantities({}) onChange?.({ garments: [], total: 0, totalItems: 0, }) }
 
 return ( <section className="laundry-calculator"> <div className="laundry-calculator-heading"> <span className="laundry-calculator-icon"> <Shirt size={25} /> </span>
 
     <div>
-      <h2>Laundry & Garment Care</h2>
-      <p>Select your garments and enter the quantity for each item.</p>
+      <h2>Laundry &amp; Garment Care</h2>
+      <p>
+        Select your garments and enter the quantity for each item.
+      </p>
     </div>
   </div>
 
@@ -35,6 +62,7 @@ return ( <section className="laundry-calculator"> <div className="laundry-calcul
           <label htmlFor={`quantity-${garment.id}`}>
             {garment.name}
           </label>
+
           <span>{formatNaira(garment.price)} per item</span>
         </div>
 
@@ -90,7 +118,7 @@ return ( <section className="laundry-calculator"> <div className="laundry-calcul
   </div>
 
   <p className="laundry-calculator-note">
-    Prices are based on the supplied garment price list. The final
+    Prices are based on the supplied garment price list. Your final
     quotation will be confirmed by Opet Realms.
   </p>
 </section>
