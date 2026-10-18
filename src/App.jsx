@@ -1,36 +1,76 @@
 
 import { Routes, Route } from 'react-router-dom'
 
+import Navbar from './components/Navbar'
+import Footer from './components/Footer'
+
 import Home from './pages/Home'
 import Quote from './pages/Quote'
 import Gallery from './pages/Gallery'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsConditions from './pages/TermsConditions'
 
+function PageLayout({ children }) {
+  return (
+    <>
+      <Navbar />
+      <main>{children}</main>
+      <Footer />
+    </>
+  )
+}
+
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/quote" element={<Quote />} />
-      <Route path="/gallery" element={<Gallery />} />
+      <Route
+        path="/"
+        element={<Home />}
+      />
+      <Route
+        path="/quote"
+        element={
+          <PageLayout>
+            <Quote />
+          </PageLayout>
+        }
+      />
+      <Route
+        path="/gallery"
+        element={
+          <PageLayout>
+            <Gallery />
+          </PageLayout>
+        }
+      />
       <Route
         path="/privacy-policy"
-        element={<PrivacyPolicy />}
+        element={
+          <PageLayout>
+            <PrivacyPolicy />
+          </PageLayout>
+        }
       />
       <Route
         path="/terms-and-conditions"
-        element={<TermsConditions />}
+        element={
+          <PageLayout>
+            <TermsConditions />
+          </PageLayout>
+        }
       />
       <Route
         path="*"
         element={
-          <main className="container section text-center">
-            <h1>Page not found</h1>
-            <p>Sorry, we couldn't find that page.</p>
-            <a href="/" className="button button-primary">
-              Return Home
-            </a>
-          </main>
+          <PageLayout>
+            <section className="container section text-center">
+              <h1>Page not found</h1>
+              <p>Sorry, we couldn't find that page.</p>
+              <a href="/" className="button button-primary">
+                Return Home
+              </a>
+            </section>
+          </PageLayout>
         }
       />
     </Routes>
