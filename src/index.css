@@ -696,3 +696,147 @@ textarea:focus-visible {
     font-size: 0.6rem;
   }
 }
+
+/* ================================
+   FAQ SECTION
+================================ */
+
+.faq-section {
+  background: #f7faf8;
+}
+
+.faq-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: 72px;
+  align-items: start;
+}
+
+.faq-intro {
+  position: sticky;
+  top: 120px;
+}
+
+.faq-intro .eyebrow {
+  margin-bottom: 18px;
+}
+
+.faq-intro h2 {
+  margin-bottom: 22px;
+}
+
+.faq-intro > p {
+  max-width: 420px;
+  margin-bottom: 28px;
+  color: #68746d;
+  line-height: 1.9;
+}
+
+.faq-list {
+  border-top: 1px solid #dce6df;
+}
+
+.faq-item {
+  border-bottom: 1px solid #dce6df;
+}
+
+.faq-question {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 24px 0;
+  border: 0;
+  color: #17231d;
+  background: transparent;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.98rem;
+  font-weight: 700;
+  line-height: 1.6;
+  text-align: left;
+}
+
+.faq-question:hover {
+  color: #087f5b;
+}
+
+.faq-chevron {
+  flex-shrink: 0;
+  color: #087f5b;
+  transition: transform 200ms ease;
+}
+
+.faq-chevron.is-open {
+  transform: rotate(180deg);
+}
+
+.faq-answer {
+  padding: 0 34px 22px 0;
+  animation: faq-reveal 180ms ease-out;
+}
+
+.faq-answer p {
+  margin: 0;
+  color: #68746d;
+  font-size: 0.9rem;
+  line-height: 1.9;
+}
+
+@keyframes faq-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 900px) {
+  .faq-layout {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+
+  .faq-intro {
+    position: static;
+  }
+
+  .faq-intro > p {
+    max-width: 600px;
+  }
+}
+
+@media (max-width: 600px) {
+  .faq-layout {
+    gap: 24px;
+  }
+
+  .faq-question {
+    gap: 14px;
+    padding: 20px 0;
+    font-size: 0.9rem;
+  }
+
+  .faq-answer {
+    padding-right: 10px;
+    padding-bottom: 20px;
+  }
+
+  .faq-answer p {
+    font-size: 0.85rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faq-answer {
+    animation: none;
+  }
+
+  .faq-chevron {
+    transition: none;
+  }
+}
