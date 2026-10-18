@@ -1,0 +1,49 @@
+
+import { Link } from 'react-router-dom'
+import { ArrowLeft, ClipboardList } from 'lucide-react'
+
+export default function Quote() {
+  return (
+    <>
+      <header className="page-header">
+        <div className="container">
+          <Link to="/" className="button button-outline">
+            <ArrowLeft size={18} />
+            Back Home
+          </Link>
+
+          <span className="eyebrow">Opet Realms</span>
+
+          <h1>Request a Quote</h1>
+
+          <p>
+            Tell us what you need. We'll help you find the right
+            cleaning, fumigation or garment-care service.
+          </p>
+        </div>
+      </header>
+
+      <main className="section">
+        <div className="container">
+          <div className="card text-center">
+            <ClipboardList
+              size={44}
+              className="text-green"
+            />
+
+            <h2>Your spotless experience starts here.</h2>
+
+            <p>
+              Our quote form and laundry item calculator will be
+              added to this page next.
+            </p>
+
+            <Link to="/#services" className="button button-primary">
+              Explore Our Services
+            </Link>
+          </div>
+        </div>
+      </main>
+    </>
+  )
+}
