@@ -1,3 +1,30 @@
-export const GARMENT_PRICES = [ { id: 'white-shirt', name: 'White shirt', price: 600 }, { id: 'white-t-shirt', name: 'T-Shirt white', price: 500 }, { id: 't-shirt', name: 'T-shirt', price: 400 }, { id: 'blazers', name: 'Blazers', price: 1500 }, { id: 'white-blazers', name: 'White Blazers', price: 2000 }, { id: 'white-native', name: 'White Native', price: 1500 }, { id: 'native', name: 'Native', price: 1000 }, { id: 'white-agbada', name: 'White Agbada', price: 2000 }, { id: 'agbada', name: 'Agbada', price: 1500 }, { id: 'long-jeans', name: 'Long Jeans', price: 500 }, { id: 'short-jeans', name: 'Short jeans', price: 500 }, { id: 'polo', name: 'Polo', price: 400 }, { id: 'shorts', name: 'Shorts', price: 500 }, { id: 'stoned-beaded-gowns', name: 'Stoned/beaded gowns', price: 2500 }, { id: 'gown', name: 'Gown', price: 1000 }, { id: 'towel', name: 'Towel', price: 700 }, { id: 'trouser', name: 'Trouser', price: 500 }, { id: 'duvet', name: 'Duvet', price: 2500 }, { id: 'white-duvet', name: 'White Duvet', price: 3000 }, { id: 'bedsheet', name: 'Bedsheet', price: 1000 }, { id: 'garment', name: 'Garment', price: 1500 }, { id: 'sweat-shirt', name: 'Sweat shirt', price: 700 }, { id: 'outer-curtains', name: 'Outer curtains', price: 2500 }, { id: 'inner-curtains', name: 'Inner Curtains', price: 1000 }, ]
 
-export const formatNaira = (amount) => ₦${Number(amount).toLocaleString('en-NG')}
+export const GARMENT_PRICES = [
+  { id: 'white-shirt', name: 'White shirt', price: 600 },
+  { id: 'white-t-shirt', name: 'T-Shirt white', price: 500 },
+  { id: 't-shirt', name: 'T-shirt', price: 400 },
+  { id: 'blazers', name: 'Blazers', price: 1500 },
+  { id: 'white-blazers', name: 'White Blazers', price: 2000 },
+  { id: 'white-native', name: 'White Native', price: 1500 },
+  { id: 'native', name: 'Native', price: 1000 },
+  { id: 'white-agbada', name: 'White Agbada', price: 2000 },
+  { id: 'agbada', name: 'Agbada', price: 1500 },
+  { id: 'long-jeans', name: 'Long Jeans', price: 500 },
+  { id: 'short-jeans', name: 'Short jeans', price: 500 },
+  { id: 'polo', name: 'Polo', price: 400 },
+  { id: 'shorts', name: 'Shorts', price: 500 },
+  { id: 'stoned-beaded-gowns', name: 'Stoned/beaded gowns', price: 2500 },
+  { id: 'gown', name: 'Gown', price: 1000 },
+  { id: 'towel', name: 'Towel', price: 700 },
+  { id: 'trouser', name: 'Trouser', price: 500 },
+  { id: 'duvet', name: 'Duvet', price: 2500 },
+  { id: 'white-duvet', name: 'White Duvet', price: 3000 },
+  { id: 'bedsheet', name: 'Bedsheet', price: 1000 },
+  { id: 'garment', name: 'Garment', price: 1500 },
+  { id: 'sweat-shirt', name: 'Sweat shirt', price: 700 },
+  { id: 'outer-curtains', name: 'Outer curtains', price: 2500 },
+  { id: 'inner-curtains', name: 'Inner Curtains', price: 1000 },
+];
+
+export const formatNaira = (amount) =>
+  `₦${Number(amount).toLocaleString('en-NG')}`;
