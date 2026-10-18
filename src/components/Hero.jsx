@@ -1,82 +1,80 @@
 
 import { Link } from 'react-router-dom'
-import { ArrowRight, CheckCircle2, Sparkles } from 'lucide-react'
+import { ArrowRight, CheckCircle2, Sparkles, ShieldCheck, Clock3 } from 'lucide-react'
 
 export default function Hero() {
   return (
     <section className="hero">
-      <div className="container hero-grid">
+      <div className="hero-background">
+        <img
+          src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=2000&q=90"
+          alt=""
+          aria-hidden="true"
+        />
+        <div className="hero-background-overlay" />
+      </div>
+
+      <div className="container hero-inner">
         <div className="hero-content">
           <span className="eyebrow">
             <Sparkles size={16} />
-            Professional care. Spotless results.
+            SERVING ALL OF LAGOS
           </span>
 
           <h1>
-            Sharp service.
+            Homes left
             <br />
-            <span className="hero-highlight">Spotless spaces.</span>
+            <span className="hero-highlight">
+              sharp &amp; spotless.
+            </span>
           </h1>
 
           <p className="hero-description">
-            Professional cleaning, fumigation and garment care across
-            Lagos Mainland and Island. Supervised, sharp and spotless.
+            Regular and deep cleaning, post-construction, fumigation,
+            bedbug treatment, upholstery and laundry — supervised
+            from start to finish.
           </p>
 
           <div className="hero-actions">
             <Link to="/quote" className="button button-primary">
-              Book a Quote <ArrowRight size={18} />
+              Request a Quote
+              <ArrowRight size={18} />
             </Link>
 
-            <a href="#services" className="button button-outline">
-              View Our Services
+            <a
+              href="https://wa.me/2347079079235"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="button button-outline"
+            >
+              <span aria-hidden="true">◉</span>
+              Chat on WhatsApp
             </a>
           </div>
 
           <div className="hero-trust">
             <div className="hero-trust-item">
-              <CheckCircle2 size={18} />
-              <span>Professional care</span>
+              <ShieldCheck size={24} />
+              <div>
+                <strong>Supervised jobs</strong>
+                <span>Walkthrough on completion</span>
+              </div>
             </div>
 
             <div className="hero-trust-item">
-              <CheckCircle2 size={18} />
-              <span>Supervised service</span>
+              <CheckCircle2 size={24} />
+              <div>
+                <strong>Trained crew</strong>
+                <span>Vetted and uniformed</span>
+              </div>
             </div>
 
             <div className="hero-trust-item">
-              <CheckCircle2 size={18} />
-              <span>Lagos Mainland & Island</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="hero-visual">
-          <img
-            src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1100&q=85"
-            alt="Professional cleaner preparing a space for a thorough clean"
-            className="hero-image"
-          />
-
-          <div className="hero-image-overlay">
-            <span className="hero-overlay-icon">
-              <Sparkles size={22} />
-            </span>
-
-            <div>
-              <strong>Sharp & Spotless</strong>
-              <p>Care you can see. Quality you can trust.</p>
-            </div>
-          </div>
-
-          <div className="hero-floating-badge">
-            <span className="hero-badge-check">
-              <CheckCircle2 size={20} />
-            </span>
-
-            <div>
-              <strong>Every detail matters</strong>
-              <span>Professional cleaning care</span>
+              <Clock3 size={24} />
+              <div>
+                <strong>Fast response</strong>
+                <span>Quick enquiry handling</span>
+              </div>
             </div>
           </div>
         </div>
