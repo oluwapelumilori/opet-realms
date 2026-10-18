@@ -529,3 +529,170 @@ textarea:focus-visible {
     margin-bottom: 20px;
   }
 }
+
+/* ================================
+   BEFORE & AFTER SECTION
+================================ */
+
+.before-after-section {
+  background: #ffffff;
+}
+
+.before-after-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+}
+
+.comparison-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #e2e9e4;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 8px 28px rgba(19, 52, 33, 0.04);
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.comparison-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 38px rgba(19, 52, 33, 0.1);
+}
+
+.comparison-images {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3px;
+  background: #ffffff;
+}
+
+.comparison-image {
+  position: relative;
+  min-width: 0;
+  height: 270px;
+  overflow: hidden;
+  background: #e8f5ef;
+}
+
+.comparison-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 350ms ease;
+}
+
+.comparison-card:hover .comparison-image img {
+  transform: scale(1.04);
+}
+
+.comparison-label {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  padding: 7px 12px;
+  border-radius: 5px;
+  color: #ffffff;
+  background: #17231d;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.comparison-label-after {
+  background: #087f5b;
+}
+
+.comparison-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px;
+}
+
+.comparison-category {
+  display: block;
+  margin-bottom: 8px;
+  color: #087f5b;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.comparison-content h3 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.comparison-sparkle {
+  flex-shrink: 0;
+  color: #087f5b;
+}
+
+.before-after-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 48px;
+  padding: 30px 32px;
+  border-radius: 14px;
+  background: #e8f5ef;
+}
+
+.before-after-cta p {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.gallery-note {
+  margin: 24px auto 0;
+  color: #68746d;
+  font-size: 0.78rem;
+  line-height: 1.8;
+  text-align: center;
+}
+
+@media (max-width: 700px) {
+  .before-after-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .comparison-image {
+    height: 220px;
+  }
+
+  .comparison-content {
+    padding: 20px;
+  }
+
+  .before-after-cta {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 32px;
+    padding: 24px;
+  }
+
+  .before-after-cta .button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 380px) {
+  .comparison-image {
+    height: 170px;
+  }
+
+  .comparison-label {
+    top: 10px;
+    left: 10px;
+    padding: 6px 8px;
+    font-size: 0.6rem;
+  }
+}
