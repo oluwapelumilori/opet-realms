@@ -1,354 +1,574 @@
 import { useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import {
-  ArrowLeft,
-  ClipboardList,
-  MessageCircle,
-} from 'lucide-react'
+import { Check, ClipboardList, MessageCircle } from 'lucide-react'
+import { SERVICES } from '../data/services'
 import { GARMENT_PRICES, formatNaira } from '../config'
 
-const SERVICES = [
-  { value: 'home-cleaning', label: 'Home Cleaning' },
-  { value: 'commercial-cleaning', label: 'Office & Commercial Cleaning' },
-  { value: 'fumigation', label: 'Fumigation & Pest Control' },
-  { value: 'upholstery', label: 'Upholstery & Sofa Cleaning' },
-  { value: 'post-construction', label: 'Post-Construction Cleaning' },
-  { value: 'laundry', label: 'Laundry & Garment Care' },
-]
+const WHATSAPP_NUMBER = '2347079079235'
+const BEDBUG_TREATMENTS = ['1-visit intensive', '2-visit with follow-up']
+
+const generateReference = () => {
+  const now = new Date()
+  const yy = String(now.getFullYear()).slice(-2)
+  const mm = String(now.getMonth() + 1).padStart(2, '0')
+  const dd = String(now.getDate()).padStart(2, '0')
+  const rand = Math.floor(1000 + Math.random() * 9000)
+  return `OR-${yy}${mm}${dd}-${rand}`
+}
+
+const todayLocal = () => {
+  const now = new Date()
+  const mm = String(now.getMonth() + 1).padStart(2, '0')
+  const dd = String(now.getDate()).padStart(2, '0')
+  return `${now.getFullYear()}-${mm}-${dd}`
+}
+
+const formatDate = (value) =>
+  new Date(`${value}T00:00:00`).toLocaleDateString('en-NG', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
+
+const emptyGarments = () =>
+  Object.fromEntries(GARMENT_PRICES.map((item) => [item.id, 0]))
 
 export default function Quote() {
   const [searchParams] = useSearchParams()
-  const requestedService = searchParams.get('service')
+  const requestedId = searchParams.get('service')
+  const requestedSize = searchParams.get('size')
 
-  const [form, setForm] = useState({
-    name: '',
-    phone: '',
-    email: '',
-    service: SERVICES.some((service) => service.value === requestedService)
-      ? requestedService
-      : '',
-    location: '',
-    details: '',
-  })
-
-  const [quantities, setQuantities] = useState(() =>
-    Object.fromEntries(GARMENT_PRICES.map((item) => [item.id, 0]))
+  // Which service cards are ticked (pre-ticked when coming from a service card)
+  const [checked, setChecked] = useState(() =>
+    Object.fromEntries(
+      SERVICES.map((service) => [service.id, service.id === requestedId])
+    )
   )
 
+  // Selected dropdown option index per service (property size / item & size)
+  const [choice, setChoice] = useState(() =>
+    Object.fromEntries(
+      SERVICES.map((service) => {
+        const index =
+          service.id === requestedId
+            ? service.options.findIndex(
+                (option) => option.label === requestedSize
+              )
+            : -1
+        return [service.id, index >= 0 ? index : 0]
+      })
+    )
+  )
+
+  const [bedbugTreatment, setBedbugTreatment] = useState(0)
+  const [upholsteryQty, setUpholsteryQty] = useState('1')
+  const [garments, setGarments] = useState(emptyGarments)
+
+  const [details, setDetails] = useState({
+    street: '',
+    area: '',
+    date: '',
+    notes: '',
+  })
+
+  const [contact, setContact] = useState({ name: '', phone: '', email: '' })
   const [error, setError] = useState('')
+  const [result, setResult] = useState(null)
 
   const selectedGarments = useMemo(
     () =>
-      GARMENT_PRICES.filter((item) => quantities[item.id] > 0).map(
-        (item) => ({
-          ...item,
-          quantity: quantities[item.id],
-          total: item.price * quantities[item.id],
-        })
-      ),
-    [quantities]
+      GARMENT_PRICES.filter((item) => garments[item.id] > 0).map((item) => ({
+        ...item,
+        quantity: garments[item.id],
+        total: item.price * garments[item.id],
+      })),
+    [garments]
   )
 
-  const garmentCount = selectedGarments.reduce(
-    (sum, item) => sum + item.quantity,
-    0
-  )
+  const garmentCount = selectedGarments.reduce((sum, i) => sum + i.quantity, 0)
+  const laundryTotal = selectedGarments.reduce((sum, i) => sum + i.total, 0)
 
-  const laundryTotal = selectedGarments.reduce(
-    (sum, item) => sum + item.total,
-    0
-  )
+  const toggleService = (id) =>
+    setChecked((previous) => ({ ...previous, [id]: !previous[id] }))
 
-  const updateForm = (event) => {
+  const updateChoice = (id, value) =>
+    setChoice((previous) => ({ ...previous, [id]: Number(value) }))
+
+  const updateDetails = (event) => {
     const { name, value } = event.target
-    setForm((previous) => ({ ...previous, [name]: value }))
+    setDetails((previous) => ({ ...previous, [name]: value }))
   }
 
-  const updateQuantity = (id, value) => {
+  const updateContact = (event) => {
+    const { name, value } = event.target
+    setContact((previous) => ({ ...previous, [name]: value }))
+  }
+
+  const updateGarment = (id, value) => {
     const quantity = value === '' ? 0 : Number(value)
-
     if (!Number.isInteger(quantity) || quantity < 0) return
+    setGarments((previous) => ({ ...previous, [id]: quantity }))
+  }
 
-    setQuantities((previous) => ({
-      ...previous,
-      [id]: quantity,
-    }))
+  const buildServiceLines = () => {
+    const lines = []
+
+    SERVICES.filter((service) => checked[service.id]).forEach((service) => {
+      const option = service.options[choice[service.id]]
+
+      if (service.id === 'laundry') {
+        lines.push(`• ${service.title}`)
+        selectedGarments.forEach((item) => {
+          lines.push(
+            `   - ${item.name}: ${item.quantity} × ${formatNaira(item.price)} = ${formatNaira(item.total)}`
+          )
+        })
+        lines.push(`   Total garments: ${garmentCount}`)
+        lines.push(`   Estimated laundry total: ${formatNaira(laundryTotal)}`)
+        return
+      }
+
+      if (service.id === 'upholstery') {
+        lines.push(
+          `• ${service.title} — ${option.label} × ${Number.parseInt(upholsteryQty, 10)}`
+        )
+        return
+      }
+
+      if (service.id === 'bedbug') {
+        lines.push(
+          `• ${service.title} — Size: ${option.label}, Treatment: ${BEDBUG_TREATMENTS[bedbugTreatment]}`
+        )
+        return
+      }
+
+      lines.push(`• ${service.title} — Size: ${option.label}`)
+    })
+
+    return lines
   }
 
   const handleSubmit = (event) => {
     event.preventDefault()
     setError('')
 
-    if (!form.name.trim() || !form.phone.trim() || !form.service || !form.location.trim()) {
-      setError('Please complete your name, phone number, service and location.')
+    const anySelected = SERVICES.some((service) => checked[service.id])
+
+    if (!anySelected) {
+      setError('Please select at least one service.')
       return
     }
 
-    if (form.service === 'laundry' && garmentCount === 0) {
+    if (checked.laundry && garmentCount === 0) {
       setError('Please enter a quantity for at least one garment.')
       return
     }
 
-    const serviceName =
-      SERVICES.find((service) => service.value === form.service)?.label ||
-      form.service
+    if (
+      checked.upholstery &&
+      !(Number.parseInt(upholsteryQty, 10) >= 1)
+    ) {
+      setError('Please enter a quantity for upholstery & carpet care.')
+      return
+    }
 
-    const laundryDetails =
-      form.service === 'laundry'
-        ? [
-            '',
-            'GARMENT BREAKDOWN:',
-            ...selectedGarments.map(
-              (item) =>
-                `${item.name}: ${item.quantity} × ${formatNaira(item.price)} = ${formatNaira(item.total)}`
-            ),
-            `Total garments: ${garmentCount}`,
-            `Estimated laundry total: ${formatNaira(laundryTotal)}`,
-          ].join('\n')
-        : ''
+    if (!details.street.trim() || !details.area.trim()) {
+      setError('Please enter your street address and area.')
+      return
+    }
+
+    if (!contact.name.trim() || !contact.phone.trim()) {
+      setError('Please enter your name and phone number.')
+      return
+    }
+
+    const reference = generateReference()
 
     const message = [
       'Hello Opet Realms! I would like to request a quote.',
       '',
-      `Name: ${form.name.trim()}`,
-      `Phone: ${form.phone.trim()}`,
-      `Email: ${form.email.trim() || 'Not provided'}`,
-      `Service: ${serviceName}`,
-      `Location: ${form.location.trim()}`,
-      `Requirements: ${form.details.trim() || 'Not provided'}`,
-      laundryDetails,
+      `Reference: ${reference}`,
+      '',
+      'SERVICES:',
+      ...buildServiceLines(),
+      '',
+      'LOCATION & DETAILS:',
+      `Street: ${details.street.trim()}`,
+      `Area: ${details.area.trim()}`,
+      `Preferred date: ${details.date ? formatDate(details.date) : 'Not specified'}`,
+      `Notes: ${details.notes.trim() || 'None'}`,
+      '',
+      'CONTACT:',
+      `Name: ${contact.name.trim()}`,
+      `Phone: ${contact.phone.trim()}`,
+      `Email: ${contact.email.trim() || 'Not provided'}`,
       '',
       'Please confirm availability and the final price.',
     ].join('\n')
 
-    window.open(
-      `https://wa.me/2347079079235?text=${encodeURIComponent(message)}`,
-      '_blank',
-      'noopener,noreferrer'
+    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`
+
+    setResult({ reference, url })
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }
+
+  const startNew = () => {
+    setResult(null)
+    setError('')
+    setChecked(Object.fromEntries(SERVICES.map((s) => [s.id, false])))
+    setChoice(Object.fromEntries(SERVICES.map((s) => [s.id, 0])))
+    setBedbugTreatment(0)
+    setUpholsteryQty('1')
+    setGarments(emptyGarments())
+    setDetails({ street: '', area: '', date: '', notes: '' })
+    setContact({ name: '', phone: '', email: '' })
+  }
+
+  const renderSizeSelect = (service) => (
+    <div className="qf-field">
+      <label htmlFor={`size-${service.id}`}>{service.fieldLabel}</label>
+      <select
+        id={`size-${service.id}`}
+        value={choice[service.id]}
+        onChange={(event) => updateChoice(service.id, event.target.value)}
+      >
+        {service.options.map((option, index) => (
+          <option key={option.label} value={index}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  )
+
+  const renderServiceOptions = (service) => {
+    if (service.id === 'laundry') {
+      return (
+        <div className="laundry-calculator qf-laundry">
+          <div className="laundry-calculator-heading">
+            <span className="laundry-calculator-icon">
+              <ClipboardList size={26} />
+            </span>
+            <div>
+              <h3 id="laundry-heading">Laundry Price Calculator</h3>
+              <p>
+                Enter the quantity of each garment to calculate your estimated
+                laundry bill.
+              </p>
+            </div>
+          </div>
+
+          <div className="laundry-price-list">
+            {GARMENT_PRICES.map((item) => (
+              <div className="laundry-price-row" key={item.id}>
+                <div className="laundry-garment-info">
+                  <label htmlFor={`quantity-${item.id}`}>{item.name}</label>
+                  <span>{formatNaira(item.price)} per item</span>
+                </div>
+
+                <div className="laundry-quantity-control">
+                  <input
+                    id={`quantity-${item.id}`}
+                    type="number"
+                    min="0"
+                    step="1"
+                    inputMode="numeric"
+                    aria-label={`Quantity of ${item.name}`}
+                    value={garments[item.id]}
+                    onChange={(event) =>
+                      updateGarment(item.id, event.target.value)
+                    }
+                  />
+                </div>
+
+                <strong className="laundry-line-total">
+                  {formatNaira(item.price * garments[item.id])}
+                </strong>
+              </div>
+            ))}
+          </div>
+
+          <div className="laundry-calculator-summary">
+            <div className="laundry-summary-details">
+              <span>Estimated laundry total</span>
+              <strong>{formatNaira(laundryTotal)}</strong>
+              <span className="laundry-summary-note">
+                {garmentCount} {garmentCount === 1 ? 'garment' : 'garments'}{' '}
+                selected
+              </span>
+            </div>
+
+            <button
+              type="button"
+              className="button button-outline"
+              onClick={() => setGarments(emptyGarments())}
+            >
+              Reset quantities
+            </button>
+          </div>
+
+          <p className="laundry-calculator-note">
+            The total is an estimate. Confirm the final amount with Opet Realms
+            before placing your order.
+          </p>
+        </div>
+      )
+    }
+
+    if (service.id === 'upholstery') {
+      return (
+        <div className="qf-options">
+          <div className="qf-row">
+            {renderSizeSelect(service)}
+            <div className="qf-field qf-field-small">
+              <label htmlFor="upholstery-qty">Quantity</label>
+              <input
+                id="upholstery-qty"
+                type="number"
+                min="1"
+                step="1"
+                inputMode="numeric"
+                value={upholsteryQty}
+                onChange={(event) => setUpholsteryQty(event.target.value)}
+              />
+            </div>
+          </div>
+          <p className="qf-hint">{service.hint}</p>
+        </div>
+      )
+    }
+
+    if (service.id === 'bedbug') {
+      return (
+        <div className="qf-options">
+          <div className="qf-row">
+            {renderSizeSelect(service)}
+            <div className="qf-field">
+              <label htmlFor="bedbug-treatment">Treatment option</label>
+              <select
+                id="bedbug-treatment"
+                value={bedbugTreatment}
+                onChange={(event) =>
+                  setBedbugTreatment(Number(event.target.value))
+                }
+              >
+                {BEDBUG_TREATMENTS.map((label, index) => (
+                  <option key={label} value={index}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <p className="qf-hint">{service.hint}</p>
+        </div>
+      )
+    }
+
+    // Regular, Deep, Post-Construction, Fumigation: choose property size
+    return (
+      <div className="qf-options">
+        <div className="qf-row">{renderSizeSelect(service)}</div>
+        <p className="qf-hint">{service.hint}</p>
+      </div>
+    )
+  }
+
+  if (result) {
+    return (
+      <main className="section qf-page">
+        <div className="container qf-narrow">
+          <div className="qf-success" role="status">
+            <span className="eyebrow">Request sent</span>
+            <h1>Your reference number</h1>
+            <p className="qf-reference">{result.reference}</p>
+            <p>
+              WhatsApp should have opened with your request ready to send. Tap
+              send there to continue with our team, and quote this reference
+              number if you need to follow up.
+            </p>
+
+            <div className="qf-success-actions">
+              <a
+                href={result.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="button button-primary"
+              >
+                <MessageCircle size={18} />
+                Open WhatsApp again
+              </a>
+              <button
+                type="button"
+                className="button button-outline"
+                onClick={startNew}
+              >
+                New request
+              </button>
+              <Link to="/" className="button button-outline">
+                Back home
+              </Link>
+            </div>
+          </div>
+        </div>
+      </main>
     )
   }
 
   return (
-    <>
-      <header className="page-header">
-        <div className="container">
-          <Link to="/" className="button button-outline">
-            <ArrowLeft size={18} />
-            Back Home
-          </Link>
+    <main className="section qf-page">
+      <div className="container qf-narrow">
+        <span className="eyebrow">Request a Quote</span>
+        <h1>What do you need done?</h1>
+        <p className="qf-intro">
+          Select one or more services. You&apos;ll get a reference number
+          instantly, then we continue on WhatsApp.
+        </p>
 
-          <div style={{ marginTop: 28 }}>
-            <span className="eyebrow">Opet Realms</span>
-            <h1>Request a Quote</h1>
-            <p>
-              Tell us what you need. Calculate your laundry estimate
-              and send your enquiry directly to our team on WhatsApp.
-            </p>
-          </div>
-        </div>
-      </header>
+        <form onSubmit={handleSubmit} noValidate>
+          <h2 className="qf-step">1. Services</h2>
 
-      <main className="section">
-        <div className="container quote-layout">
-          <section className="card quote-form-card">
-            <h2>Your spotless experience starts here.</h2>
-            <p>
-              Complete your details below. Our team will confirm your
-              requirements, availability and final quote.
-            </p>
+          <div className="qf-services">
+            {SERVICES.map((service) => {
+              const isOn = checked[service.id]
 
-            <form onSubmit={handleSubmit}>
-              <div className="form-grid">
-                <div className="form-field">
-                  <label htmlFor="quote-name">Full name *</label>
-                  <input
-                    id="quote-name"
-                    name="name"
-                    autoComplete="name"
-                    value={form.name}
-                    onChange={updateForm}
-                    required
-                    placeholder="Your full name"
-                  />
-                </div>
-
-                <div className="form-field">
-                  <label htmlFor="quote-phone">Phone number *</label>
-                  <input
-                    id="quote-phone"
-                    name="phone"
-                    type="tel"
-                    autoComplete="tel"
-                    value={form.phone}
-                    onChange={updateForm}
-                    required
-                    placeholder="Your phone number"
-                  />
-                </div>
-
-                <div className="form-field form-field-full">
-                  <label htmlFor="quote-email">Email address</label>
-                  <input
-                    id="quote-email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    value={form.email}
-                    onChange={updateForm}
-                    placeholder="you@example.com"
-                  />
-                </div>
-
-                <div className="form-field form-field-full">
-                  <label htmlFor="quote-service">Service required *</label>
-                  <select
-                    id="quote-service"
-                    name="service"
-                    value={form.service}
-                    onChange={updateForm}
-                    required
-                  >
-                    <option value="">Choose a service</option>
-                    {SERVICES.map((service) => (
-                      <option key={service.value} value={service.value}>
-                        {service.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="form-field form-field-full">
-                  <label htmlFor="quote-location">
-                    Your location in Lagos *
-                  </label>
-                  <input
-                    id="quote-location"
-                    name="location"
-                    value={form.location}
-                    onChange={updateForm}
-                    required
-                    placeholder="Area, street or neighbourhood"
-                  />
-                </div>
-
-                <div className="form-field form-field-full">
-                  <label htmlFor="quote-details">
-                    Additional details
-                  </label>
-                  <textarea
-                    id="quote-details"
-                    name="details"
-                    rows={4}
-                    value={form.details}
-                    onChange={updateForm}
-                    placeholder="Property size, number of rooms, preferred date or other requirements"
-                  />
-                </div>
-              </div>
-
-              {error && (
-                <p className="form-error" role="alert">
-                  {error}
-                </p>
-              )}
-
-              <button
-                type="submit"
-                className="button button-primary quote-submit"
-              >
-                <MessageCircle size={19} />
-                Send Enquiry on WhatsApp
-              </button>
-
-              <p className="form-note">
-                Your enquiry opens WhatsApp with your details prepared
-                for review. You can check the message before sending it.
-              </p>
-            </form>
-          </section>
-
-          <section
-            className="laundry-calculator"
-            aria-labelledby="laundry-heading"
-          >
-            <div className="laundry-calculator-heading">
-              <span className="laundry-calculator-icon">
-                <ClipboardList size={26} />
-              </span>
-
-              <div>
-                <h2 id="laundry-heading">Laundry Price Calculator</h2>
-                <p>
-                  Enter the quantity of each garment to calculate
-                  your estimated laundry bill.
-                </p>
-              </div>
-            </div>
-
-            <div className="laundry-price-list">
-              {GARMENT_PRICES.map((item) => (
-                <div className="laundry-price-row" key={item.id}>
-                  <div className="laundry-garment-info">
-                    <label htmlFor={`quantity-${item.id}`}>
-                      {item.name}
-                    </label>
-                    <span>{formatNaira(item.price)} per item</span>
-                  </div>
-
-                  <div className="laundry-quantity-control">
+              return (
+                <div
+                  key={service.id}
+                  className={`qf-service${isOn ? ' is-selected' : ''}`}
+                >
+                  <label className="qf-service-head">
                     <input
-                      id={`quantity-${item.id}`}
-                      type="number"
-                      min="0"
-                      step="1"
-                      inputMode="numeric"
-                      aria-label={`Quantity of ${item.name}`}
-                      value={quantities[item.id]}
-                      onChange={(event) =>
-                        updateQuantity(item.id, event.target.value)
-                      }
+                      type="checkbox"
+                      checked={isOn}
+                      onChange={() => toggleService(service.id)}
                     />
-                  </div>
+                    <span className="qf-checkbox" aria-hidden="true">
+                      <Check size={14} />
+                    </span>
+                    <span className="qf-service-text">
+                      <strong>{service.title}</strong>
+                      <span>{service.features.join(' · ')}</span>
+                    </span>
+                  </label>
 
-                  <strong className="laundry-line-total">
-                    {formatNaira(item.price * quantities[item.id])}
-                  </strong>
+                  {isOn && renderServiceOptions(service)}
                 </div>
-              ))}
+              )
+            })}
+          </div>
+
+          <h2 className="qf-step">2. Location &amp; details</h2>
+
+          <div className="qf-grid">
+            <div className="qf-field qf-full">
+              <label htmlFor="street">Street address *</label>
+              <input
+                id="street"
+                name="street"
+                autoComplete="street-address"
+                value={details.street}
+                onChange={updateDetails}
+                placeholder="Street address"
+              />
             </div>
 
-            <div className="laundry-calculator-summary">
-              <div className="laundry-summary-details">
-                <span>Estimated laundry total</span>
-                <strong>{formatNaira(laundryTotal)}</strong>
-                <span className="laundry-summary-note">
-                  {garmentCount} {garmentCount === 1 ? 'garment' : 'garments'} selected
-                </span>
-              </div>
-
-              <button
-                type="button"
-                className="button button-outline"
-                onClick={() =>
-                  setQuantities(
-                    Object.fromEntries(
-                      GARMENT_PRICES.map((item) => [item.id, 0])
-                    )
-                  )
-                }
-              >
-                Reset quantities
-              </button>
+            <div className="qf-field">
+              <label htmlFor="area">Area *</label>
+              <input
+                id="area"
+                name="area"
+                value={details.area}
+                onChange={updateDetails}
+                placeholder="Area (e.g. Lekki, Yaba)"
+              />
             </div>
 
-            <p className="laundry-calculator-note">
-              Prices are based on your supplied garment price list.
-              The total is an estimate; confirm the final amount with
-              Opet Realms before placing your order.
+            <div className="qf-field">
+              <label htmlFor="date">Preferred date for your service</label>
+              <input
+                id="date"
+                name="date"
+                type="date"
+                min={todayLocal()}
+                value={details.date}
+                onChange={updateDetails}
+              />
+            </div>
+
+            <div className="qf-field qf-full">
+              <label htmlFor="notes">Notes</label>
+              <textarea
+                id="notes"
+                name="notes"
+                rows={4}
+                value={details.notes}
+                onChange={updateDetails}
+                placeholder="Notes (condition, access, special items...)"
+              />
+            </div>
+          </div>
+
+          <h2 className="qf-step">3. Your contact</h2>
+
+          <div className="qf-grid">
+            <div className="qf-field">
+              <label htmlFor="contact-name">Full name *</label>
+              <input
+                id="contact-name"
+                name="name"
+                autoComplete="name"
+                value={contact.name}
+                onChange={updateContact}
+                placeholder="Your full name"
+              />
+            </div>
+
+            <div className="qf-field">
+              <label htmlFor="contact-phone">Phone number *</label>
+              <input
+                id="contact-phone"
+                name="phone"
+                type="tel"
+                autoComplete="tel"
+                value={contact.phone}
+                onChange={updateContact}
+                placeholder="Your phone number"
+              />
+            </div>
+
+            <div className="qf-field qf-full">
+              <label htmlFor="contact-email">Email address (optional)</label>
+              <input
+                id="contact-email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                value={contact.email}
+                onChange={updateContact}
+                placeholder="you@example.com"
+              />
+            </div>
+          </div>
+
+          {error && (
+            <p className="form-error" role="alert">
+              {error}
             </p>
-          </section>
-        </div>
-      </main>
-    </>
+          )}
+
+          <button type="submit" className="button button-primary qf-submit">
+            <MessageCircle size={19} />
+            Request a Quote
+          </button>
+
+          <p className="form-note">
+            By submitting you agree to our{' '}
+            <Link to="/terms">Terms</Link> &amp;{' '}
+            <Link to="/privacy">Privacy Policy</Link>.
+          </p>
+        </form>
+      </div>
+    </main>
   )
 }
