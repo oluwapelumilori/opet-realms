@@ -1,7 +1,6 @@
-
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Menu, X, ArrowUpRight } from 'lucide-react'
+import { Menu, X, Phone } from 'lucide-react'
 
 const navigation = [
   { label: 'Services', href: '/#services' },
@@ -28,10 +27,7 @@ export default function Navbar() {
 
       if (section) {
         window.history.replaceState(null, '', href)
-        section.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start',
-        })
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' })
       }
     }
   }
@@ -47,9 +43,16 @@ export default function Navbar() {
         >
           <img
             src="/images/opet-realms-logo.jfif"
-            alt="Opet Realms — Sharp & Spotless"
+            alt=""
             className="brand-logo"
+            onError={(event) => {
+              event.currentTarget.style.display = 'none'
+            }}
           />
+          <span className="brand-text">
+            <span className="brand-name">Opet Realms</span>
+            <span className="brand-tagline">SHARP & SPOTLESS</span>
+          </span>
         </Link>
 
         <button
@@ -68,34 +71,37 @@ export default function Navbar() {
           className={`nav-links ${menuOpen ? 'nav-links-open' : ''}`}
           aria-label="Main navigation"
         >
-          {navigation.map((item) => (
+          <div className="nav-menu">
+            {navigation.map((item) => (
+              <a
+                key={item.label}
+                href={item.href}
+                className="nav-link"
+                onClick={(event) => handleSectionClick(event, item.href)}
+              >
+                {item.label}
+              </a>
+            ))}
+          </div>
+
+          <div className="nav-actions">
             <a
-              key={item.label}
-              href={item.href}
-              className="nav-link"
-              onClick={(event) =>
-                handleSectionClick(event, item.href)
-              }
+              href="tel:+2347079079235"
+              className="nav-phone"
+              onClick={closeMenu}
             >
-              {item.label}
+              <Phone size={17} />
+              0707 907 9235
             </a>
-          ))}
 
-          <Link
-            to="/gallery"
-            className="nav-link gallery-nav-link"
-            onClick={closeMenu}
-          >
-            Gallery
-          </Link>
-
-          <Link
-            to="/quote"
-            className="button button-primary nav-cta"
-            onClick={closeMenu}
-          >
-            Request a Quote <ArrowUpRight size={17} />
-          </Link>
+            <Link
+              to="/quote"
+              className="button button-primary nav-cta"
+              onClick={closeMenu}
+            >
+              Request a Quote
+            </Link>
+          </div>
         </nav>
       </div>
     </header>
