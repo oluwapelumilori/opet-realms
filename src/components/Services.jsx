@@ -1,143 +1,153 @@
+import { GARMENT_PRICES } from '../config'
 
-import { Link } from 'react-router-dom'
-import {
-  ArrowUpRight,
-  Sparkles,
-  Building2,
-  Bug,
-  Armchair,
-  HardHat,
-  Shirt,
-} from 'lucide-react'
+const sizes = (entries) =>
+  entries.map(([label, price]) => ({ label, price }))
 
-const services = [
+export const SERVICES = [
   {
-    id: 'home-cleaning',
-    title: 'Home Cleaning',
-    description:
-      'Enjoy a fresh, tidy home with professional cleaning tailored to your space.',
-    price: 15000,
-    icon: Sparkles,
+    id: 'regular',
+    title: 'Regular Cleaning',
+    description: 'Routine upkeep that keeps your home fresh, week after week.',
+    features: ['Dusting', 'Floors', 'Kitchen', 'Bathrooms', 'Surfaces', 'Bins'],
+    fieldLabel: 'Property size',
+    hint: 'Self contain to 4 bed duplex',
+    options: sizes([
+      ['Self contain', 15000],
+      ['1 bedroom', 25000],
+      ['2 bedroom', 40000],
+      ['3 bedroom', 60000],
+      ['4 bed duplex', 90000],
+    ]),
   },
   {
-    id: 'commercial-cleaning',
-    title: 'Office & Commercial Cleaning',
-    description:
-      'Keep your workplace clean, welcoming and ready for business.',
-    price: 20000,
-    icon: Building2,
+    id: 'deep',
+    title: 'Deep Cleaning',
+    description: 'A top-to-bottom reset for homes that need serious attention.',
+    features: [
+      'Full scrubbing',
+      'Floor & wall tiles',
+      'Appliances',
+      'Windows',
+      'Sanitising',
+      'Kitchen deep scrub',
+      'Bathroom deep scrub',
+      'Trash removal',
+    ],
+    fieldLabel: 'Property size',
+    hint: 'Self contain to 4 bed duplex',
+    options: sizes([
+      ['Self contain', 20000],
+      ['1 bedroom', 30000],
+      ['2 bedroom', 70000],
+      ['3 bedroom', 90000],
+      ['4 bed duplex', 120000],
+    ]),
+  },
+  {
+    id: 'post-construction',
+    title: 'Post Construction & Move-in Cleaning',
+    description: 'From building site to move-in ready, with a proper handover finish.',
+    features: [
+      'Dust and debris removal',
+      'Windows',
+      'Fittings',
+      'Floors',
+      'Kitchens',
+      'Bathrooms',
+      'Handover finish',
+    ],
+    fieldLabel: 'Property size',
+    hint: 'Self contain to 5 bed duplex, after free inspection',
+    options: sizes([
+      ['Self contain', null],
+      ['1 bedroom', null],
+      ['2 bedroom', null],
+      ['3 bedroom', null],
+      ['4 bed duplex', null],
+      ['5 bed duplex', null],
+    ]),
   },
   {
     id: 'fumigation',
     title: 'Fumigation & Pest Control',
-    description:
-      'Professional pest treatment for homes, offices and other properties.',
-    price: 15000,
-    icon: Bug,
+    description: 'Full property treatment with a follow-up check included.',
+    features: [
+      'Cockroaches',
+      'Ants',
+      'Mosquitoes',
+      'Rodents',
+      'Other common pests',
+      'Follow-up check',
+    ],
+    fieldLabel: 'Property size',
+    hint: 'Self contain to 4 bed duplex',
+    options: sizes([
+      ['Self contain', 15000],
+      ['1 bedroom', 15000],
+      ['2 bedroom', 25000],
+      ['3 bedroom', 35000],
+      ['4 bed duplex', 50000],
+    ]),
+  },
+  {
+    id: 'bedbug',
+    title: 'Bedbug Treatment',
+    description: 'Choose a 1-visit intensive or a 2-visit treatment with follow-up.',
+    features: [
+      '1-visit intensive chemical treatment',
+      'or 2-visit treatment with follow-up',
+      'Beds, frames & furniture seams',
+      'Prep guidance before visit',
+    ],
+    fieldLabel: 'Property size',
+    hint: 'Self contain to 3 bedroom, larger by inspection',
+    priceSuffix: 'for the 2-visit treatment',
+    options: [
+      { label: 'Self contain', price: 60000 },
+      { label: '1 bedroom', price: 60000 },
+      { label: '2 bedroom', price: 80000 },
+      { label: '3 bedroom', price: 80000 },
+      { label: 'Larger (by inspection)', price: null },
+    ],
   },
   {
     id: 'upholstery',
-    title: 'Upholstery & Sofa Cleaning',
-    description:
-      'Give your sofas and upholstered furniture a refreshed appearance.',
-    price: 10000,
-    icon: Armchair,
-  },
-  {
-    id: 'post-construction',
-    title: 'Post-Construction Cleaning',
-    description:
-      'Clear construction dust and residue to prepare your space for use.',
-    price: 25000,
-    icon: HardHat,
+    title: 'Upholstery & Carpet Care',
+    description: 'Sofas, mattresses and rugs deep cleaned and refreshed.',
+    features: [
+      'Sofas',
+      'Sofa sets',
+      'L-shapes',
+      'Armchairs',
+      'Mattresses',
+      'Carpets and rugs',
+    ],
+    fieldLabel: 'Item & size',
+    hint: 'Priced by item and size',
+    options: [
+      { label: 'Armchair or single seat', price: 20000 },
+      { label: 'Sofa (2-seater)', price: 30000 },
+      { label: 'Sofa (3-seater)', price: 30000 },
+      { label: 'L-shape sofa', price: 40000 },
+      { label: 'Complete set (up to 5 seats)', price: 50000 },
+      { label: 'Mattress (single)', price: 25000 },
+      { label: 'Mattress (double or queen)', price: 30000 },
+      { label: 'Mattress (king)', price: 30000 },
+      { label: 'Carpets, rugs or mixed items', price: null, priceText: 'Quote on request' },
+    ],
   },
   {
     id: 'laundry',
     title: 'Laundry & Garment Care',
     description:
-      'Professional garment care with item-based pricing for your laundry.',
-    price: 400,
-    priceSuffix: 'per garment',
-    icon: Shirt,
+      'Wash, iron, dry clean and native attire care, picked up and delivered.',
+    features: ['Wash', 'Iron', 'Dry cleaning', 'Native attire care', 'Pickup and delivery'],
+    fieldLabel: 'Garment',
+    hint: 'Priced per garment',
+    priceSuffix: 'per item',
+    options: GARMENT_PRICES.map((item) => ({
+      label: item.name,
+      price: item.price,
+    })),
   },
 ]
-
-const formatPrice = (amount) =>
-  `₦${amount.toLocaleString('en-NG')}`
-
-export default function Services() {
-  return (
-    <section className="section services-section" id="services">
-      <div className="container">
-        <div className="section-heading">
-          <span className="eyebrow">What we do</span>
-
-          <h2>
-            Professional care.
-            <br />
-            <span className="text-green">Every detail matters.</span>
-          </h2>
-
-          <p>
-            From spotless homes to fresh garments, Opet Realms delivers
-            dependable cleaning and care services across Lagos Mainland
-            and Island.
-          </p>
-        </div>
-
-        <div className="services-grid">
-          {services.map((service) => {
-            const Icon = service.icon
-
-            return (
-              <article className="service-card" key={service.id}>
-                <div className="service-card-top">
-                  <span className="service-icon">
-                    <Icon size={27} strokeWidth={1.8} />
-                  </span>
-
-                  <span className="service-arrow">
-                    <ArrowUpRight size={20} />
-                  </span>
-                </div>
-
-                <h3>{service.title}</h3>
-
-                <p className="service-description">
-                  {service.description}
-                </p>
-
-                <div className="service-price">
-                  <span className="service-price-label">
-                    Starting from
-                  </span>
-
-                  <strong>{formatPrice(service.price)}</strong>
-
-                  {service.priceSuffix && (
-                    <span className="service-price-suffix">
-                      {service.priceSuffix}
-                    </span>
-                  )}
-                </div>
-
-                <Link
-                  to={`/quote?service=${service.id}`}
-                  className="service-link"
-                >
-                  Request a Quote <ArrowUpRight size={17} />
-                </Link>
-              </article>
-            )
-          })}
-        </div>
-
-        <p className="services-disclaimer">
-          Prices shown are provisional starting estimates, except laundry
-          pricing, which is based on the supplied garment price list.
-          Final quotes depend on the service and job requirements.
-        </p>
-      </div>
-    </section>
-  )
-}
