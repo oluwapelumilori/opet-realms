@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom'
 import {
+  ArrowDown,
   ArrowRight,
   MapPin,
-  MessageCircle,
   ShieldCheck,
   CheckCircle2,
   Clock3,
@@ -45,18 +45,13 @@ export default function Hero() {
 
           <div className="hero-actions">
             <Link to="/quote" className="button button-primary">
-              Request a Quote
+              Book a Quote
               <ArrowRight size={18} aria-hidden="true" />
             </Link>
 
-            <a
-              href="https://wa.me/2347079079235"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="button button-outline"
-            >
-              <MessageCircle size={18} aria-hidden="true" />
-              Chat on WhatsApp
+            <a href="#services" className="button button-outline">
+              View Our Services
+              <ArrowDown size={18} aria-hidden="true" />
             </a>
           </div>
 
