@@ -164,10 +164,7 @@ export default function Quote() {
       return
     }
 
-    if (
-      checked.upholstery &&
-      !(Number.parseInt(upholsteryQty, 10) >= 1)
-    ) {
+    if (checked.upholstery && !(Number.parseInt(upholsteryQty, 10) >= 1)) {
       setError('Please enter a quantity for upholstery & carpet care.')
       return
     }
@@ -374,9 +371,10 @@ export default function Quote() {
     )
   }
 
+  // NOTE: App.jsx's PageLayout already provides <main>, so these are <div>s.
   if (result) {
     return (
-      <main className="section qf-page">
+      <div className="section qf-page">
         <div className="container qf-narrow">
           <div className="qf-success" role="status">
             <span className="eyebrow">Request sent</span>
@@ -411,12 +409,12 @@ export default function Quote() {
             </div>
           </div>
         </div>
-      </main>
+      </div>
     )
   }
 
   return (
-    <main className="section qf-page">
+    <div className="section qf-page">
       <div className="container qf-narrow">
         <span className="eyebrow">Request a Quote</span>
         <h1>What do you need done?</h1>
@@ -564,11 +562,11 @@ export default function Quote() {
 
           <p className="form-note">
             By submitting you agree to our{' '}
-            <Link to="/terms">Terms</Link> &amp;{' '}
-            <Link to="/privacy">Privacy Policy</Link>.
+            <Link to="/terms-and-conditions">Terms</Link> &amp;{' '}
+            <Link to="/privacy-policy">Privacy Policy</Link>.
           </p>
         </form>
       </div>
-    </main>
+    </div>
   )
 }
