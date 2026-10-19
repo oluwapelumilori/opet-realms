@@ -1,4 +1,3 @@
-
 import { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 
@@ -6,17 +5,17 @@ const faqs = [
   {
     question: 'What services does Opet Realms offer?',
     answer:
-      'We offer home cleaning, office and commercial cleaning, fumigation and pest control, upholstery and sofa cleaning, post-construction cleaning, and laundry and garment care.',
+      'We offer regular and deep cleaning, post-construction and move-in cleaning, fumigation and pest control, bedbug treatment, upholstery and carpet care, and laundry and garment care.',
   },
   {
     question: 'How do I request a quote?',
     answer:
-      'Visit our Request a Quote page, select your preferred service and provide your contact details and job requirements. We will use these details to prepare your enquiry.',
+      'Visit our Request a Quote page, select your preferred service and size, and provide your contact details and job requirements. We will use these details to prepare your enquiry.',
   },
   {
     question: 'How much do your services cost?',
     answer:
-      'Our prices depend on the service, property size, condition and work required. The prices displayed on our website are starting estimates. Laundry and garment care uses item-based pricing.',
+      'The prices on our website are starting prices. The final price is confirmed after inspection and depends on the service, property size, condition and work required. Laundry and garment care uses item-based pricing.',
   },
   {
     question: 'Can I send multiple garments for laundry?',
@@ -46,28 +45,14 @@ const faqs = [
 ]
 
 export default function FAQ() {
-  const [openIndex, setOpenIndex] = useState(0)
+  const [openIndex, setOpenIndex] = useState(-1)
 
   return (
     <section className="section faq-section" id="faqs">
-      <div className="container faq-layout">
-        <div className="faq-intro">
-          <span className="eyebrow">Frequently asked questions</span>
-
-          <h2>
-            Got questions?
-            <br />
-            <span className="text-green">We've got answers.</span>
-          </h2>
-
-          <p>
-            Find out more about our cleaning, fumigation and garment
-            care services.
-          </p>
-
-          <a href="#contact" className="button button-primary">
-            Still need help?
-          </a>
+      <div className="container faq-narrow">
+        <div className="section-heading section-heading-left">
+          <span className="eyebrow">FAQs</span>
+          <h2>Questions, answered</h2>
         </div>
 
         <div className="faq-list">
@@ -82,9 +67,7 @@ export default function FAQ() {
                   className="faq-question"
                   aria-expanded={isOpen}
                   aria-controls={answerId}
-                  onClick={() =>
-                    setOpenIndex(isOpen ? -1 : index)
-                  }
+                  onClick={() => setOpenIndex(isOpen ? -1 : index)}
                 >
                   <span>{faq.question}</span>
 
