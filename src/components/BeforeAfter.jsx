@@ -1,88 +1,106 @@
-
-import { ArrowRight, Sparkles } from 'lucide-react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { ArrowLeftRight, ArrowRight } from 'lucide-react'
 
+// Replace these image URLs with your real before-and-after photos.
 const projects = [
   {
-    title: 'Living Room Refresh',
-    category: 'Home Cleaning',
+    title: 'Fabric armchair revival',
     before:
-      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=900&q=80',
     after:
-      'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=900&q=80',
   },
   {
-    title: 'Fresh & Spotless Space',
-    category: 'Professional Cleaning',
+    title: 'Parlour deep clean',
     before:
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=900&q=80',
     after:
-      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=80',
+  },
+  {
+    title: 'Bedroom reset',
+    before:
+      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=900&q=80',
+    after:
+      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=80',
   },
 ]
+
+function Slider({ project }) {
+  const [position, setPosition] = useState(50)
+
+  return (
+    <div className="ba-slider">
+      <img
+        className="ba-image"
+        src={project.after}
+        alt={`${project.title} after`}
+        loading="lazy"
+        draggable="false"
+      />
+
+      <img
+        className="ba-image"
+        src={project.before}
+        alt={`${project.title} before`}
+        loading="lazy"
+        draggable="false"
+        style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
+      />
+
+      <span className="ba-label ba-label-before">Before</span>
+      <span className="ba-label ba-label-after">After</span>
+
+      <span className="ba-divider" style={{ left: `${position}%` }} />
+
+      <span className="ba-handle" style={{ left: `${position}%` }}>
+        <ArrowLeftRight size={18} aria-hidden="true" />
+      </span>
+
+      <input
+        type="range"
+        className="ba-range"
+        min="0"
+        max="100"
+        step="0.5"
+        value={position}
+        onChange={(event) => setPosition(Number(event.target.value))}
+        aria-label={`Compare before and after: ${project.title}`}
+      />
+    </div>
+  )
+}
 
 export default function BeforeAfter() {
   return (
     <section className="section before-after-section" id="before-after">
       <div className="container">
-        <div className="section-heading">
-          <span className="eyebrow">The Opet Realms difference</span>
-
-          <h2>
-            See the difference.
-            <br />
-            <span className="text-green">Feel the freshness.</span>
-          </h2>
-
-          <p>
-            Every detail matters. Explore the kind of fresh, clean spaces
-            we aim to deliver with professional care.
-          </p>
+        <div className="section-heading section-heading-left">
+          <span className="eyebrow">Before &amp; After</span>
+          <h2>Drag to see the difference</h2>
+          <p>Real transformations from our crews across Lagos.</p>
         </div>
 
-        <div className="before-after-grid">
+        <div className="ba-grid">
           {projects.map((project) => (
-            <article className="comparison-card" key={project.title}>
-              <div className="comparison-images">
-                <div className="comparison-image">
-                  <img src={project.before} alt={`${project.title} example`} />
-                  <span className="comparison-label">BEFORE</span>
-                </div>
-
-                <div className="comparison-image">
-                  <img src={project.after} alt={`${project.title} example`} />
-                  <span className="comparison-label comparison-label-after">
-                    AFTER
-                  </span>
-                </div>
-              </div>
-
-              <div className="comparison-content">
-                <div>
-                  <span className="comparison-category">
-                    {project.category}
-                  </span>
-                  <h3>{project.title}</h3>
-                </div>
-
-                <Sparkles className="comparison-sparkle" size={24} />
-              </div>
+            <article key={project.title}>
+              <Slider project={project} />
+              <h3 className="ba-caption">{project.title}</h3>
             </article>
           ))}
         </div>
 
-        <div className="before-after-cta">
-          <p>Ready to give your space the care it deserves?</p>
-
-          <Link to="/gallery" className="button button-primary">
-            Explore Our Gallery <ArrowRight size={18} />
+        <div className="ba-gallery-link">
+          <Link to="/gallery">
+            View full gallery <ArrowRight size={18} aria-hidden="true" />
           </Link>
         </div>
 
         <p className="gallery-note">
           These are illustrative photos, not verified Opet Realms project
-          results. Replace them with your actual before-and-after photos
-          when available.
+          results. Replace them with your actual before-and-after photos when
+          available.
         </p>
       </div>
     </section>
