@@ -6,7 +6,6 @@ import {
   Mail,
   MapPin,
   MessageCircle,
-  Instagram,
 } from 'lucide-react'
 
 export default function Footer() {
@@ -18,9 +17,12 @@ export default function Footer() {
         <div className="footer-main">
           <div className="footer-brand">
             <Link to="/" className="footer-logo">
-              <span className="footer-logo-name">Opet Realms</span>
+              <span className="footer-logo-name">
+                Opet Realms
+              </span>
+
               <span className="footer-logo-tagline">
-                SHARP & SPOTLESS
+                SHARP &amp; SPOTLESS
               </span>
             </Link>
 
@@ -47,10 +49,10 @@ export default function Footer() {
 
             <Link to="/">Home</Link>
             <Link to="/#services">Services</Link>
-            <Link to="/gallery">Before & After</Link>
+            <Link to="/gallery">Before &amp; After</Link>
             <Link to="/#how-it-works">How It Works</Link>
             <Link to="/#faqs">FAQs</Link>
-            <Link to="/quote">Book a Quote</Link>
+            <Link to="/quote">Request a Quote</Link>
           </div>
 
           <div className="footer-column">
@@ -83,9 +85,12 @@ export default function Footer() {
           </p>
 
           <div className="footer-legal">
-            <Link to="/privacy-policy">Privacy Policy</Link>
+            <Link to="/privacy-policy">
+              Privacy Policy
+            </Link>
+
             <Link to="/terms-and-conditions">
-              Terms & Conditions
+              Terms &amp; Conditions
             </Link>
           </div>
         </div>
