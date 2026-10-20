@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Menu, X, Phone } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 
 const navigation = [
   { label: 'Services', href: '/#services' },
@@ -18,96 +18,75 @@ export default function Navbar() {
   const closeMenu = () => setMenuOpen(false)
 
   useEffect(() => {
-    if (location.pathname !== '/' || !location.hash) return
+    closeMenu()
 
-    const sectionId = location.hash.slice(1)
-    let attempts = 0
-    let frameId
+    if (location.pathname === '/' && location.hash) {
+      const sectionId = location.hash.slice(1)
 
-    const scrollToSection = () => {
-      const section = document.getElementById(sectionId)
+      let attempts = 0
 
-      if (section) {
-        section.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start',
-        })
-        return
-      }
+      const scrollToSection = () => {
+        const section = document.getElementById(sectionId)
 
-      if (attempts < 20) {
+        if (section) {
+          section.scrollIntoView({ behavior: 'smooth' })
+          return
+        }
+
         attempts += 1
-        frameId = requestAnimationFrame(scrollToSection)
+
+        if (attempts < 20) {
+          requestAnimationFrame(scrollToSection)
+        }
       }
+
+      requestAnimationFrame(scrollToSection)
     }
-
-    frameId = requestAnimationFrame(scrollToSection)
-
-    return () => cancelAnimationFrame(frameId)
   }, [location.pathname, location.hash])
 
   return (
-    <header className="site-header">
-      <div className="container navbar">
+    <header className="navbar">
+      <div className="container navbar-inner">
+        {/* Logo */}
         <Link
           to="/"
-          className="brand"
+          className="navbar-logo"
           aria-label="Opet Realms home"
           onClick={closeMenu}
         >
           <img
             src="/images/opet-realms-logo.png.jpg"
             alt="Opet Realms logo"
-            className="brand-logo"
             onError={(event) => {
               event.currentTarget.style.display = 'none'
             }}
           />
-
-          <span className="brand-text">
-            <span className="brand-name">Opet Realms</span>
-            <span className="brand-tagline">SHARP & SPOTLESS</span>
-          </span>
         </Link>
 
-        <button
-          type="button"
-          className="mobile-menu-toggle"
-          aria-label={menuOpen ? 'Close navigation' : 'Open navigation'}
-          aria-expanded={menuOpen}
-          aria-controls="main-navigation"
-          onClick={() => setMenuOpen((open) => !open)}
-        >
-          {menuOpen ? <X size={25} /> : <Menu size={25} />}
-        </button>
-
+        {/* Desktop navigation */}
         <nav
-          id="main-navigation"
           className={`nav-links ${menuOpen ? 'nav-links-open' : ''}`}
           aria-label="Main navigation"
         >
-          <div className="nav-menu">
-            {navigation.map((item) => (
-              <Link
-                key={item.label}
-                to={item.href}
-                className="nav-link"
-                onClick={closeMenu}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </div>
-
-          <div className="nav-actions">
-            <a
-              href="tel:+2347079079235"
-              className="nav-phone"
+          {navigation.map((item) => (
+            <Link
+              key={item.label}
+              to={item.href}
               onClick={closeMenu}
             >
-              <Phone size={17} />
-              0707 907 9235
-            </a>
+              {item.label}
+            </Link>
+          ))}
+
+          {/* Mobile action buttons */}
+          <div className="nav-mobile-actions">
+            <Link
+              to="/#services"
+              className="button button-secondary nav-cta"
+              onClick={closeMenu}
+            >
+              View Our Services
+            </Link>
 
             <Link
               to="/quote"
@@ -118,6 +97,34 @@ export default function Navbar() {
             </Link>
           </div>
         </nav>
+
+        {/* Desktop action buttons */}
+        <div className="nav-actions">
+          <Link
+            to="/#services"
+            className="button button-secondary nav-cta"
+          >
+            View Our Services
+          </Link>
+
+          <Link
+            to="/quote"
+            className="button button-primary nav-cta"
+          >
+            Request a Quote
+          </Link>
+        </div>
+
+        {/* Mobile menu button */}
+        <button
+          type="button"
+          className="nav-menu-toggle"
+          onClick={() => setMenuOpen((open) => !open)}
+          aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+          aria-expanded={menuOpen}
+        >
+          {menuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
       </div>
     </header>
   )
