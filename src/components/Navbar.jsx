@@ -1,4 +1,5 @@
-import { useState } from 'react'
+
+import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Menu, X, Phone } from 'lucide-react'
 
@@ -16,21 +17,34 @@ export default function Navbar() {
 
   const closeMenu = () => setMenuOpen(false)
 
-  const handleSectionClick = (event, href) => {
-    closeMenu()
+  useEffect(() => {
+    if (location.pathname !== '/' || !location.hash) return
 
-    if (location.pathname === '/') {
-      event.preventDefault()
+    const sectionId = location.hash.slice(1)
+    let attempts = 0
+    let frameId
 
-      const sectionId = href.split('#')[1]
+    const scrollToSection = () => {
       const section = document.getElementById(sectionId)
 
       if (section) {
-        window.history.replaceState(null, '', href)
-        section.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        section.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        })
+        return
+      }
+
+      if (attempts < 20) {
+        attempts += 1
+        frameId = requestAnimationFrame(scrollToSection)
       }
     }
-  }
+
+    frameId = requestAnimationFrame(scrollToSection)
+
+    return () => cancelAnimationFrame(frameId)
+  }, [location.pathname, location.hash])
 
   return (
     <header className="site-header">
@@ -42,13 +56,14 @@ export default function Navbar() {
           onClick={closeMenu}
         >
           <img
-            src="/images/opet-realms-logo.jfif"
-            alt=""
+            src="/images/opet-realms-logo.png.jpg"
+            alt="Opet Realms logo"
             className="brand-logo"
             onError={(event) => {
               event.currentTarget.style.display = 'none'
             }}
           />
+
           <span className="brand-text">
             <span className="brand-name">Opet Realms</span>
             <span className="brand-tagline">SHARP & SPOTLESS</span>
@@ -73,14 +88,14 @@ export default function Navbar() {
         >
           <div className="nav-menu">
             {navigation.map((item) => (
-              <a
+              <Link
                 key={item.label}
-                href={item.href}
+                to={item.href}
                 className="nav-link"
-                onClick={(event) => handleSectionClick(event, item.href)}
+                onClick={closeMenu}
               >
                 {item.label}
-              </a>
+              </Link>
             ))}
           </div>
 
