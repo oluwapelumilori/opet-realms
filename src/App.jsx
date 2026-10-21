@@ -24,48 +24,29 @@ function PageLayout({ children }) {
 export default function App() {
   return (
     <Routes>
-      <Route
-        path="/"
-        element={<Home />}
-      />
+      <Route path="/" element={<Home />} />
 
       <Route
         path="/quote"
-        element={
-          <PageLayout>
-            <Quote />
-          </PageLayout>
-        }
+        element={<PageLayout><Quote /></PageLayout>}
       />
 
       <Route
         path="/gallery"
-        element={
-          <PageLayout>
-            <Gallery />
-          </PageLayout>
-        }
+        element={<PageLayout><Gallery /></PageLayout>}
       />
 
       <Route
         path="/privacy-policy"
-        element={
-          <PageLayout>
-            <PrivacyPolicy />
-          </PageLayout>
-        }
+        element={<PageLayout><PrivacyPolicy /></PageLayout>}
       />
 
       <Route
         path="/terms-and-conditions"
-        element={
-          <PageLayout>
-            <TermsConditions />
-          </PageLayout>
-        }
+        element={<PageLayout><TermsConditions /></PageLayout>}
       />
 
-      {/* Admin login — without the public navbar and footer */}
+      {/* Admin login page */}
       <Route
         path="/admin/login"
         element={<AdminLogin />}
