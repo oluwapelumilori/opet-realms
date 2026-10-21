@@ -38,17 +38,17 @@ export default function TermsConditions() {
         <article className="container legal-content">
           <h2>1. About Opet Realms</h2>
           <p>
-            Opet Realms provides cleaning, fumigation,
-            garment-care and related services across Lagos
-            Mainland and Lagos Island, Nigeria.
+            Opet Realms provides cleaning, fumigation, garment-care
+            and related services across Lagos Mainland and Lagos
+            Island, Nigeria.
           </p>
 
           <h2>2. Requests for Quotes</h2>
           <p>
-            Submitting a quote request through our website is
-            an enquiry, not a confirmed booking. We may contact
-            you to clarify your requirements, assess the property
-            or garments, and provide a final quotation.
+            Submitting a quote request through our website is an
+            enquiry, not a confirmed booking. We may contact you
+            to clarify your requirements, assess the property or
+            garments, and provide a final quotation.
           </p>
           <p>
             Please provide accurate contact details, service
@@ -67,8 +67,7 @@ export default function TermsConditions() {
             Laundry prices displayed against individual garments
             are indicative of the listed item and quantity.
             Additional charges, if applicable, should be
-            communicated and agreed upon before the service
-            proceeds.
+            communicated and agreed upon before the service proceeds.
           </p>
 
           <h2>4. Booking Confirmation</h2>
@@ -111,23 +110,23 @@ export default function TermsConditions() {
               Secure valuables and communicate relevant safety concerns.
             </li>
             <li>
-              Follow any reasonable preparation instructions
-              provided by our team.
+              Follow any reasonable preparation instructions provided
+              by our team.
             </li>
           </ul>
 
           <h2>7. Laundry and Garment Care</h2>
           <p>
             Garments differ in fabric, construction, colourfastness
-            and care requirements. Customers should disclose
-            known defects, delicate embellishments and special
-            cleaning instructions when submitting an enquiry.
+            and care requirements. Customers should disclose known
+            defects, delicate embellishments and special cleaning
+            instructions when submitting an enquiry.
           </p>
           <p>
             We will assess care requirements and communicate
             material concerns where reasonably practicable.
-            No particular cleaning result can be guaranteed for
-            every stain, fabric or pre-existing condition.
+            No particular cleaning result can be guaranteed
+            for every stain, fabric or pre-existing condition.
           </p>
 
           <h2>8. Cleaning and Fumigation</h2>
@@ -140,8 +139,7 @@ export default function TermsConditions() {
           <p>
             Customers must follow any safety, ventilation,
             evacuation, re-entry or preparation instructions
-            communicated for a fumigation or pest-control
-            treatment.
+            communicated for a fumigation or pest-control treatment.
           </p>
 
           <h2>9. Payments and Additional Work</h2>
@@ -156,18 +154,18 @@ export default function TermsConditions() {
           <h2>10. Cancellations and Rescheduling</h2>
           <p>
             Please contact us as early as possible if you need
-            to cancel or reschedule an appointment. Any
-            applicable cancellation charges, deposits or refund
-            arrangements must be communicated and agreed upon
-            as part of the booking terms, subject to applicable law.
+            to cancel or reschedule an appointment. Any applicable
+            cancellation charges, deposits or refund arrangements
+            must be communicated and agreed upon as part of the
+            booking terms, subject to applicable law.
           </p>
 
           <h2>11. Complaints and Service Concerns</h2>
           <p>
             If you have concerns about a completed service,
             contact us promptly with your booking reference
-            and details of the issue. We will review the
-            concern and discuss an appropriate resolution.
+            and details of the issue. We will review the concern
+            and discuss an appropriate resolution.
           </p>
 
           <h2>12. Liability</h2>
@@ -176,8 +174,7 @@ export default function TermsConditions() {
             liability or consumer right that cannot lawfully
             be excluded or limited under applicable Nigerian
             law. Any other limitations must be consistent
-            with applicable law and the specific service
-            agreement.
+            with applicable law and the specific service agreement.
           </p>
 
           <h2>13. Website Information</h2>
@@ -205,9 +202,9 @@ export default function TermsConditions() {
           <p>
             We may update these terms when our services or
             operating requirements change. The current version
-            will be published on this page. Any confirmed
-            booking remains subject to the terms agreed for
-            that booking and applicable law.
+            will be published on this page. Any confirmed booking
+            remains subject to the terms agreed for that booking
+            and applicable law.
           </p>
 
           <h2>16. Contact Us</h2>
@@ -236,8 +233,7 @@ export default function TermsConditions() {
           <p className="muted legal-disclaimer">
             This page is a draft for development purposes, not
             legal advice. Review your actual payment, cancellation,
-            refund and service policies before publishing the
-            website.
+            refund and service policies before publishing the website.
           </p>
         </article>
       </main>
