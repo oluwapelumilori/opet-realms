@@ -9,6 +9,7 @@ import Quote from './pages/Quote'
 import Gallery from './pages/Gallery'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsConditions from './pages/TermsConditions'
+import AdminLogin from './pages/AdminLogin'
 
 function PageLayout({ children }) {
   return (
@@ -27,6 +28,7 @@ export default function App() {
         path="/"
         element={<Home />}
       />
+
       <Route
         path="/quote"
         element={
@@ -35,6 +37,7 @@ export default function App() {
           </PageLayout>
         }
       />
+
       <Route
         path="/gallery"
         element={
@@ -43,6 +46,7 @@ export default function App() {
           </PageLayout>
         }
       />
+
       <Route
         path="/privacy-policy"
         element={
@@ -51,6 +55,7 @@ export default function App() {
           </PageLayout>
         }
       />
+
       <Route
         path="/terms-and-conditions"
         element={
@@ -59,6 +64,13 @@ export default function App() {
           </PageLayout>
         }
       />
+
+      {/* Admin login — without the public navbar and footer */}
+      <Route
+        path="/admin/login"
+        element={<AdminLogin />}
+      />
+
       <Route
         path="*"
         element={
