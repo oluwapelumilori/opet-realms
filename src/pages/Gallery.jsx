@@ -1,6 +1,11 @@
+
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, ArrowLeftRight, ArrowUpRight } from 'lucide-react'
+import {
+  ArrowLeft,
+  ArrowLeftRight,
+  ArrowUpRight,
+} from 'lucide-react'
 
 const categories = [
   'All',
@@ -10,8 +15,6 @@ const categories = [
   'Garment Care',
 ]
 
-// Replace every before/after URL below with your real project photos.
-// Keep "category" matching one of the categories above so the filters work.
 const projects = [
   {
     title: 'Fabric armchair revival',
@@ -69,7 +72,6 @@ const projects = [
   },
 ]
 
-// Same drag-to-compare slider used in the home page Before & After section
 function Slider({ project }) {
   const [position, setPosition] = useState(50)
 
@@ -89,15 +91,23 @@ function Slider({ project }) {
         alt={`${project.title} before`}
         loading="lazy"
         draggable="false"
-        style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
+        style={{
+          clipPath: `inset(0 ${100 - position}% 0 0)`,
+        }}
       />
 
       <span className="ba-label ba-label-before">Before</span>
       <span className="ba-label ba-label-after">After</span>
 
-      <span className="ba-divider" style={{ left: `${position}%` }} />
+      <span
+        className="ba-divider"
+        style={{ left: `${position}%` }}
+      />
 
-      <span className="ba-handle" style={{ left: `${position}%` }}>
+      <span
+        className="ba-handle"
+        style={{ left: `${position}%` }}
+      >
         <ArrowLeftRight size={18} aria-hidden="true" />
       </span>
 
@@ -108,7 +118,9 @@ function Slider({ project }) {
         max="100"
         step="0.5"
         value={position}
-        onChange={(event) => setPosition(Number(event.target.value))}
+        onChange={(event) =>
+          setPosition(Number(event.target.value))
+        }
         aria-label={`Compare before and after: ${project.title}`}
       />
     </div>
@@ -121,25 +133,33 @@ export default function Gallery() {
   const filteredProjects =
     activeCategory === 'All'
       ? projects
-      : projects.filter((project) => project.category === activeCategory)
+      : projects.filter(
+          (project) => project.category === activeCategory
+        )
 
   return (
     <>
-      <header className="page-header">
-        <div className="container">
-          <Link to="/" className="button button-outline">
+      <header className="page-header gallery-page-header">
+        <div className="container gallery-header-content">
+          <Link
+            to="/"
+            className="button button-outline gallery-back-button"
+          >
             <ArrowLeft size={18} />
             Back Home
           </Link>
 
-          <span className="eyebrow">Our work</span>
+          <div className="gallery-header-copy">
+            <span className="eyebrow">Our work</span>
 
-          <h1>See the spotless difference.</h1>
+            <h1>See the spotless difference.</h1>
 
-          <p>
-            Drag each slider to compare before and after. Contact our team to
-            discuss the results you're looking for.
-          </p>
+            <p>
+              Drag each slider to compare before and after.
+              Contact our team to discuss the results you're
+              looking for.
+            </p>
+          </div>
         </div>
       </header>
 
@@ -147,10 +167,12 @@ export default function Gallery() {
         <div className="container">
           <div className="section-heading">
             <span className="eyebrow">Project gallery</span>
+
             <h2>Drag to see the difference</h2>
+
             <p>
-              Browse our service categories and see how we approach cleaner,
-              fresher spaces.
+              Browse our service categories and see how we
+              approach cleaner, fresher spaces.
             </p>
           </div>
 
@@ -177,12 +199,19 @@ export default function Gallery() {
           {filteredProjects.length > 0 ? (
             <div className="gallery-grid">
               {filteredProjects.map((project) => (
-                <article className="gallery-card" key={project.title}>
+                <article
+                  className="gallery-card"
+                  key={project.title}
+                >
                   <Slider project={project} />
 
                   <div className="gallery-card-content">
-                    <span className="gallery-category">{project.category}</span>
+                    <span className="gallery-category">
+                      {project.category}
+                    </span>
+
                     <h3>{project.title}</h3>
+
                     <p>{project.description}</p>
                   </div>
                 </article>
@@ -195,18 +224,22 @@ export default function Gallery() {
           )}
 
           <p className="gallery-note">
-            These are illustrative photos, not verified Opet Realms project
-            results. Replace them with your actual before-and-after photos when
-            available.
+            These are illustrative photos, not verified Opet
+            Realms project results. Replace them with your actual
+            before-and-after photos when available.
           </p>
 
           <section className="gallery-cta">
             <div>
-              <span className="eyebrow">Your space, refreshed</span>
+              <span className="eyebrow">
+                Your space, refreshed
+              </span>
+
               <h2>Ready for your own spotless result?</h2>
+
               <p>
-                Tell us about your cleaning or garment-care needs and request a
-                personalised quote.
+                Tell us about your cleaning or garment-care needs
+                and request a personalised quote.
               </p>
             </div>
 
