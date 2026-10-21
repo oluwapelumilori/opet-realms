@@ -5,42 +5,50 @@ import { ArrowLeft } from 'lucide-react'
 export default function TermsConditions() {
   return (
     <>
-      <header className="page-header">
-        <div className="container">
-          <Link to="/" className="button button-outline">
+      <header className="page-header legal-page-header">
+        <div className="container legal-header-content">
+          <Link
+            to="/"
+            className="button button-outline legal-back-button"
+          >
             <ArrowLeft size={18} />
             Back Home
           </Link>
 
-          <span className="eyebrow">Please read carefully</span>
-          <h1>Terms &amp; Conditions</h1>
+          <div className="legal-header-copy">
+            <span className="eyebrow">
+              Please read carefully
+            </span>
 
-          <p>
-            The terms governing enquiries, quotations and services
-            provided by Opet Realms.
-          </p>
+            <h1>Terms &amp; Conditions</h1>
 
-          <p>
-            <small>Last updated: October 2026</small>
-          </p>
+            <p>
+              The terms governing enquiries, quotations and
+              services provided by Opet Realms.
+            </p>
+
+            <p className="legal-updated">
+              <small>Last updated: October 2026</small>
+            </p>
+          </div>
         </div>
       </header>
 
-      <main className="section">
+      <main className="section legal-page">
         <article className="container legal-content">
           <h2>1. About Opet Realms</h2>
           <p>
-            Opet Realms provides cleaning, fumigation, garment-care
-            and related services across Lagos Mainland and Lagos
-            Island, Nigeria.
+            Opet Realms provides cleaning, fumigation,
+            garment-care and related services across Lagos
+            Mainland and Lagos Island, Nigeria.
           </p>
 
           <h2>2. Requests for Quotes</h2>
           <p>
-            Submitting a quote request through our website is an
-            enquiry, not a confirmed booking. We may contact you
-            to clarify your requirements, assess the property or
-            garments, and provide a final quotation.
+            Submitting a quote request through our website is
+            an enquiry, not a confirmed booking. We may contact
+            you to clarify your requirements, assess the property
+            or garments, and provide a final quotation.
           </p>
           <p>
             Please provide accurate contact details, service
@@ -90,11 +98,22 @@ export default function TermsConditions() {
           <h2>6. Customer Responsibilities</h2>
           <p>Customers agree to:</p>
           <ul>
-            <li>Provide accurate information about the requested service.</li>
-            <li>Arrange reasonable access to the service location.</li>
-            <li>Identify delicate fabrics, stains or special-care items.</li>
-            <li>Secure valuables and communicate relevant safety concerns.</li>
-            <li>Follow any reasonable preparation instructions provided by our team.</li>
+            <li>
+              Provide accurate information about the requested service.
+            </li>
+            <li>
+              Arrange reasonable access to the service location.
+            </li>
+            <li>
+              Identify delicate fabrics, stains or special-care items.
+            </li>
+            <li>
+              Secure valuables and communicate relevant safety concerns.
+            </li>
+            <li>
+              Follow any reasonable preparation instructions
+              provided by our team.
+            </li>
           </ul>
 
           <h2>7. Laundry and Garment Care</h2>
@@ -107,8 +126,8 @@ export default function TermsConditions() {
           <p>
             We will assess care requirements and communicate
             material concerns where reasonably practicable.
-            No particular cleaning result can be guaranteed
-            for every stain, fabric or pre-existing condition.
+            No particular cleaning result can be guaranteed for
+            every stain, fabric or pre-existing condition.
           </p>
 
           <h2>8. Cleaning and Fumigation</h2>
@@ -138,10 +157,9 @@ export default function TermsConditions() {
           <p>
             Please contact us as early as possible if you need
             to cancel or reschedule an appointment. Any
-            applicable cancellation charges, deposits or
-            refund arrangements must be communicated and
-            agreed upon as part of the booking terms, subject
-            to applicable law.
+            applicable cancellation charges, deposits or refund
+            arrangements must be communicated and agreed upon
+            as part of the booking terms, subject to applicable law.
           </p>
 
           <h2>11. Complaints and Service Concerns</h2>
@@ -215,11 +233,11 @@ export default function TermsConditions() {
             </li>
           </ul>
 
-          <p className="muted">
-            This page is a draft for development purposes,
-            not legal advice. Review your actual payment,
-            cancellation, refund and service policies before
-            publishing the website.
+          <p className="muted legal-disclaimer">
+            This page is a draft for development purposes, not
+            legal advice. Review your actual payment, cancellation,
+            refund and service policies before publishing the
+            website.
           </p>
         </article>
       </main>
