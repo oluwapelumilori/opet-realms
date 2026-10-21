@@ -1,107 +1,103 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { ArrowLeftRight, ArrowRight } from 'lucide-react'
 
-// Replace these image URLs with your real before-and-after photos.
+import { ArrowRight, Sparkles } from 'lucide-react'
+import { Link } from 'react-router-dom'
+
 const projects = [
   {
-    title: 'Fabric armchair revival',
-    before:
-      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=900&q=80',
-    after:
-      'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=900&q=80',
+    title: 'Bedroom Refresh',
+    category: 'Home Cleaning',
+    before: '/images/gallery/Bed%20Before%20.jpg',
+    after: '/images/gallery/Bed%20after%20.jpg',
   },
   {
-    title: 'Parlour deep clean',
-    before:
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=900&q=80',
-    after:
-      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=80',
+    title: 'Parlour Refresh',
+    category: 'Home Cleaning',
+    before: '/images/gallery/Palour%20Before.jpg',
+    after: '/images/gallery/Parlour%20After.jpg',
   },
   {
-    title: 'Bedroom reset',
-    before:
-      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=900&q=80',
-    after:
-      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=80',
+    title: 'Kitchen Deep Clean',
+    category: 'Deep Cleaning',
+    before: '/images/gallery/Big%20kitchen%20Before%20.jpg',
+    after: '/images/gallery/Big%20kitchen%20After.jpg',
+  },
+  {
+    title: 'Carpet Refresh',
+    category: 'Deep Cleaning',
+    before: '/images/gallery/Carpet%20Before%20.jpg',
+    after: '/images/gallery/Carpet%20After.jpg',
   },
 ]
 
-function Slider({ project }) {
-  const [position, setPosition] = useState(50)
-
-  return (
-    <div className="ba-slider">
-      <img
-        className="ba-image"
-        src={project.after}
-        alt={`${project.title} after`}
-        loading="lazy"
-        draggable="false"
-      />
-
-      <img
-        className="ba-image"
-        src={project.before}
-        alt={`${project.title} before`}
-        loading="lazy"
-        draggable="false"
-        style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
-      />
-
-      <span className="ba-label ba-label-before">Before</span>
-      <span className="ba-label ba-label-after">After</span>
-
-      <span className="ba-divider" style={{ left: `${position}%` }} />
-
-      <span className="ba-handle" style={{ left: `${position}%` }}>
-        <ArrowLeftRight size={18} aria-hidden="true" />
-      </span>
-
-      <input
-        type="range"
-        className="ba-range"
-        min="0"
-        max="100"
-        step="0.5"
-        value={position}
-        onChange={(event) => setPosition(Number(event.target.value))}
-        aria-label={`Compare before and after: ${project.title}`}
-      />
-    </div>
-  )
-}
-
 export default function BeforeAfter() {
   return (
-    <section className="section before-after-section" id="before-after">
+    <section className="before-after section" id="before-after">
       <div className="container">
-        <div className="section-heading section-heading-left">
-          <span className="eyebrow">Before &amp; After</span>
-          <h2>Drag to see the difference</h2>
-          <p>Real transformations from our crews across Lagos.</p>
+        <div className="section-heading">
+          <span className="section-eyebrow">
+            <Sparkles size={16} aria-hidden="true" />
+            Before &amp; After
+          </span>
+
+          <h2>
+            See the <span className="hero-highlight">difference.</span>
+          </h2>
+
+          <p>
+            Real cleaning transformations from our work across Lagos.
+          </p>
         </div>
 
-        <div className="ba-grid">
+        <div className="before-after-grid">
           {projects.map((project) => (
-            <article key={project.title}>
-              <Slider project={project} />
-              <h3 className="ba-caption">{project.title}</h3>
+            <article className="before-after-card" key={project.title}>
+              <div className="before-after-images">
+                <div className="before-after-image">
+                  <img
+                    src={project.before}
+                    alt={`${project.title} before cleaning`}
+                    loading="lazy"
+                    onError={(e) => {
+                      console.error('Before image failed to load:', project.before)
+                      e.currentTarget.style.visibility = 'hidden'
+                    }}
+                  />
+                  <span className="image-label">BEFORE</span>
+                </div>
+
+                <div className="before-after-image">
+                  <img
+                    src={project.after}
+                    alt={`${project.title} after cleaning`}
+                    loading="lazy"
+                    onError={(e) => {
+                      console.error('After image failed to load:', project.after)
+                      e.currentTarget.style.visibility = 'hidden'
+                    }}
+                  />
+                  <span className="image-label">AFTER</span>
+                </div>
+              </div>
+
+              <div className="before-after-info">
+                <div>
+                  <span className="before-after-category">
+                    {project.category}
+                  </span>
+                  <h3>{project.title}</h3>
+                </div>
+                <Sparkles size={20} aria-hidden="true" />
+              </div>
             </article>
           ))}
         </div>
 
-        <div className="ba-gallery-link">
-          <Link to="/gallery">
-            View full gallery <ArrowRight size={18} aria-hidden="true" />
+        <div className="before-after-cta">
+          <Link to="/gallery" className="button button-primary">
+            View All Projects
+            <ArrowRight size={18} />
           </Link>
         </div>
-
-        <p className="gallery-note">
-          These are illustrative photos, not verified Opet Realms project
-          results. Replace them with your actual before-and-after photos when
-          available.
-        </p>
       </div>
     </section>
   )
