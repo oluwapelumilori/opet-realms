@@ -28,6 +28,18 @@ const projects = [
     before: '/images/gallery/Carpet%20Before%20.jpg',
     after: '/images/gallery/Carpet%20After.jpg',
   },
+  {
+    title: 'Cleaning Project 5',
+    category: 'Home Cleaning',
+    before: '/images/gallery/REPLACE-WITH-BEFORE-IMAGE-5.jpg',
+    after: '/images/gallery/REPLACE-WITH-AFTER-IMAGE-5.jpg',
+  },
+  {
+    title: 'Cleaning Project 6',
+    category: 'Deep Cleaning',
+    before: '/images/gallery/REPLACE-WITH-BEFORE-IMAGE-6.jpg',
+    after: '/images/gallery/REPLACE-WITH-AFTER-IMAGE-6.jpg',
+  },
 ]
 
 function BeforeAfterSlider({ project }) {
@@ -40,7 +52,10 @@ function BeforeAfterSlider({ project }) {
         src={project.after}
         alt={`${project.title} after cleaning`}
         loading="lazy"
+        decoding="async"
         draggable="false"
+        width="800"
+        height="600"
       />
 
       <img
@@ -48,19 +63,17 @@ function BeforeAfterSlider({ project }) {
         src={project.before}
         alt={`${project.title} before cleaning`}
         loading="lazy"
+        decoding="async"
         draggable="false"
+        width="800"
+        height="600"
         style={{
           clipPath: `inset(0 ${100 - position}% 0 0)`,
         }}
       />
 
-      <span className="ba-label ba-label-before">
-        Before
-      </span>
-
-      <span className="ba-label ba-label-after">
-        After
-      </span>
+      <span className="ba-label ba-label-before">Before</span>
+      <span className="ba-label ba-label-after">After</span>
 
       <span
         className="ba-divider"
@@ -92,10 +105,7 @@ function BeforeAfterSlider({ project }) {
 
 export default function BeforeAfter() {
   return (
-    <section
-      className="before-after section"
-      id="before-after"
-    >
+    <section className="before-after section" id="before-after">
       <div className="container">
         <div className="section-heading">
           <span className="section-eyebrow">
@@ -126,14 +136,10 @@ export default function BeforeAfter() {
                   <span className="before-after-category">
                     {project.category}
                   </span>
-
                   <h3>{project.title}</h3>
                 </div>
 
-                <Sparkles
-                  size={20}
-                  aria-hidden="true"
-                />
+                <Sparkles size={20} aria-hidden="true" />
               </div>
             </article>
           ))}
@@ -142,7 +148,7 @@ export default function BeforeAfter() {
         <div className="before-after-cta">
           <Link to="/gallery" className="button button-primary">
             View All Projects
-            <ArrowRight size={18} />
+            <ArrowRight size={18} aria-hidden="true" />
           </Link>
         </div>
       </div>
