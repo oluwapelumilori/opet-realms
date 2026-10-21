@@ -1,6 +1,7 @@
 
-import { ArrowRight, Sparkles } from 'lucide-react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { ArrowRight, ArrowLeftRight, Sparkles } from 'lucide-react'
 
 const projects = [
   {
@@ -29,14 +30,77 @@ const projects = [
   },
 ]
 
+function BeforeAfterSlider({ project }) {
+  const [position, setPosition] = useState(50)
+
+  return (
+    <div className="ba-slider">
+      <img
+        className="ba-image"
+        src={project.after}
+        alt={`${project.title} after cleaning`}
+        loading="lazy"
+        draggable="false"
+      />
+
+      <img
+        className="ba-image ba-image-before"
+        src={project.before}
+        alt={`${project.title} before cleaning`}
+        loading="lazy"
+        draggable="false"
+        style={{
+          clipPath: `inset(0 ${100 - position}% 0 0)`,
+        }}
+      />
+
+      <span className="ba-label ba-label-before">
+        Before
+      </span>
+
+      <span className="ba-label ba-label-after">
+        After
+      </span>
+
+      <span
+        className="ba-divider"
+        style={{ left: `${position}%` }}
+      />
+
+      <span
+        className="ba-handle"
+        style={{ left: `${position}%` }}
+      >
+        <ArrowLeftRight size={18} aria-hidden="true" />
+      </span>
+
+      <input
+        type="range"
+        className="ba-range"
+        min="0"
+        max="100"
+        step="0.5"
+        value={position}
+        onChange={(event) =>
+          setPosition(Number(event.target.value))
+        }
+        aria-label={`Compare before and after: ${project.title}`}
+      />
+    </div>
+  )
+}
+
 export default function BeforeAfter() {
   return (
-    <section className="before-after section" id="before-after">
+    <section
+      className="before-after section"
+      id="before-after"
+    >
       <div className="container">
         <div className="section-heading">
           <span className="section-eyebrow">
             <Sparkles size={16} aria-hidden="true" />
-            Before &amp; After
+            Real Cleaning Results
           </span>
 
           <h2>
@@ -44,49 +108,32 @@ export default function BeforeAfter() {
           </h2>
 
           <p>
-            Real cleaning transformations from our work across Lagos.
+            Drag the slider to compare our before-and-after
+            cleaning photos.
           </p>
         </div>
 
         <div className="before-after-grid">
           {projects.map((project) => (
-            <article className="before-after-card" key={project.title}>
-              <div className="before-after-images">
-                <div className="before-after-image">
-                  <img
-                    src={project.before}
-                    alt={`${project.title} before cleaning`}
-                    loading="lazy"
-                    onError={(e) => {
-                      console.error('Before image failed to load:', project.before)
-                      e.currentTarget.style.visibility = 'hidden'
-                    }}
-                  />
-                  <span className="image-label">BEFORE</span>
-                </div>
-
-                <div className="before-after-image">
-                  <img
-                    src={project.after}
-                    alt={`${project.title} after cleaning`}
-                    loading="lazy"
-                    onError={(e) => {
-                      console.error('After image failed to load:', project.after)
-                      e.currentTarget.style.visibility = 'hidden'
-                    }}
-                  />
-                  <span className="image-label">AFTER</span>
-                </div>
-              </div>
+            <article
+              className="before-after-card"
+              key={project.title}
+            >
+              <BeforeAfterSlider project={project} />
 
               <div className="before-after-info">
                 <div>
                   <span className="before-after-category">
                     {project.category}
                   </span>
+
                   <h3>{project.title}</h3>
                 </div>
-                <Sparkles size={20} aria-hidden="true" />
+
+                <Sparkles
+                  size={20}
+                  aria-hidden="true"
+                />
               </div>
             </article>
           ))}
