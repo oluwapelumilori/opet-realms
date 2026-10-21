@@ -1,4 +1,3 @@
-
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
@@ -17,58 +16,109 @@ const categories = [
 
 const projects = [
   {
-    title: 'Fabric armchair revival',
-    category: 'Garment Care',
-    description: 'Stains lifted and fabric freshened.',
-    before:
-      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=900&q=80',
-    after:
-      'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=900&q=80',
-  },
-  {
-    title: 'Parlour deep clean',
-    category: 'Deep Cleaning',
-    description: 'Attention to the areas that need extra care.',
-    before:
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=900&q=80',
-    after:
-      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=80',
-  },
-  {
-    title: 'Bedroom reset',
+    title: 'Bedroom Refresh',
     category: 'Home Cleaning',
-    description: 'A clean and comfortable space for everyday living.',
-    before:
-      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=900&q=80',
-    after:
-      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=80',
+    description: 'A fresh, tidy bedroom transformation.',
+    before: '/images/gallery/Bed%20Before%20.jpg',
+    after: '/images/gallery/Bed%20after%20.jpg',
   },
   {
-    title: 'Living room refresh',
-    category: 'Home Cleaning',
-    description: 'Thoughtful cleaning for a brighter home.',
-    before:
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=900&q=80',
-    after:
-      'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=900&q=80',
-  },
-  {
-    title: 'Office deep clean',
+    title: 'Bathroom Transformation',
     category: 'Deep Cleaning',
-    description: 'Clean surroundings for a more welcoming workspace.',
-    before:
-      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=900&q=80',
-    after:
-      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=80',
+    description: 'A fresher, cleaner bathroom.',
+    before: '/images/gallery/Bathroom%20Before%20.jpg',
+    after: '/images/gallery/Bathroom%20After%20.jpg',
   },
   {
-    title: 'Pest-free fresh start',
-    category: 'Fumigation',
-    description: 'Ask our team about suitable pest-control treatments.',
-    before:
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=900&q=80',
-    after:
-      'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=900&q=80',
+    title: 'Kitchen Deep Clean',
+    category: 'Deep Cleaning',
+    description: 'A refreshed kitchen space.',
+    before: '/images/gallery/Big%20kitchen%20Before%20.jpg',
+    after: '/images/gallery/Big%20kitchen%20After%20.jpg',
+  },
+  {
+    title: 'Brown Chair Refresh',
+    category: 'Deep Cleaning',
+    description: 'A refreshed chair with a cleaner finish.',
+    before: '/images/gallery/Brown%20chair%20Before%20.jpg',
+    after: '/images/gallery/Brown%20chair%20After%20.jpg',
+  },
+  {
+    title: 'Carpet Refresh',
+    category: 'Deep Cleaning',
+    description: 'A cleaner-looking carpet.',
+    before: '/images/gallery/Carpet%20Before%20.jpg',
+    after: '/images/gallery/Carpet%20After%20.jpg',
+  },
+  {
+    title: 'Colour Chair Refresh',
+    category: 'Deep Cleaning',
+    description: 'A chair cleaning transformation.',
+    before: '/images/gallery/Colour%20Chair%20Before.jpg',
+    after: '/images/gallery/Colur%20Chair%20After.jpg',
+  },
+  {
+    title: 'Long Chair Refresh',
+    category: 'Deep Cleaning',
+    description: 'A refreshed long chair.',
+    before: '/images/gallery/Long%20Chair%20Before%20.jpg',
+    after: '/images/gallery/Long%20Cahir%20After.jpg',
+  },
+  {
+    title: 'Parlour Refresh',
+    category: 'Home Cleaning',
+    description: 'A cleaner, more inviting living space.',
+    before: '/images/gallery/Palour%20Before.jpg',
+    after: '/images/gallery/Parlour%20After.jpg',
+  },
+  {
+    title: 'Room Refresh',
+    category: 'Home Cleaning',
+    description: 'A refreshed and tidier room.',
+    before: '/images/gallery/Room%20before.jpg',
+    after: '/images/gallery/Room%20After%20.jpg',
+  },
+  {
+    title: 'Room Self Refresh',
+    category: 'Home Cleaning',
+    description: 'A refreshed room with a cleaner finish.',
+    before: '/images/gallery/RoomSelf%20%20Before..jpg',
+    after: '/images/gallery/RoomSelf%20After%20.jpg',
+  },
+  {
+    title: 'Rug Refresh',
+    category: 'Deep Cleaning',
+    description: 'A refreshed rug.',
+    before: '/images/gallery/Rug%20Before%20.jpg',
+    after: '/images/gallery/Rug%20After%20.jpg',
+  },
+  {
+    title: 'Small Kitchen Clean',
+    category: 'Deep Cleaning',
+    description: 'A cleaner, tidier kitchen.',
+    before: '/images/gallery/Small%20Kichten%20Before.jpg',
+    after: '/images/gallery/Small%20Kichten%20After%20.jpg',
+  },
+  {
+    title: 'Toilet Transformation',
+    category: 'Deep Cleaning',
+    description: 'A fresher, cleaner toilet space.',
+    before: '/images/gallery/Toilet%20Before%20.jpg',
+    after: '/images/gallery/Toilet%20after%20.jpg',
+  },
+  {
+    title: 'White Chair Refresh',
+    category: 'Deep Cleaning',
+    description: 'A refreshed white chair.',
+    before: '/images/gallery/White%20CHair%20Before%20.jpg',
+    after: '/images/gallery/White%20Chair%20After.jpg',
+  },
+  {
+    title: 'Yellow Chair Refresh',
+    category: 'Deep Cleaning',
+    description: 'A chair cleaning transformation.',
+    before: '/images/gallery/Yellow%20Cahir%20Bfeore%20.jpg',
+    after: '/images/gallery/Yellow%20Cahir%20After%20.jpg',
   },
 ]
 
@@ -220,12 +270,6 @@ export default function Gallery() {
               <p>No projects in this category yet.</p>
             </div>
           )}
-
-          <p className="gallery-note">
-            These are illustrative photos, not verified Opet
-            Realms project results. Replace them with your actual
-            before-and-after photos when available.
-          </p>
 
           <section className="gallery-cta">
             <div>
