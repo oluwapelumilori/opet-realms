@@ -167,7 +167,6 @@ export default function Gallery() {
         <div className="container">
           <div className="section-heading">
             <span className="eyebrow">Project gallery</span>
-
             <h2>Drag to see the difference</h2>
 
             <p>
@@ -211,7 +210,6 @@ export default function Gallery() {
                     </span>
 
                     <h3>{project.title}</h3>
-
                     <p>{project.description}</p>
                   </div>
                 </article>
