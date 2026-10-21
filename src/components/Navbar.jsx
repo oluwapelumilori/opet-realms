@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
@@ -63,26 +62,22 @@ export default function Navbar() {
           />
         </Link>
 
-        {/* Desktop navigation */}
+        {/* Navigation links (also the dropdown menu on mobile) */}
         <nav
           className={`nav-links ${menuOpen ? 'nav-links-open' : ''}`}
           aria-label="Main navigation"
         >
           {navigation.map((item) => (
-            <Link
-              key={item.label}
-              to={item.href}
-              onClick={closeMenu}
-            >
+            <Link key={item.label} to={item.href} onClick={closeMenu}>
               {item.label}
             </Link>
           ))}
 
-          {/* Mobile action buttons */}
+          {/* Mobile action buttons (hidden on desktop) */}
           <div className="nav-mobile-actions">
             <Link
               to="/#services"
-              className="button button-secondary nav-cta"
+              className="button button-outline nav-cta"
               onClick={closeMenu}
             >
               View Our Services
@@ -98,24 +93,18 @@ export default function Navbar() {
           </div>
         </nav>
 
-        {/* Desktop action buttons */}
+        {/* Desktop action buttons (hidden on mobile) */}
         <div className="nav-actions">
-          <Link
-            to="/#services"
-            className="button button-secondary nav-cta"
-          >
+          <Link to="/#services" className="button button-outline nav-cta">
             View Our Services
           </Link>
 
-          <Link
-            to="/quote"
-            className="button button-primary nav-cta"
-          >
+          <Link to="/quote" className="button button-primary nav-cta">
             Request a Quote
           </Link>
         </div>
 
-        {/* Mobile menu button */}
+        {/* Mobile menu button (hidden on desktop) */}
         <button
           type="button"
           className="nav-menu-toggle"
