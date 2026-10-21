@@ -1,7 +1,6 @@
-
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, ArrowUpRight } from 'lucide-react'
+import { ArrowLeft, ArrowLeftRight, ArrowUpRight } from 'lucide-react'
 
 const categories = [
   'All',
@@ -11,50 +10,110 @@ const categories = [
   'Garment Care',
 ]
 
+// Replace every before/after URL below with your real project photos.
+// Keep "category" matching one of the categories above so the filters work.
 const projects = [
   {
-    title: 'Fresh, Spotless Living Spaces',
-    category: 'Home Cleaning',
-    description: 'A clean and comfortable space for everyday living.',
-    image:
-      'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=900&q=85',
+    title: 'Fabric armchair revival',
+    category: 'Garment Care',
+    description: 'Stains lifted and fabric freshened.',
+    before:
+      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=900&q=80',
+    after:
+      'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=900&q=80',
   },
   {
-    title: 'Detailed Deep Cleaning',
+    title: 'Parlour deep clean',
     category: 'Deep Cleaning',
     description: 'Attention to the areas that need extra care.',
-    image:
-      'https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?auto=format&fit=crop&w=900&q=85',
+    before:
+      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=900&q=80',
+    after:
+      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=80',
   },
   {
-    title: 'Professional Cleaning Care',
+    title: 'Bedroom reset',
+    category: 'Home Cleaning',
+    description: 'A clean and comfortable space for everyday living.',
+    before:
+      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=900&q=80',
+    after:
+      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=80',
+  },
+  {
+    title: 'Living room refresh',
     category: 'Home Cleaning',
     description: 'Thoughtful cleaning for a brighter home.',
-    image:
-      'https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?auto=format&fit=crop&w=900&q=85',
+    before:
+      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=900&q=80',
+    after:
+      'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=900&q=80',
   },
   {
-    title: 'Fabric and Garment Care',
-    category: 'Garment Care',
-    description: 'Care for the garments and fabrics you value.',
-    image:
-      'https://images.unsplash.com/photo-1517677208171-0bc6725a3e60?auto=format&fit=crop&w=900&q=85',
-  },
-  {
-    title: 'A Cleaner Working Environment',
+    title: 'Office deep clean',
     category: 'Deep Cleaning',
-    description: 'Clean surroundings for a more welcoming space.',
-    image:
-      'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=85',
+    description: 'Clean surroundings for a more welcoming workspace.',
+    before:
+      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=900&q=80',
+    after:
+      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=80',
   },
   {
-    title: 'A Fresh Start',
+    title: 'Pest-free fresh start',
     category: 'Fumigation',
     description: 'Ask our team about suitable pest-control treatments.',
-    image:
-      'https://images.unsplash.com/photo-1528740561666-dc2479dc08ab?auto=format&fit=crop&w=900&q=85',
+    before:
+      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=900&q=80',
+    after:
+      'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=900&q=80',
   },
 ]
+
+// Same drag-to-compare slider used in the home page Before & After section
+function Slider({ project }) {
+  const [position, setPosition] = useState(50)
+
+  return (
+    <div className="ba-slider">
+      <img
+        className="ba-image"
+        src={project.after}
+        alt={`${project.title} after`}
+        loading="lazy"
+        draggable="false"
+      />
+
+      <img
+        className="ba-image"
+        src={project.before}
+        alt={`${project.title} before`}
+        loading="lazy"
+        draggable="false"
+        style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
+      />
+
+      <span className="ba-label ba-label-before">Before</span>
+      <span className="ba-label ba-label-after">After</span>
+
+      <span className="ba-divider" style={{ left: `${position}%` }} />
+
+      <span className="ba-handle" style={{ left: `${position}%` }}>
+        <ArrowLeftRight size={18} aria-hidden="true" />
+      </span>
+
+      <input
+        type="range"
+        className="ba-range"
+        min="0"
+        max="100"
+        step="0.5"
+        value={position}
+        onChange={(event) => setPosition(Number(event.target.value))}
+        aria-label={`Compare before and after: ${project.title}`}
+      />
+    </div>
+  )
+}
 
 export default function Gallery() {
   const [activeCategory, setActiveCategory] = useState('All')
@@ -62,9 +121,7 @@ export default function Gallery() {
   const filteredProjects =
     activeCategory === 'All'
       ? projects
-      : projects.filter(
-          (project) => project.category === activeCategory
-        )
+      : projects.filter((project) => project.category === activeCategory)
 
   return (
     <>
@@ -80,8 +137,8 @@ export default function Gallery() {
           <h1>See the spotless difference.</h1>
 
           <p>
-            Explore cleaning inspiration and garment-care projects.
-            Contact our team to discuss the results you're looking for.
+            Drag each slider to compare before and after. Contact our team to
+            discuss the results you're looking for.
           </p>
         </div>
       </header>
@@ -90,15 +147,16 @@ export default function Gallery() {
         <div className="container">
           <div className="section-heading">
             <span className="eyebrow">Project gallery</span>
-            <h2>Care in every detail.</h2>
+            <h2>Drag to see the difference</h2>
             <p>
-              Browse our service categories and discover how we
-              approach cleaner, fresher spaces.
+              Browse our service categories and see how we approach cleaner,
+              fresher spaces.
             </p>
           </div>
 
           <div
             className="gallery-filters"
+            role="group"
             aria-label="Filter gallery by service"
           >
             {categories.map((category) => (
@@ -116,40 +174,43 @@ export default function Gallery() {
             ))}
           </div>
 
-          <div className="gallery-grid">
-            {filteredProjects.map((project) => (
-              <article className="gallery-card" key={project.title}>
-                <div className="gallery-image-wrap">
-                  <img
-                    src={project.image}
-                    alt={project.title}
-                    loading="lazy"
-                  />
+          {filteredProjects.length > 0 ? (
+            <div className="gallery-grid">
+              {filteredProjects.map((project) => (
+                <article className="gallery-card" key={project.title}>
+                  <Slider project={project} />
 
-                  <span className="gallery-category">
-                    {project.category}
-                  </span>
-                </div>
+                  <div className="gallery-card-content">
+                    <span className="gallery-category">{project.category}</span>
+                    <h3>{project.title}</h3>
+                    <p>{project.description}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="empty-state">
+              <p>No projects in this category yet.</p>
+            </div>
+          )}
 
-                <div className="gallery-card-content">
-                  <h3>{project.title}</h3>
-                  <p>{project.description}</p>
-                </div>
-              </article>
-            ))}
-          </div>
+          <p className="gallery-note">
+            These are illustrative photos, not verified Opet Realms project
+            results. Replace them with your actual before-and-after photos when
+            available.
+          </p>
 
           <section className="gallery-cta">
             <div>
               <span className="eyebrow">Your space, refreshed</span>
               <h2>Ready for your own spotless result?</h2>
               <p>
-                Tell us about your cleaning or garment-care needs
-                and request a personalised quote.
+                Tell us about your cleaning or garment-care needs and request a
+                personalised quote.
               </p>
             </div>
 
-            <Link to="/quote" className="button button-primary">
+            <Link to="/quote" className="button button-white">
               Book a Quote <ArrowUpRight size={18} />
             </Link>
           </section>
