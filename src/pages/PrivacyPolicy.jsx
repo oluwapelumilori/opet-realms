@@ -5,55 +5,75 @@ import { ArrowLeft } from 'lucide-react'
 export default function PrivacyPolicy() {
   return (
     <>
-      <header className="page-header">
-        <div className="container">
-          <Link to="/" className="button button-outline">
+      <header className="page-header legal-page-header">
+        <div className="container legal-header-content">
+          <Link
+            to="/"
+            className="button button-outline legal-back-button"
+          >
             <ArrowLeft size={18} />
             Back Home
           </Link>
 
-          <span className="eyebrow">Your privacy matters</span>
-          <h1>Privacy Policy</h1>
+          <div className="legal-header-copy">
+            <span className="eyebrow">
+              Your privacy matters
+            </span>
 
-          <p>
-            How Opet Realms collects, uses and protects your
-            personal information.
-          </p>
+            <h1>Privacy Policy</h1>
 
-          <p>
-            <small>Last updated: October 2026</small>
-          </p>
+            <p>
+              How Opet Realms collects, uses and protects your
+              personal information.
+            </p>
+
+            <p className="legal-updated">
+              <small>Last updated: October 2026</small>
+            </p>
+          </div>
         </div>
       </header>
 
-      <main className="section">
+      <main className="section legal-page">
         <article className="container legal-content">
           <h2>1. Introduction</h2>
           <p>
-            Opet Realms provides cleaning, fumigation and garment-care
-            services across Lagos Mainland and Lagos Island. This
-            policy explains how we handle personal information when
-            you visit our website or contact us about our services.
+            Opet Realms provides cleaning, fumigation and
+            garment-care services across Lagos Mainland and
+            Lagos Island. This policy explains how we handle
+            personal information when you visit our website
+            or contact us about our services.
           </p>
 
           <h2>2. Information We Collect</h2>
-          <p>Depending on how you interact with us, we may collect:</p>
+          <p>
+            Depending on how you interact with us, we may collect:
+          </p>
           <ul>
             <li>Your name and telephone number.</li>
             <li>Your email address, if you provide one.</li>
             <li>Your service location and property details.</li>
             <li>Your preferred service date and requested services.</li>
             <li>Garment selections, quantities and quote details.</li>
-            <li>Additional information you choose to include in an enquiry.</li>
+            <li>
+              Additional information you choose to include in
+              an enquiry.
+            </li>
           </ul>
 
           <h2>3. How We Use Your Information</h2>
           <p>We may use your information to:</p>
           <ul>
-            <li>Respond to enquiries and prepare service quotations.</li>
-            <li>Arrange appointments and coordinate requested services.</li>
+            <li>
+              Respond to enquiries and prepare service quotations.
+            </li>
+            <li>
+              Arrange appointments and coordinate requested services.
+            </li>
             <li>Communicate with you about your enquiry.</li>
-            <li>Maintain business records and prevent misuse of our forms.</li>
+            <li>
+              Maintain business records and prevent misuse of our forms.
+            </li>
             <li>Meet applicable legal obligations.</li>
           </ul>
 
@@ -62,8 +82,9 @@ export default function PrivacyPolicy() {
             We do not sell your personal information. We may share
             relevant information with service providers that help
             operate our website and process enquiries, such as our
-            database hosting provider, or where disclosure is required
-            by law. We aim to limit such sharing to what is necessary.
+            database hosting provider, or where disclosure is
+            required by law. We aim to limit such sharing to what
+            is necessary.
           </p>
 
           <h2>5. Supabase and WhatsApp</h2>
@@ -74,30 +95,31 @@ export default function PrivacyPolicy() {
           </p>
           <p>
             If you choose to continue to WhatsApp, your device will
-            open a pre-filled message to our business number. Review
-            that message before sending it. WhatsApp processes
-            information under its own privacy terms.
+            open a pre-filled message to our business number.
+            Review that message before sending it. WhatsApp
+            processes information under its own privacy terms.
           </p>
 
           <h2>6. Data Security and Retention</h2>
           <p>
             We intend to use reasonable technical and organisational
             safeguards to protect personal information. We retain
-            information only for as long as reasonably necessary for
-            the purposes described in this policy, including applicable
-            recordkeeping requirements.
+            information only for as long as reasonably necessary
+            for the purposes described in this policy, including
+            applicable recordkeeping requirements.
           </p>
           <p>
-            No website or electronic storage system can be guaranteed
-            completely secure.
+            No website or electronic storage system can be
+            guaranteed completely secure.
           </p>
 
           <h2>7. Your Rights</h2>
           <p>
-            Subject to applicable law, you may have rights to request
-            access to, correction of or deletion of your personal
-            information, or to object to certain processing. You may
-            contact us to make a privacy request.
+            Subject to applicable law, you may have rights to
+            request access to, correction of or deletion of your
+            personal information, or to object to certain
+            processing. You may contact us to make a privacy
+            request.
           </p>
 
           <h2>8. Cookies and Website Analytics</h2>
@@ -110,23 +132,24 @@ export default function PrivacyPolicy() {
 
           <h2>9. Children's Privacy</h2>
           <p>
-            Our website and services are intended for people who can
-            make service enquiries on their own behalf or with
+            Our website and services are intended for people who
+            can make service enquiries on their own behalf or with
             appropriate adult authority. Please do not submit
             unnecessary personal information about children.
           </p>
 
           <h2>10. Changes to This Policy</h2>
           <p>
-            We may update this policy when our services, technology
-            or legal obligations change. The latest version will be
-            published on this page with an updated date.
+            We may update this policy when our services,
+            technology or legal obligations change. The latest
+            version will be published on this page with an
+            updated date.
           </p>
 
           <h2>11. Contact Us</h2>
           <p>
-            For questions or requests relating to privacy, contact
-            Opet Realms:
+            For questions or requests relating to privacy,
+            contact Opet Realms:
           </p>
           <ul>
             <li>
@@ -146,10 +169,11 @@ export default function PrivacyPolicy() {
             </li>
           </ul>
 
-          <p className="muted">
-            This is a draft for website development, not legal advice.
-            Review it against your actual data practices and applicable
-            Nigerian data protection requirements before publication.
+          <p className="muted legal-disclaimer">
+            This is a draft for website development, not legal
+            advice. Review it against your actual data practices
+            and applicable Nigerian data protection requirements
+            before publication.
           </p>
         </article>
       </main>
