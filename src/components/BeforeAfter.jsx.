@@ -1,23 +1,30 @@
-
 import { ArrowRight, Sparkles } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 const projects = [
   {
-    title: 'Living Room Refresh',
+    title: 'Bedroom Refresh',
     category: 'Home Cleaning',
-    before:
-      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80',
-    after:
-      'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=800&q=80',
+    before: '/images/gallery/Bed%20Before%20.jpg',
+    after: '/images/gallery/Bed%20after%20.jpg',
   },
   {
-    title: 'Fresh & Spotless Space',
-    category: 'Professional Cleaning',
-    before:
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=800&q=80',
-    after:
-      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80',
+    title: 'Parlour Refresh',
+    category: 'Home Cleaning',
+    before: '/images/gallery/Palour%20Before.jpg',
+    after: '/images/gallery/Parlour%20After.jpg',
+  },
+  {
+    title: 'Kitchen Deep Clean',
+    category: 'Deep Cleaning',
+    before: '/images/gallery/Big%20kitchen%20Before%20.jpg',
+    after: '/images/gallery/Big%20kitchen%20After%20.jpg',
+  },
+  {
+    title: 'Carpet Refresh',
+    category: 'Deep Cleaning',
+    before: '/images/gallery/Carpet%20Before%20.jpg',
+    after: '/images/gallery/Carpet%20After%20.jpg',
   },
 ]
 
@@ -35,8 +42,8 @@ export default function BeforeAfter() {
           </h2>
 
           <p>
-            Every detail matters. Explore the kind of fresh, clean spaces
-            we aim to deliver with professional care.
+            Every detail matters. Explore our real before-and-after
+            photos and see the difference professional care can make.
           </p>
         </div>
 
@@ -45,12 +52,20 @@ export default function BeforeAfter() {
             <article className="comparison-card" key={project.title}>
               <div className="comparison-images">
                 <div className="comparison-image">
-                  <img src={project.before} alt={`${project.title} example`} />
+                  <img
+                    src={project.before}
+                    alt={`${project.title} before cleaning`}
+                    loading="lazy"
+                  />
                   <span className="comparison-label">BEFORE</span>
                 </div>
 
                 <div className="comparison-image">
-                  <img src={project.after} alt={`${project.title} example`} />
+                  <img
+                    src={project.after}
+                    alt={`${project.title} after cleaning`}
+                    loading="lazy"
+                  />
                   <span className="comparison-label comparison-label-after">
                     AFTER
                   </span>
@@ -65,7 +80,11 @@ export default function BeforeAfter() {
                   <h3>{project.title}</h3>
                 </div>
 
-                <Sparkles className="comparison-sparkle" size={24} />
+                <Sparkles
+                  className="comparison-sparkle"
+                  size={24}
+                  aria-hidden="true"
+                />
               </div>
             </article>
           ))}
@@ -78,12 +97,6 @@ export default function BeforeAfter() {
             Explore Our Gallery <ArrowRight size={18} />
           </Link>
         </div>
-
-        <p className="gallery-note">
-          These are illustrative photos, not verified Opet Realms project
-          results. Replace them with your actual before-and-after photos
-          when available.
-        </p>
       </div>
     </section>
   )
