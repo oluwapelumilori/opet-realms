@@ -1,8 +1,8 @@
 
 import { useState } from 'react'
+import { ArrowLeftRight, ArrowRight, Sparkles } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, ArrowLeftRight, Sparkles } from 'lucide-react'
-
+  
 const projects = [
   {
     title: 'Bedroom Refresh',
@@ -29,20 +29,20 @@ const projects = [
     after: '/images/gallery/Carpet%20After.jpg',
   },
   {
-    title: 'Cleaning Project 5',
+    title: 'Living Room Refresh',
     category: 'Home Cleaning',
-    before: '/images/gallery/REPLACE-WITH-BEFORE-IMAGE-5.jpg',
-    after: '/images/gallery/REPLACE-WITH-AFTER-IMAGE-5.jpg',
+    before: '/images/gallery/Palour%20Before.jpg',
+    after: '/images/gallery/Parlour%20After.jpg',
   },
   {
-    title: 'Cleaning Project 6',
+    title: 'Fresh Kitchen Finish',
     category: 'Deep Cleaning',
-    before: '/images/gallery/REPLACE-WITH-BEFORE-IMAGE-6.jpg',
-    after: '/images/gallery/REPLACE-WITH-AFTER-IMAGE-6.jpg',
+    before: '/images/gallery/Big%20kitchen%20Before%20.jpg',
+    after: '/images/gallery/Big%20kitchen%20After.jpg',
   },
 ]
 
-function BeforeAfterSlider({ project }) {
+function Slider({ project }) {
   const [position, setPosition] = useState(50)
 
   return (
@@ -50,30 +50,29 @@ function BeforeAfterSlider({ project }) {
       <img
         className="ba-image"
         src={project.after}
-        alt={`${project.title} after cleaning`}
+        alt={`${project.title} after`}
         loading="lazy"
-        decoding="async"
         draggable="false"
-        width="800"
-        height="600"
       />
 
       <img
-        className="ba-image ba-image-before"
+        className="ba-image"
         src={project.before}
-        alt={`${project.title} before cleaning`}
+        alt={`${project.title} before`}
         loading="lazy"
-        decoding="async"
         draggable="false"
-        width="800"
-        height="600"
         style={{
           clipPath: `inset(0 ${100 - position}% 0 0)`,
         }}
       />
 
-      <span className="ba-label ba-label-before">Before</span>
-      <span className="ba-label ba-label-after">After</span>
+      <span className="ba-label ba-label-before">
+        Before
+      </span>
+
+      <span className="ba-label ba-label-after">
+        After
+      </span>
 
       <span
         className="ba-divider"
@@ -105,21 +104,24 @@ function BeforeAfterSlider({ project }) {
 
 export default function BeforeAfter() {
   return (
-    <section className="before-after section" id="before-after">
+    <section
+      className="section before-after-section"
+      id="before-after"
+    >
       <div className="container">
         <div className="section-heading">
           <span className="section-eyebrow">
             <Sparkles size={16} aria-hidden="true" />
-            Real Cleaning Results
+            Before &amp; After
           </span>
 
           <h2>
-            See the <span className="hero-highlight">difference.</span>
+            See the{' '}
+            <span className="hero-highlight">difference.</span>
           </h2>
 
           <p>
-            Drag the slider to compare our before-and-after
-            cleaning photos.
+            Real cleaning transformations from our work across Lagos.
           </p>
         </div>
 
@@ -129,7 +131,7 @@ export default function BeforeAfter() {
               className="before-after-card"
               key={project.title}
             >
-              <BeforeAfterSlider project={project} />
+              <Slider project={project} />
 
               <div className="before-after-info">
                 <div>
@@ -146,7 +148,10 @@ export default function BeforeAfter() {
         </div>
 
         <div className="before-after-cta">
-          <Link to="/gallery" className="button button-primary">
+          <Link
+            to="/gallery"
+            className="button button-primary"
+          >
             View All Projects
             <ArrowRight size={18} aria-hidden="true" />
           </Link>
