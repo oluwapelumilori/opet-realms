@@ -56,8 +56,8 @@ export default function PrivacyPolicy() {
             <li>Your preferred service date and requested services.</li>
             <li>Garment selections, quantities and quote details.</li>
             <li>
-              Additional information you choose to include in
-              an enquiry.
+              Additional information you choose to include
+              in an enquiry.
             </li>
           </ul>
 
@@ -118,8 +118,7 @@ export default function PrivacyPolicy() {
             Subject to applicable law, you may have rights to
             request access to, correction of or deletion of your
             personal information, or to object to certain
-            processing. You may contact us to make a privacy
-            request.
+            processing. You may contact us to make a privacy request.
           </p>
 
           <h2>8. Cookies and Website Analytics</h2>
@@ -140,10 +139,9 @@ export default function PrivacyPolicy() {
 
           <h2>10. Changes to This Policy</h2>
           <p>
-            We may update this policy when our services,
-            technology or legal obligations change. The latest
-            version will be published on this page with an
-            updated date.
+            We may update this policy when our services, technology
+            or legal obligations change. The latest version will be
+            published on this page with an updated date.
           </p>
 
           <h2>11. Contact Us</h2>
