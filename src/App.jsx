@@ -11,6 +11,7 @@ import Gallery from './pages/Gallery'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsConditions from './pages/TermsConditions'
 import AdminLogin from './pages/AdminLogin'
+import AdminDashboard from './pages/AdminDashboard'
 
 function PageLayout({ children }) {
   return (
@@ -19,6 +20,20 @@ function PageLayout({ children }) {
       <main>{children}</main>
       <Footer />
     </>
+  )
+}
+
+function NotFound() {
+  return (
+    <PageLayout>
+      <section className="container section text-center">
+        <h1>Page not found</h1>
+        <p>Sorry, we couldn't find that page.</p>
+        <a href="/" className="button button-primary">
+          Return Home
+        </a>
+      </section>
+    </PageLayout>
   )
 }
 
@@ -32,44 +47,51 @@ export default function App() {
 
         <Route
           path="/quote"
-          element={<PageLayout><Quote /></PageLayout>}
+          element={
+            <PageLayout>
+              <Quote />
+            </PageLayout>
+          }
         />
 
         <Route
           path="/gallery"
-          element={<PageLayout><Gallery /></PageLayout>}
+          element={
+            <PageLayout>
+              <Gallery />
+            </PageLayout>
+          }
         />
 
         <Route
           path="/privacy-policy"
-          element={<PageLayout><PrivacyPolicy /></PageLayout>}
+          element={
+            <PageLayout>
+              <PrivacyPolicy />
+            </PageLayout>
+          }
         />
 
         <Route
           path="/terms-and-conditions"
-          element={<PageLayout><TermsConditions /></PageLayout>}
+          element={
+            <PageLayout>
+              <TermsConditions />
+            </PageLayout>
+          }
         />
 
-        {/* Admin login page */}
         <Route
           path="/admin/login"
           element={<AdminLogin />}
         />
 
         <Route
-          path="*"
-          element={
-            <PageLayout>
-              <section className="container section text-center">
-                <h1>Page not found</h1>
-                <p>Sorry, we couldn't find that page.</p>
-                <a href="/" className="button button-primary">
-                  Return Home
-                </a>
-              </section>
-            </PageLayout>
-          }
+          path="/admin"
+          element={<AdminDashboard />}
         />
+
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </>
   )
