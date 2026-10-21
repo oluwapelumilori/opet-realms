@@ -2104,3 +2104,151 @@ textarea:focus-visible {
     padding: 18px;
   }
 }
+
+
+/* Admin dashboard */
+.admin-dashboard-page {
+  min-height: 100vh;
+  background: #f5f8fa;
+  color: #172b3a;
+}
+
+.admin-dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px max(24px, calc((100% - 1200px) / 2));
+  background: #fff;
+  border-bottom: 1px solid #e3eaf0;
+}
+
+.admin-dashboard-brand {
+  color: #172b3a;
+  font-size: 21px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.admin-dashboard-brand span {
+  color: #087fba;
+}
+
+.admin-dashboard-signout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 16px;
+  border: 1px solid #dce5ec;
+  border-radius: 8px;
+  background: #fff;
+  color: #263746;
+  cursor: pointer;
+}
+
+.admin-dashboard-content {
+  width: min(1200px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 48px 0 64px;
+}
+
+.admin-dashboard-welcome {
+  margin-bottom: 32px;
+}
+
+.admin-dashboard-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #087fba;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+}
+
+.admin-dashboard-welcome h1 {
+  margin: 12px 0 8px;
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 1.2;
+}
+
+.admin-dashboard-welcome > div > p:last-child {
+  color: #687785;
+}
+
+.admin-dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.admin-dashboard-card,
+.admin-dashboard-panel {
+  padding: 26px;
+  border: 1px solid #e3eaf0;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.admin-dashboard-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 10px;
+  background: #e9f5fb;
+  color: #087fba;
+}
+
+.admin-dashboard-card h2,
+.admin-dashboard-panel h2 {
+  margin: 18px 0 8px;
+  font-size: 20px;
+}
+
+.admin-dashboard-card p,
+.admin-dashboard-panel p {
+  color: #687785;
+  font-size: 14px;
+}
+
+.admin-dashboard-panel {
+  margin-top: 24px;
+}
+
+.admin-dashboard-panel h2 {
+  margin-top: 0;
+}
+
+.admin-dashboard-loading {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+@media (max-width: 760px) {
+  .admin-dashboard-content {
+    width: calc(100% - 32px);
+    padding-top: 32px;
+  }
+
+  .admin-dashboard-cards {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .admin-dashboard-header {
+    padding: 16px;
+  }
+
+  .admin-dashboard-card,
+  .admin-dashboard-panel {
+    padding: 20px;
+  }
+}
