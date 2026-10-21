@@ -10,7 +10,9 @@ export default function ScrollToTop() {
       const id = decodeURIComponent(hash.slice(1))
 
       requestAnimationFrame(() => {
-        document.getElementById(id)?.scrollIntoView()
+        document.getElementById(id)?.scrollIntoView({
+          behavior: 'auto',
+        })
       })
     } else {
       window.scrollTo(0, 0)
