@@ -11,16 +11,14 @@ export default function Gallery() {
       : projects.filter((project) => project.category === active)
 
   return (
-    <main className="ba-section ba-section--page">
+    <section className="ba-section ba-section--page">
       <div className="container">
         <header className="ba-header">
           <span className="ba-eyebrow">Before &amp; After</span>
 
-          <h1>Our work, up close</h1>
+          <h1>Transformation gallery</h1>
 
-          <p>
-            Real transformations from our crews across Lagos.
-          </p>
+          <p>Drag each slider to compare. Photos shared with client permission.</p>
         </header>
 
         <div
@@ -32,9 +30,7 @@ export default function Gallery() {
             <button
               key={category}
               type="button"
-              className={
-                active === category ? 'ba-pill is-active' : 'ba-pill'
-              }
+              className={active === category ? 'ba-pill is-active' : 'ba-pill'}
               aria-pressed={active === category}
               onClick={() => setActive(category)}
             >
@@ -51,10 +47,7 @@ export default function Gallery() {
 
                 <div className="ba-info">
                   <h3>{project.title}</h3>
-
-                  <span className="ba-category">
-                    {project.category}
-                  </span>
+                  <span className="ba-category">{project.category}</span>
                 </div>
               </article>
             ))}
@@ -65,6 +58,6 @@ export default function Gallery() {
           </p>
         )}
       </div>
-    </main>
+    </section>
   )
 }
