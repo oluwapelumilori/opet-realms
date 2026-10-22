@@ -1,5 +1,5 @@
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   CalendarDays,
@@ -16,6 +16,15 @@ import {
   ClipboardList,
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+
+const BOOKING_STATUSES = [
+  { value: 'new', label: 'New' },
+  { value: 'contacted', label: 'Contacted' },
+  { value: 'inspection', label: 'Inspection' },
+  { value: 'booked', label: 'Booked' },
+  { value: 'completed', label: 'Completed' },
+  { value: 'cancelled', label: 'Cancelled' },
+]
 
 const panelStyle = {
   background: '#ffffff',
@@ -81,6 +90,39 @@ const emptySettings = {
   quote_validity_days: 7,
 }
 
+const emptyBookingForm = {
+  customer_name: '',
+  phone: '',
+  email: '',
+  address: '',
+  service: '',
+  property_type: '',
+  preferred_date: '',
+  preferred_time: '',
+  notes: '',
+}
+
+function normalizeStatus(status) {
+  const value = String(status || 'new').trim().toLowerCase()
+
+  // Support older values already saved in the database.
+  const legacyStatuses = {
+    pending: 'contacted',
+    confirmed: 'booked',
+  }
+
+  return legacyStatuses[value] || value
+}
+
+function formatStatus(status) {
+  const normalized = normalizeStatus(status)
+  const match = BOOKING_STATUSES.find(
+    (item) => item.value === normalized
+  )
+
+  return match ? match.label : normalized.replaceAll('_', ' ')
+}
+
 export default function AdminDashboard() {
   const navigate = useNavigate()
 
@@ -95,26 +137,16 @@ export default function AdminDashboard() {
   const [permissionSaving, setPermissionSaving] = useState({})
   const [settings, setSettings] = useState(emptySettings)
   const [activeSection, setActiveSection] = useState('overview')
+  const [bookingStatusFilter, setBookingStatusFilter] = useState('all')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [permissionMessage, setPermissionMessage] = useState('')
   const [settingsLoaded, setSettingsLoaded] = useState(false)
 
-  const [bookingForm, setBookingForm] = useState({
-    customer_name: '',
-    phone: '',
-    email: '',
-    address: '',
-    service: '',
-    property_type: '',
-    preferred_date: '',
-    preferred_time: '',
-    notes: '',
-  })
+  const [bookingForm, setBookingForm] = useState(emptyBookingForm)
 
   const loadDashboard = useCallback(async () => {
     setError('')
-    setSuccess('')
 
     try {
       const {
@@ -137,11 +169,7 @@ export default function AdminDashboard() {
 
       if (profileError) throw profileError
 
-      if (
-        !profile ||
-        !profile.is_active ||
-        profile.role !== 'admin'
-      ) {
+      if (!profile || !profile.is_active || profile.role !== 'admin') {
         await supabase.auth.signOut()
         navigate('/admin/login', { replace: true })
         return
@@ -208,7 +236,10 @@ export default function AdminDashboard() {
 
       if (settingsResult.error) {
         setSettingsLoaded(false)
-        console.error('Could not load business settings:', settingsResult.error)
+        console.error(
+          'Could not load business settings:',
+          settingsResult.error
+        )
       } else if (settingsResult.data) {
         setSettings({
           ...emptySettings,
@@ -233,6 +264,31 @@ export default function AdminDashboard() {
   useEffect(() => {
     loadDashboard()
   }, [loadDashboard])
+
+  const bookingCounts = useMemo(() => {
+    const counts = Object.fromEntries(
+      BOOKING_STATUSES.map((status) => [status.value, 0])
+    )
+
+    bookings.forEach((booking) => {
+      const status = normalizeStatus(booking.status)
+
+      if (Object.prototype.hasOwnProperty.call(counts, status)) {
+        counts[status] += 1
+      }
+    })
+
+    return counts
+  }, [bookings])
+
+  const filteredBookings = useMemo(() => {
+    if (bookingStatusFilter === 'all') return bookings
+
+    return bookings.filter(
+      (booking) =>
+        normalizeStatus(booking.status) === bookingStatusFilter
+    )
+  }, [bookings, bookingStatusFilter])
 
   async function handleSignOut() {
     const { error: signOutError } = await supabase.auth.signOut()
@@ -265,20 +321,11 @@ export default function AdminDashboard() {
 
       if (insertError) throw insertError
 
-      setBookingForm({
-        customer_name: '',
-        phone: '',
-        email: '',
-        address: '',
-        service: '',
-        property_type: '',
-        preferred_date: '',
-        preferred_time: '',
-        notes: '',
-      })
-
+      setBookingForm({ ...emptyBookingForm })
+      setBookingStatusFilter('all')
       setSuccess(`Booking ${bookingRef} created successfully.`)
       setActiveSection('bookings')
+
       await loadDashboard()
     } catch (err) {
       setError(err.message || 'Could not create the booking.')
@@ -294,16 +341,26 @@ export default function AdminDashboard() {
     try {
       const { error: updateError } = await supabase
         .from('bookings')
-        .update({ status, updated_at: new Date().toISOString() })
+        .update({
+          status,
+          updated_at: new Date().toISOString(),
+        })
         .eq('id', bookingId)
 
       if (updateError) throw updateError
 
-      setSuccess('Booking status updated.')
+      setSuccess(`Booking status updated to ${formatStatus(status)}.`)
       await loadDashboard()
     } catch (err) {
       setError(err.message || 'Could not update booking status.')
     }
+  }
+
+  function openBookingStage(status) {
+    setBookingStatusFilter(status)
+    setActiveSection('bookings')
+    setError('')
+    setSuccess('')
   }
 
   function toggleStaffPermission(staffId, permission, checked) {
@@ -427,6 +484,60 @@ export default function AdminDashboard() {
     { id: 'settings', label: 'Business Settings', icon: Settings },
   ]
 
+  function renderBookingStatusCards() {
+    return (
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(145px, 1fr))',
+          gap: 12,
+          marginBottom: 22,
+        }}
+      >
+        {BOOKING_STATUSES.map((status) => {
+          const active =
+            activeSection === 'bookings' &&
+            bookingStatusFilter === status.value
+
+          return (
+            <button
+              key={status.value}
+              type="button"
+              onClick={() => openBookingStage(status.value)}
+              aria-pressed={active}
+              style={{
+                ...panelStyle,
+                marginBottom: 0,
+                textAlign: 'left',
+                cursor: 'pointer',
+                border: active
+                  ? '2px solid #087f5b'
+                  : '1px solid #e2e9e4',
+                padding: 16,
+                background: active ? '#f0faf5' : '#ffffff',
+                color: '#17231d',
+              }}
+            >
+              <span
+                style={{
+                  display: 'block',
+                  fontSize: 13,
+                  color: '#68746d',
+                  marginBottom: 8,
+                }}
+              >
+                {status.label}
+              </span>
+              <strong style={{ fontSize: 28, lineHeight: 1.2 }}>
+                {bookingCounts[status.value]}
+              </strong>
+            </button>
+          )
+        })}
+      </div>
+    )
+  }
+
   if (loading) {
     return (
       <main
@@ -500,10 +611,7 @@ export default function AdminDashboard() {
 
             <button
               type="button"
-              style={{
-                ...buttonStyle,
-                background: '#17231d',
-              }}
+              style={{ ...buttonStyle, background: '#17231d' }}
               onClick={handleSignOut}
             >
               <LogOut size={17} />
@@ -581,7 +689,8 @@ export default function AdminDashboard() {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))',
+                gridTemplateColumns:
+                  'repeat(auto-fit, minmax(190px, 1fr))',
                 gap: 16,
                 marginBottom: 22,
               }}
@@ -620,6 +729,14 @@ export default function AdminDashboard() {
             </div>
 
             <section style={panelStyle}>
+              <h2 style={{ marginTop: 0 }}>Booking stages</h2>
+              <p style={{ color: '#68746d' }}>
+                Select a stage to open bookings at that point in the workflow.
+              </p>
+              {renderBookingStatusCards()}
+            </section>
+
+            <section style={panelStyle}>
               <h2 style={{ marginTop: 0 }}>Recent bookings</h2>
               {bookings.length === 0 ? (
                 <p>No bookings yet.</p>
@@ -640,7 +757,7 @@ export default function AdminDashboard() {
                           <td>{booking.booking_ref || '—'}</td>
                           <td>{booking.customer_name || '—'}</td>
                           <td>{booking.service || '—'}</td>
-                          <td>{booking.status || 'new'}</td>
+                          <td>{formatStatus(booking.status)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -683,6 +800,46 @@ export default function AdminDashboard() {
 
         {activeSection === 'bookings' && (
           <>
+            <section style={panelStyle}>
+              <h2 style={{ marginTop: 0 }}>Booking stages</h2>
+              <p style={{ color: '#68746d' }}>
+                Choose a stage to filter the booking list.
+              </p>
+              {renderBookingStatusCards()}
+
+              <label style={labelStyle}>
+                Filter bookings
+                <select
+                  style={inputStyle}
+                  value={bookingStatusFilter}
+                  onChange={(event) =>
+                    setBookingStatusFilter(event.target.value)
+                  }
+                >
+                  <option value="all">All bookings ({bookings.length})</option>
+                  {BOOKING_STATUSES.map((status) => (
+                    <option key={status.value} value={status.value}>
+                      {status.label} ({bookingCounts[status.value]})
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              {bookingStatusFilter !== 'all' && (
+                <button
+                  type="button"
+                  style={{
+                    ...buttonStyle,
+                    marginTop: 12,
+                    background: '#17231d',
+                  }}
+                  onClick={() => setBookingStatusFilter('all')}
+                >
+                  Show all bookings
+                </button>
+              )}
+            </section>
+
             <section style={panelStyle}>
               <h2 style={{ marginTop: 0 }}>
                 <Plus size={20} style={{ verticalAlign: 'middle' }} />{' '}
@@ -839,12 +996,21 @@ export default function AdminDashboard() {
 
             <section style={panelStyle}>
               <h2 style={{ marginTop: 0 }}>
-                <ClipboardList size={20} style={{ verticalAlign: 'middle' }} />{' '}
-                All bookings
+                <ClipboardList
+                  size={20}
+                  style={{ verticalAlign: 'middle' }}
+                />{' '}
+                {bookingStatusFilter === 'all'
+                  ? 'All bookings'
+                  : `${formatStatus(bookingStatusFilter)} bookings`}
               </h2>
 
-              {bookings.length === 0 ? (
-                <p>No bookings found.</p>
+              {filteredBookings.length === 0 ? (
+                <p>
+                  {bookingStatusFilter === 'all'
+                    ? 'No bookings found.'
+                    : `No ${formatStatus(bookingStatusFilter).toLowerCase()} bookings found.`}
+                </p>
               ) : (
                 <div style={{ overflowX: 'auto' }}>
                   <table style={tableStyle}>
@@ -859,7 +1025,7 @@ export default function AdminDashboard() {
                       </tr>
                     </thead>
                     <tbody>
-                      {bookings.map((booking) => (
+                      {filteredBookings.map((booking) => (
                         <tr key={booking.id}>
                           <td>{booking.booking_ref || '—'}</td>
                           <td>{booking.customer_name || '—'}</td>
@@ -868,8 +1034,9 @@ export default function AdminDashboard() {
                           <td>{booking.preferred_date || '—'}</td>
                           <td>
                             <select
+                              aria-label={`Status for ${booking.booking_ref || booking.customer_name}`}
                               style={inputStyle}
-                              value={booking.status || 'new'}
+                              value={normalizeStatus(booking.status)}
                               onChange={(event) =>
                                 updateBookingStatus(
                                   booking.id,
@@ -877,18 +1044,23 @@ export default function AdminDashboard() {
                                 )
                               }
                             >
-                              {[
-                                'new',
-                                'pending',
-                                'confirmed',
-                                'in_progress',
-                                'completed',
-                                'cancelled',
-                              ].map((status) => (
-                                <option key={status} value={status}>
-                                  {status.replaceAll('_', ' ')}
+                              {BOOKING_STATUSES.map((status) => (
+                                <option
+                                  key={status.value}
+                                  value={status.value}
+                                >
+                                  {status.label}
                                 </option>
                               ))}
+                              {!BOOKING_STATUSES.some(
+                                (status) =>
+                                  status.value ===
+                                  normalizeStatus(booking.status)
+                              ) && (
+                                <option value={normalizeStatus(booking.status)}>
+                                  {formatStatus(booking.status)}
+                                </option>
+                              )}
                             </select>
                           </td>
                         </tr>
@@ -1161,7 +1333,9 @@ export default function AdminDashboard() {
                   disabled={savingSettings}
                 >
                   <Save size={17} />
-                  {savingSettings ? 'Saving...' : 'Save business settings'}
+                  {savingSettings
+                    ? 'Saving...'
+                    : 'Save business settings'}
                 </button>
               </form>
             )}
