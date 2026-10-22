@@ -1,49 +1,37 @@
-import { useState } from 'react'
-import { ArrowLeftRight } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import BeforeAfterSlider from './BeforeAfterSlider'
+import { projects } from '../data/galleryProjects'
 
-export default function BeforeAfterSlider({ title, before, after }) {
-  const [position, setPosition] = useState(50)
+export default function BeforeAfter() {
+  const featured = projects.slice(0, 3)
 
   return (
-    <div className="ba-slider">
-      <img
-        className="ba-image"
-        src={after}
-        alt={`${title} after cleaning`}
-        loading="lazy"
-        decoding="async"
-        draggable="false"
-      />
+    <section className="ba-section" id="before-after">
+      <div className="container">
+        <header className="ba-header">
+          <span className="ba-eyebrow">Before &amp; After</span>
 
-      <img
-        className="ba-image ba-image-before"
-        src={before}
-        alt={`${title} before cleaning`}
-        loading="lazy"
-        decoding="async"
-        draggable="false"
-        style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
-      />
+          <h2>Drag to see the difference</h2>
 
-      <span className="ba-label ba-label-before">Before</span>
-      <span className="ba-label ba-label-after">After</span>
+          <p>Real transformations from our crews across Lagos.</p>
+        </header>
 
-      <span className="ba-divider" style={{ left: `${position}%` }} />
+        <div className="ba-grid ba-grid--3">
+          {featured.map((project) => (
+            <article className="ba-card" key={project.title}>
+              <BeforeAfterSlider {...project} />
 
-      <span className="ba-handle" style={{ left: `${position}%` }}>
-        <ArrowLeftRight size={16} aria-hidden="true" />
-      </span>
+              <div className="ba-info">
+                <h3>{project.title}</h3>
+              </div>
+            </article>
+          ))}
+        </div>
 
-      <input
-        type="range"
-        className="ba-range"
-        min="0"
-        max="100"
-        step="0.5"
-        value={position}
-        onChange={(e) => setPosition(Number(e.target.value))}
-        aria-label={`Compare before and after: ${title}`}
-      />
-    </div>
+        <div className="ba-more">
+          <Link to="/gallery">View full gallery →</Link>
+        </div>
+      </div>
+    </section>
   )
 }
