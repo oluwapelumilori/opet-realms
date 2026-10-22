@@ -1,4 +1,3 @@
-```jsx
 import { useState } from 'react'
 import BeforeAfterSlider from '../components/BeforeAfterSlider'
 import { projects, categories } from '../data/galleryProjects'
