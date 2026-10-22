@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en">
   <head>
@@ -6,13 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <meta name="theme-color" content="#087F5B" />
+    <meta name="robots" content="index, follow" />
 
     <meta
       name="description"
-      content="Opet Realms — Sharp & Spotless. Professional cleaning, fumigation and garment care across Lagos Mainland and Island."
+      content="Opet Realms — Sharp & Spotless. Professional home and office cleaning, deep cleaning, fumigation and garment care across Lagos Mainland and Lagos Island."
     />
 
-    <title>Opet Realms | Sharp & Spotless</title>
+    <title>Opet Realms | Sharp & Spotless Cleaning Services in Lagos</title>
+
+    <link rel="canonical" href="https://www.opetrealms.com/" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -21,11 +23,66 @@
       href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
+
+    <!-- Open Graph metadata for social sharing -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Opet Realms" />
+    <meta
+      property="og:title"
+      content="Opet Realms | Sharp & Spotless Cleaning Services in Lagos"
+    />
+    <meta
+      property="og:description"
+      content="Professional home and office cleaning, fumigation and garment care across Lagos Mainland and Lagos Island."
+    />
+    <meta property="og:url" content="https://www.opetrealms.com/" />
+
+    <!-- Twitter / X sharing -->
+    <meta name="twitter:card" content="summary" />
+    <meta
+      name="twitter:title"
+      content="Opet Realms | Sharp & Spotless"
+    />
+    <meta
+      name="twitter:description"
+      content="Professional cleaning, fumigation and garment care across Lagos Mainland and Lagos Island."
+    />
+
+    <!-- Structured data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Opet Realms",
+        "alternateName": "Opet Realms Cleaning Services",
+        "url": "https://www.opetrealms.com/"
+      }
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "CleaningService",
+        "name": "Opet Realms",
+        "url": "https://www.opetrealms.com/",
+        "description": "Professional home and office cleaning, deep cleaning, fumigation and garment care across Lagos Mainland and Lagos Island.",
+        "areaServed": [
+          {
+            "@type": "AdministrativeArea",
+            "name": "Lagos Mainland, Lagos, Nigeria"
+          },
+          {
+            "@type": "AdministrativeArea",
+            "name": "Lagos Island, Lagos, Nigeria"
+          }
+        ]
+      }
+    </script>
   </head>
 
   <body>
     <div id="root"></div>
-
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
+```
