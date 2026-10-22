@@ -1,48 +1,30 @@
 
 import { useState } from 'react'
-import { ArrowLeftRight, ArrowRight, Sparkles } from 'lucide-react'
+import { ArrowLeftRight, Sparkles } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 const projects = [
   {
-    title: 'Bedroom Refresh',
-    category: 'Home Cleaning',
-    before: '/images/gallery/optimized/bed-before.webp',
-    after: '/images/gallery/optimized/bed-after.webp',
+    title: 'Fabric armchair revival',
+    category: 'Armchairs',
+    before: '/images/gallery/Brown%20chair%20Before.jpg',
+    after: '/images/gallery/Brown%20chair%20After.jpg',
   },
   {
-    title: 'Parlour Refresh',
-    category: 'Home Cleaning',
-    before: '/images/gallery/optimized/parlour-before.webp',
-    after: '/images/gallery/optimized/parlour-after.webp',
+    title: 'Parlour deep clean',
+    category: 'Parlour',
+    before: '/images/gallery/Palour%20Before.jpg',
+    after: '/images/gallery/Parlour%20After.jpg',
   },
   {
-    title: 'Kitchen Deep Clean',
-    category: 'Deep Cleaning',
-    before: '/images/gallery/optimized/kitchen-before.webp',
-    after: '/images/gallery/optimized/kitchen-after.webp',
-  },
-  {
-    title: 'Carpet Refresh',
-    category: 'Deep Cleaning',
-    before: '/images/gallery/optimized/carpet-before.webp',
-    after: '/images/gallery/optimized/carpet-after.webp',
-  },
-  {
-    title: 'Living Room Refresh',
-    category: 'Home Cleaning',
-    before: '/images/gallery/optimized/parlour-before.webp',
-    after: '/images/gallery/optimized/parlour-after.webp',
-  },
-  {
-    title: 'Fresh Kitchen Finish',
-    category: 'Deep Cleaning',
-    before: '/images/gallery/optimized/kitchen-before.webp',
-    after: '/images/gallery/optimized/kitchen-after.webp',
+    title: 'Bedroom reset',
+    category: 'Bedroom',
+    before: '/images/gallery/Bed%20Before%20.jpg',
+    after: '/images/gallery/Bed%20after%20.jpg',
   },
 ]
 
-function Slider({ project }) {
+function BeforeAfterSlider({ project }) {
   const [position, setPosition] = useState(50)
 
   return (
@@ -50,7 +32,7 @@ function Slider({ project }) {
       <img
         className="ba-image"
         src={project.after}
-        alt={`${project.title} after`}
+        alt={`${project.title} after cleaning`}
         loading="lazy"
         decoding="async"
         draggable="false"
@@ -59,7 +41,7 @@ function Slider({ project }) {
       <img
         className="ba-image ba-image-before"
         src={project.before}
-        alt={`${project.title} before`}
+        alt={`${project.title} before cleaning`}
         loading="lazy"
         decoding="async"
         draggable="false"
@@ -68,13 +50,8 @@ function Slider({ project }) {
         }}
       />
 
-      <span className="ba-label ba-label-before">
-        Before
-      </span>
-
-      <span className="ba-label ba-label-after">
-        After
-      </span>
+      <span className="ba-label ba-label-before">Before</span>
+      <span className="ba-label ba-label-after">After</span>
 
       <span
         className="ba-divider"
@@ -93,7 +70,7 @@ function Slider({ project }) {
         className="ba-range"
         min="0"
         max="100"
-        step="0.5"
+        step="1"
         value={position}
         onChange={(event) =>
           setPosition(Number(event.target.value))
@@ -106,24 +83,17 @@ function Slider({ project }) {
 
 export default function BeforeAfter() {
   return (
-    <section
-      className="section before-after-section"
-      id="before-after"
-    >
+    <section className="before-after section" id="before-after">
       <div className="container">
-        <div className="section-heading">
+        <div className="before-after-heading">
           <span className="section-eyebrow">
-            <Sparkles size={16} aria-hidden="true" />
-            Before &amp; After
+            BEFORE &amp; AFTER
           </span>
 
-          <h2>
-            See the{' '}
-            <span className="hero-highlight">difference.</span>
-          </h2>
+          <h2>Drag to see the difference</h2>
 
           <p>
-            Real cleaning transformations from our work across Lagos.
+            Real transformations from our crews across Lagos.
           </p>
         </div>
 
@@ -133,26 +103,19 @@ export default function BeforeAfter() {
               className="before-after-card"
               key={project.title}
             >
-              <Slider project={project} />
+              <BeforeAfterSlider project={project} />
 
               <div className="before-after-info">
-                <div>
-                  <span className="before-after-category">
-                    {project.category}
-                  </span>
-                  <h3>{project.title}</h3>
-                </div>
-
-                <Sparkles size={20} aria-hidden="true" />
+                <h3>{project.title}</h3>
               </div>
             </article>
           ))}
         </div>
 
         <div className="before-after-cta">
-          <Link to="/gallery" className="button button-primary">
-            View All Projects
-            <ArrowRight size={18} aria-hidden="true" />
+          <Link to="/gallery" className="before-after-gallery-link">
+            View full gallery
+            <span aria-hidden="true">→</span>
           </Link>
         </div>
       </div>
