@@ -1,0 +1,291 @@
+/* ---------- Section shell ---------- */
+.ba-section {
+  --ba-bg: #04050a;
+  --ba-text: #ffffff;
+  --ba-muted: #8fa3bf;
+  --ba-border: rgba(255, 255, 255, 0.14);
+  --ba-accent: #14d6ea;
+  --ba-radius: 24px;
+
+  background: var(--ba-bg);
+  color: var(--ba-text);
+  padding: 96px 0;
+}
+
+.ba-section--page {
+  min-height: 100vh;
+  padding-top: 120px;
+}
+
+/* ---------- Header ---------- */
+.ba-header {
+  margin-bottom: 40px;
+}
+
+.ba-eyebrow {
+  display: block;
+  margin-bottom: 14px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.ba-header h1,
+.ba-header h2 {
+  margin: 0 0 14px;
+  font-size: clamp(2.25rem, 5vw, 3.75rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.ba-header p {
+  margin: 0;
+  font-size: 1.125rem;
+  color: var(--ba-muted);
+}
+
+/* ---------- Filter pills ---------- */
+.ba-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 0 0 48px;
+}
+
+.ba-pill {
+  padding: 10px 20px;
+  border: 1px solid var(--ba-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ba-text);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.ba-pill:hover {
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.ba-pill.is-active {
+  background: #e8edf5;
+  border-color: #e8edf5;
+  color: #0a0d14;
+}
+
+.ba-pill:focus-visible {
+  outline: 2px solid var(--ba-accent);
+  outline-offset: 2px;
+}
+
+/* ---------- Grid ---------- */
+.ba-grid {
+  display: grid;
+  gap: 28px;
+}
+
+.ba-grid--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ba-grid--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 960px) {
+  .ba-grid--3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .ba-section {
+    padding: 72px 0;
+  }
+
+  .ba-section--page {
+    padding-top: 104px;
+  }
+
+  .ba-grid--2,
+  .ba-grid--3 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---------- Card ---------- */
+.ba-info {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 4px 0;
+}
+
+.ba-info h3 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.ba-category {
+  font-size: 0.85rem;
+  color: var(--ba-muted);
+  white-space: nowrap;
+}
+
+.ba-empty {
+  padding: 48px 0;
+  text-align: center;
+  color: var(--ba-muted);
+}
+
+.ba-more {
+  margin-top: 48px;
+  text-align: center;
+}
+
+.ba-more a {
+  color: var(--ba-text);
+  font-size: 1.125rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.ba-more a:hover {
+  text-decoration: underline;
+  text-underline-offset: 6px;
+}
+
+/* ---------- Slider ---------- */
+.ba-slider {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--ba-radius, 24px);
+  background: #0b0f1a;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.ba-slider:has(.ba-range:focus-visible) {
+  outline: 2px solid #14d6ea;
+  outline-offset: 3px;
+}
+
+.ba-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+
+.ba-image-before {
+  z-index: 1;
+}
+
+.ba-label {
+  position: absolute;
+  top: 14px;
+  z-index: 3;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.2;
+  pointer-events: none;
+}
+
+.ba-label-before {
+  left: 14px;
+  background: rgba(10, 12, 18, 0.85);
+  color: #ffffff;
+}
+
+.ba-label-after {
+  right: 14px;
+  background: rgba(235, 240, 248, 0.92);
+  color: #0a0d14;
+}
+
+.ba-divider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+  width: 2px;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.9);
+  pointer-events: none;
+}
+
+.ba-handle {
+  position: absolute;
+  top: 50%;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: rgba(235, 240, 248, 0.95);
+  color: #0a0d14;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+
+/* Invisible range input covers the whole card.
+   It is 44px wider than the card (22px each side) and its thumb is 44px wide,
+   so the thumb centre travels exactly 0% to 100% of the card. */
+.ba-range {
+  position: absolute;
+  top: 0;
+  left: -22px;
+  z-index: 4;
+  width: calc(100% + 44px);
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  cursor: ew-resize;
+  touch-action: pan-y;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+
+.ba-range::-webkit-slider-runnable-track {
+  height: 100%;
+  background: transparent;
+}
+
+.ba-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 44px;
+  height: 1000px;
+  background: transparent;
+  border: 0;
+}
+
+.ba-range::-moz-range-track {
+  height: 100%;
+  background: transparent;
+}
+
+.ba-range::-moz-range-thumb {
+  width: 44px;
+  height: 1000px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
