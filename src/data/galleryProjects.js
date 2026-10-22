@@ -1,3 +1,4 @@
+```javascript
 const img = (name) => `/images/gallery/${encodeURIComponent(name)}`
 
 export const categories = [
@@ -103,3 +104,4 @@ export const projects = [
     after: img('Rug After .jpg'),
   },
 ]
+```
