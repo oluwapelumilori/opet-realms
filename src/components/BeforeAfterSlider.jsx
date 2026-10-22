@@ -1,6 +1,6 @@
-
 import { useState } from 'react'
 import { ArrowLeftRight } from 'lucide-react'
+import '../styles/before-after.css'
 
 export default function BeforeAfterSlider({
   title = 'Cleaning transformation',
@@ -16,6 +16,7 @@ export default function BeforeAfterSlider({
         src={after}
         alt={`${title} after cleaning`}
         loading="lazy"
+        decoding="async"
         draggable="false"
       />
 
@@ -24,24 +25,17 @@ export default function BeforeAfterSlider({
         src={before}
         alt={`${title} before cleaning`}
         loading="lazy"
+        decoding="async"
         draggable="false"
-        style={{
-          clipPath: `inset(0 ${100 - position}% 0 0)`,
-        }}
+        style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
       />
 
       <span className="ba-label ba-label-before">Before</span>
       <span className="ba-label ba-label-after">After</span>
 
-      <span
-        className="ba-divider"
-        style={{ left: `${position}%` }}
-      />
+      <span className="ba-divider" style={{ left: `${position}%` }} />
 
-      <span
-        className="ba-handle"
-        style={{ left: `${position}%` }}
-      >
+      <span className="ba-handle" style={{ left: `${position}%` }}>
         <ArrowLeftRight size={18} aria-hidden="true" />
       </span>
 
@@ -50,11 +44,9 @@ export default function BeforeAfterSlider({
         type="range"
         min="0"
         max="100"
-        step="1"
+        step="0.5"
         value={position}
-        onChange={(event) =>
-          setPosition(Number(event.target.value))
-        }
+        onChange={(event) => setPosition(Number(event.target.value))}
         aria-label={`Compare before and after: ${title}`}
       />
     </div>
