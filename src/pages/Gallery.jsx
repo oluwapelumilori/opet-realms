@@ -5,7 +5,7 @@ import { projects, categories } from '../data/galleryProjects'
 export default function Gallery() {
   const [active, setActive] = useState('All')
 
-  const visible =
+  const visibleProjects =
     active === 'All'
       ? projects
       : projects.filter((project) => project.category === active)
@@ -15,7 +15,9 @@ export default function Gallery() {
       <div className="container">
         <header className="ba-header">
           <span className="ba-eyebrow">Before &amp; After</span>
+
           <h1>Our work, up close</h1>
+
           <p>
             Real transformations from our crews across Lagos.
           </p>
@@ -30,9 +32,9 @@ export default function Gallery() {
             <button
               key={category}
               type="button"
-              className={`ba-pill ${
-                active === category ? 'is-active' : ''
-              }`}
+              className={
+                active === category ? 'ba-pill is-active' : 'ba-pill'
+              }
               aria-pressed={active === category}
               onClick={() => setActive(category)}
             >
@@ -41,17 +43,15 @@ export default function Gallery() {
           ))}
         </div>
 
-        {visible.length > 0 ? (
+        {visibleProjects.length > 0 ? (
           <div className="ba-grid ba-grid--2">
-            {visible.map((project) => (
-              <article
-                className="ba-card"
-                key={project.title}
-              >
+            {visibleProjects.map((project) => (
+              <article className="ba-card" key={project.title}>
                 <BeforeAfterSlider {...project} />
 
                 <div className="ba-info">
                   <h3>{project.title}</h3>
+
                   <span className="ba-category">
                     {project.category}
                   </span>
@@ -68,4 +68,3 @@ export default function Gallery() {
     </main>
   )
 }
-```
