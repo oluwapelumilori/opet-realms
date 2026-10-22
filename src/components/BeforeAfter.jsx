@@ -2,43 +2,43 @@
 import { useState } from 'react'
 import { ArrowLeftRight, ArrowRight, Sparkles } from 'lucide-react'
 import { Link } from 'react-router-dom'
-  
+
 const projects = [
   {
     title: 'Bedroom Refresh',
     category: 'Home Cleaning',
-    before: '/images/gallery/Bed%20Before%20.jpg',
-    after: '/images/gallery/Bed%20after%20.jpg',
+    before: '/images/gallery/optimized/bed-before.webp',
+    after: '/images/gallery/optimized/bed-after.webp',
   },
   {
     title: 'Parlour Refresh',
     category: 'Home Cleaning',
-    before: '/images/gallery/Palour%20Before.jpg',
-    after: '/images/gallery/Parlour%20After.jpg',
+    before: '/images/gallery/optimized/parlour-before.webp',
+    after: '/images/gallery/optimized/parlour-after.webp',
   },
   {
     title: 'Kitchen Deep Clean',
     category: 'Deep Cleaning',
-    before: '/images/gallery/Big%20kitchen%20Before%20.jpg',
-    after: '/images/gallery/Big%20kitchen%20After.jpg',
+    before: '/images/gallery/optimized/kitchen-before.webp',
+    after: '/images/gallery/optimized/kitchen-after.webp',
   },
   {
     title: 'Carpet Refresh',
     category: 'Deep Cleaning',
-    before: '/images/gallery/Carpet%20Before%20.jpg',
-    after: '/images/gallery/Carpet%20After.jpg',
+    before: '/images/gallery/optimized/carpet-before.webp',
+    after: '/images/gallery/optimized/carpet-after.webp',
   },
   {
     title: 'Living Room Refresh',
     category: 'Home Cleaning',
-    before: '/images/gallery/Palour%20Before.jpg',
-    after: '/images/gallery/Parlour%20After.jpg',
+    before: '/images/gallery/optimized/parlour-before.webp',
+    after: '/images/gallery/optimized/parlour-after.webp',
   },
   {
     title: 'Fresh Kitchen Finish',
     category: 'Deep Cleaning',
-    before: '/images/gallery/Big%20kitchen%20Before%20.jpg',
-    after: '/images/gallery/Big%20kitchen%20After.jpg',
+    before: '/images/gallery/optimized/kitchen-before.webp',
+    after: '/images/gallery/optimized/kitchen-after.webp',
   },
 ]
 
@@ -52,14 +52,16 @@ function Slider({ project }) {
         src={project.after}
         alt={`${project.title} after`}
         loading="lazy"
+        decoding="async"
         draggable="false"
       />
 
       <img
-        className="ba-image"
+        className="ba-image ba-image-before"
         src={project.before}
         alt={`${project.title} before`}
         loading="lazy"
+        decoding="async"
         draggable="false"
         style={{
           clipPath: `inset(0 ${100 - position}% 0 0)`,
@@ -148,10 +150,7 @@ export default function BeforeAfter() {
         </div>
 
         <div className="before-after-cta">
-          <Link
-            to="/gallery"
-            className="button button-primary"
-          >
+          <Link to="/gallery" className="button button-primary">
             View All Projects
             <ArrowRight size={18} aria-hidden="true" />
           </Link>
