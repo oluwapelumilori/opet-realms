@@ -82,17 +82,24 @@
   outline-offset: 2px;
 }
 
-/* ---------- Grid ---------- */
+/* ---------- Grid ----------
+   --ba-ratio sets the shape of every slider box in that grid.
+   All cards in a grid share one shape, so the layout stays even.
+   Photos are shown whole inside the box (object-fit: contain below).
+   To make the boxes taller, lower the second number (1 / 1 -> 1 / 1.1).
+   To make them shorter, raise it (1 / 1 -> 1.1 / 1). */
 .ba-grid {
   display: grid;
   gap: 28px;
 }
 
 .ba-grid--2 {
+  --ba-ratio: 5 / 4;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .ba-grid--3 {
+  --ba-ratio: 1 / 1;
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
@@ -113,6 +120,7 @@
 
   .ba-grid--2,
   .ba-grid--3 {
+    --ba-ratio: 4 / 5;
     grid-template-columns: minmax(0, 1fr);
   }
 }
@@ -164,7 +172,8 @@
 /* ---------- Slider ---------- */
 .ba-slider {
   position: relative;
-  aspect-ratio: 4 / 3;
+  width: 100%;
+  aspect-ratio: var(--ba-ratio, 1 / 1);
   overflow: hidden;
   border-radius: var(--ba-radius, 24px);
   background: #0b0f1a;
@@ -177,12 +186,17 @@
   outline-offset: 3px;
 }
 
+/* contain = the whole photo is always visible, nothing is cut off.
+   Photos that do not match the box shape get a little dark space
+   at the sides (portrait) or top and bottom (landscape). */
 .ba-image {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  max-width: none;
+  object-fit: contain;
+  object-position: center;
   display: block;
   pointer-events: none;
 }
