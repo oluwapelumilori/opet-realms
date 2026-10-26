@@ -43,7 +43,7 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 100px;
+  scroll-padding-top: 124px;
 }
 
 body {
@@ -395,6 +395,12 @@ textarea:focus-visible {
    Dark bar so the black logo image blends in.
    If you switch to a transparent logo, change
    --nav-bg to #ffffff and the link colours.
+
+   Logo sizes:
+   - Desktop (1201px and up): 80px tall
+   - Small desktop (1001px to 1200px): 68px tall, tighter spacing
+   - Tablet (601px to 1000px): 72px tall
+   - Mobile (600px and below): 60px tall
 ================================ */
 
 .navbar {
@@ -413,8 +419,8 @@ textarea:focus-visible {
   display: flex;
   align-items: center;
   gap: 24px;
-  min-height: 80px;
-  padding-block: 8px;
+  min-height: 100px;
+  padding-block: 10px;
 }
 
 .navbar-logo {
@@ -425,7 +431,7 @@ textarea:focus-visible {
 .navbar-logo img {
   display: block;
   width: auto;
-  height: 60px;
+  height: 80px;
 }
 
 /* Desktop layout */
@@ -489,8 +495,41 @@ textarea:focus-visible {
   display: none;
 }
 
+/* Small desktop: keep the larger logo from crowding the links and buttons */
+@media (max-width: 1200px) {
+  .navbar-inner {
+    gap: 16px;
+    min-height: 88px;
+  }
+
+  .navbar-logo img {
+    height: 68px;
+  }
+
+  .nav-links {
+    gap: 18px;
+  }
+
+  .nav-actions {
+    gap: 8px;
+  }
+
+  .nav-cta {
+    padding: 10px 14px;
+  }
+}
+
 /* Mobile / tablet */
 @media (max-width: 1000px) {
+  .navbar-inner {
+    gap: 24px;
+    min-height: 92px;
+  }
+
+  .navbar-logo img {
+    height: 72px;
+  }
+
   .nav-actions {
     display: none;
   }
@@ -544,11 +583,12 @@ textarea:focus-visible {
 
 @media (max-width: 600px) {
   .navbar-inner {
-    min-height: 72px;
+    min-height: 76px;
+    padding-block: 8px;
   }
 
   .navbar-logo img {
-    height: 52px;
+    height: 60px;
   }
 
   .nav-links {
@@ -934,7 +974,7 @@ textarea:focus-visible {
 
 .faq-intro {
   position: sticky;
-  top: 120px;
+  top: 124px;
 }
 
 .faq-intro .eyebrow {
