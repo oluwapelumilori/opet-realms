@@ -1,0 +1,21 @@
+{
+  "name": "Opet Realms",
+  "short_name": "Opet Realms",
+  "description": "Sharp & Spotless. Professional cleaning, fumigation and garment care in Lagos.",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#087F5B",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
