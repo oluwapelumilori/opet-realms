@@ -1,10 +1,13 @@
 /* ---------- Section shell ---------- */
 .ba-section {
-  --ba-bg: #04050a;
-  --ba-text: #ffffff;
-  --ba-muted: #8fa3bf;
-  --ba-border: rgba(255, 255, 255, 0.14);
-  --ba-accent: #14d6ea;
+  --ba-bg: #f4f8fc;
+  --ba-text: #0f2238;
+  --ba-muted: #5a6b80;
+  --ba-border: #dfe7f0;
+  --ba-accent: #21c9d0;
+  --ba-navy: #16365e;
+  --ba-navy-mid: #245ea5;
+  --ba-surface: #e9eff6;
   --ba-radius: 24px;
 
   background: var(--ba-bg);
@@ -14,7 +17,7 @@
 
 .ba-section--page {
   min-height: 100vh;
-  padding-top: 120px;
+  padding-top: 64px;
 }
 
 /* ---------- Header ---------- */
@@ -25,6 +28,7 @@
 .ba-eyebrow {
   display: block;
   margin-bottom: 14px;
+  color: var(--ba-navy-mid);
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.22em;
@@ -58,7 +62,7 @@
   padding: 10px 20px;
   border: 1px solid var(--ba-border);
   border-radius: 999px;
-  background: transparent;
+  background: #ffffff;
   color: var(--ba-text);
   font: inherit;
   font-size: 0.95rem;
@@ -68,13 +72,13 @@
 }
 
 .ba-pill:hover {
-  border-color: rgba(255, 255, 255, 0.35);
+  border-color: var(--ba-navy);
 }
 
 .ba-pill.is-active {
-  background: #e8edf5;
-  border-color: #e8edf5;
-  color: #0a0d14;
+  background: var(--ba-navy);
+  border-color: var(--ba-navy);
+  color: #ffffff;
 }
 
 .ba-pill:focus-visible {
@@ -115,7 +119,7 @@
   }
 
   .ba-section--page {
-    padding-top: 104px;
+    padding-top: 48px;
   }
 
   .ba-grid--2,
@@ -158,7 +162,7 @@
 }
 
 .ba-more a {
-  color: var(--ba-text);
+  color: var(--ba-navy);
   font-size: 1.125rem;
   font-weight: 600;
   text-decoration: none;
@@ -176,7 +180,8 @@
   aspect-ratio: var(--ba-ratio, 1 / 1);
   overflow: hidden;
   border-radius: var(--ba-radius, 24px);
-  background: #0b0f1a;
+  background: var(--ba-surface);
+  box-shadow: 0 8px 28px rgba(22, 54, 94, 0.08);
   user-select: none;
   -webkit-user-select: none;
 }
@@ -187,7 +192,7 @@
 }
 
 /* contain = the whole photo is always visible, nothing is cut off.
-   Photos that do not match the box shape get a little dark space
+   Photos that do not match the box shape get a little empty space
    at the sides (portrait) or top and bottom (landscape). */
 .ba-image {
   position: absolute;
@@ -219,14 +224,15 @@
 
 .ba-label-before {
   left: 14px;
-  background: rgba(10, 12, 18, 0.85);
+  background: rgba(22, 54, 94, 0.92);
   color: #ffffff;
 }
 
 .ba-label-after {
   right: 14px;
-  background: rgba(235, 240, 248, 0.92);
-  color: #0a0d14;
+  background: rgba(255, 255, 255, 0.96);
+  color: #16365e;
+  box-shadow: 0 2px 8px rgba(22, 54, 94, 0.18);
 }
 
 .ba-divider {
@@ -236,7 +242,8 @@
   z-index: 2;
   width: 2px;
   transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.9);
+  background: #ffffff;
+  box-shadow: 0 0 0 1px rgba(22, 54, 94, 0.25), 0 0 8px rgba(0, 0, 0, 0.25);
   pointer-events: none;
 }
 
@@ -251,9 +258,9 @@
   height: 44px;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: rgba(235, 240, 248, 0.95);
-  color: #0a0d14;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  background: #ffffff;
+  color: #16365e;
+  box-shadow: 0 4px 16px rgba(22, 54, 94, 0.35);
   pointer-events: none;
 }
 
@@ -302,4 +309,36 @@
   background: transparent;
   border: 0;
   border-radius: 0;
+}
+
+/* ---------- Missing photo fallback ---------- */
+.ba-missing {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  color: var(--ba-muted);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.ba-note {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  z-index: 3;
+  padding: 6px 14px;
+  border-radius: 999px;
+  transform: translateX(-50%);
+  color: #ffffff;
+  background: rgba(22, 54, 94, 0.9);
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  pointer-events: none;
 }
