@@ -43,7 +43,7 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 124px;
+  scroll-padding-top: 100px;
 }
 
 body {
@@ -395,12 +395,6 @@ textarea:focus-visible {
    Dark bar so the black logo image blends in.
    If you switch to a transparent logo, change
    --nav-bg to #ffffff and the link colours.
-
-   Logo sizes:
-   - Desktop (1201px and up): 80px tall
-   - Small desktop (1001px to 1200px): 68px tall, tighter spacing
-   - Tablet (601px to 1000px): 72px tall
-   - Mobile (600px and below): 60px tall
 ================================ */
 
 .navbar {
@@ -419,8 +413,8 @@ textarea:focus-visible {
   display: flex;
   align-items: center;
   gap: 24px;
-  min-height: 100px;
-  padding-block: 10px;
+  min-height: 80px;
+  padding-block: 8px;
 }
 
 .navbar-logo {
@@ -431,7 +425,7 @@ textarea:focus-visible {
 .navbar-logo img {
   display: block;
   width: auto;
-  height: 80px;
+  height: 60px;
 }
 
 /* Desktop layout */
@@ -495,41 +489,8 @@ textarea:focus-visible {
   display: none;
 }
 
-/* Small desktop: keep the larger logo from crowding the links and buttons */
-@media (max-width: 1200px) {
-  .navbar-inner {
-    gap: 16px;
-    min-height: 88px;
-  }
-
-  .navbar-logo img {
-    height: 68px;
-  }
-
-  .nav-links {
-    gap: 18px;
-  }
-
-  .nav-actions {
-    gap: 8px;
-  }
-
-  .nav-cta {
-    padding: 10px 14px;
-  }
-}
-
 /* Mobile / tablet */
 @media (max-width: 1000px) {
-  .navbar-inner {
-    gap: 24px;
-    min-height: 92px;
-  }
-
-  .navbar-logo img {
-    height: 72px;
-  }
-
   .nav-actions {
     display: none;
   }
@@ -583,12 +544,11 @@ textarea:focus-visible {
 
 @media (max-width: 600px) {
   .navbar-inner {
-    min-height: 76px;
-    padding-block: 8px;
+    min-height: 72px;
   }
 
   .navbar-logo img {
-    height: 60px;
+    height: 52px;
   }
 
   .nav-links {
@@ -753,6 +713,172 @@ textarea:focus-visible {
   }
 }
 
+/* ================================
+   BEFORE & AFTER SECTION
+================================ */
+
+.before-after-section {
+  background: #ffffff;
+}
+
+.before-after-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+}
+
+.comparison-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 8px 28px rgba(22, 54, 94, 0.05);
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.comparison-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 38px rgba(22, 54, 94, 0.12);
+}
+
+.comparison-images {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3px;
+  background: #ffffff;
+}
+
+.comparison-image {
+  position: relative;
+  min-width: 0;
+  height: 270px;
+  overflow: hidden;
+  background: var(--cyan-tint);
+}
+
+.comparison-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 350ms ease;
+}
+
+.comparison-card:hover .comparison-image img {
+  transform: scale(1.04);
+}
+
+.comparison-label {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  padding: 7px 12px;
+  border-radius: 5px;
+  color: #ffffff;
+  background: var(--text);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.comparison-label-after {
+  background: var(--navy);
+}
+
+.comparison-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px;
+}
+
+.comparison-category {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--navy-mid);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.comparison-content h3 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.comparison-sparkle {
+  flex-shrink: 0;
+  color: var(--cyan);
+}
+
+.before-after-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 48px;
+  padding: 30px 32px;
+  border-radius: 14px;
+  background: var(--cyan-tint);
+}
+
+.before-after-cta p {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.gallery-note {
+  margin: 24px auto 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.8;
+  text-align: center;
+}
+
+@media (max-width: 700px) {
+  .before-after-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .comparison-image {
+    height: 220px;
+  }
+
+  .comparison-content {
+    padding: 20px;
+  }
+
+  .before-after-cta {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 32px;
+    padding: 24px;
+  }
+
+  .before-after-cta .button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 380px) {
+  .comparison-image {
+    height: 170px;
+  }
+
+  .comparison-label {
+    top: 10px;
+    left: 10px;
+    padding: 6px 8px;
+    font-size: 0.6rem;
+  }
+}
 
 /* ================================
    FAQ SECTION
@@ -771,7 +897,7 @@ textarea:focus-visible {
 
 .faq-intro {
   position: sticky;
-  top: 124px;
+  top: 120px;
 }
 
 .faq-intro .eyebrow {
@@ -1823,6 +1949,159 @@ textarea:focus-visible {
 
   .admin-login-card {
     padding: 30px 22px;
+  }
+}
+
+/* Homepage before-and-after comparison sliders */
+
+.before-after .before-after-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  align-items: start;
+}
+
+.before-after .before-after-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 8px 28px rgba(22, 54, 94, 0.06);
+}
+
+.ba-slider {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #e6f9fa;
+  isolation: isolate;
+  cursor: ew-resize;
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.ba-image {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.ba-image-before {
+  z-index: 1;
+}
+
+.ba-label {
+  position: absolute;
+  top: 14px;
+  z-index: 3;
+  padding: 6px 10px;
+  border-radius: 5px;
+  color: #ffffff;
+  background: #16365e;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.4;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.ba-label-before {
+  left: 12px;
+}
+
+.ba-label-after {
+  right: 12px;
+}
+
+.ba-divider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+  width: 3px;
+  background: #ffffff;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.ba-handle {
+  position: absolute;
+  top: 50%;
+  z-index: 4;
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  color: #0f2744;
+  background: #21c9d0;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.ba-range {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: ew-resize;
+  touch-action: pan-y;
+}
+
+.ba-range:focus-visible {
+  opacity: 1;
+  outline: 3px solid #21c9d0;
+  outline-offset: -4px;
+}
+
+.before-after .before-after-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px;
+}
+
+.before-after .before-after-category {
+  display: block;
+  margin-bottom: 6px;
+  color: #245ea5;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.before-after .before-after-info h3 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.before-after .before-after-info > svg {
+  flex-shrink: 0;
+  color: #21c9d0;
+}
+
+@media (max-width: 700px) {
+  .before-after .before-after-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .before-after .before-after-info {
+    padding: 18px;
   }
 }
 
