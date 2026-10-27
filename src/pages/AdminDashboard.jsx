@@ -291,6 +291,10 @@ export default function AdminDashboard() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [permissionMessage, setPermissionMessage] = useState('')
+  const [creatingStaff, setCreatingStaff] = useState(false)
+  const [staffForm, setStaffForm] = useState({ full_name: '', email: '', password: '', ...emptyPermissions })
+  const [staffActionBusy, setStaffActionBusy] = useState({})
+  const [staffResetPasswords, setStaffResetPasswords] = useState({})
   const [settingsLoaded, setSettingsLoaded] = useState(false)
 
   const [bookingForm, setBookingForm] = useState(emptyBookingForm)
@@ -599,6 +603,95 @@ export default function AdminDashboard() {
       setPermissionMessage(`Could not save permissions: ${err.message}`)
     } finally {
       setPermissionSaving((current) => ({ ...current, [staffId]: false }))
+    }
+  }
+
+  function updateStaffForm(field, value) {
+    setStaffForm((current) => ({ ...current, [field]: value }))
+  }
+
+  async function callStaffFunction(body) {
+    const { data, error: functionError } = await supabase.functions.invoke('manage-staff', { body })
+    if (functionError) {
+      let message = functionError.message || 'Staff management request failed.'
+      try {
+        const context = functionError.context
+        if (context && typeof context.json === 'function') {
+          const details = await context.json()
+          if (details?.error) message = details.error
+        }
+      } catch (_) {}
+      throw new Error(message)
+    }
+    if (data?.error) throw new Error(data.error)
+    return data
+  }
+
+  async function handleCreateStaff(event) {
+    event.preventDefault()
+    setPermissionMessage('')
+    setError('')
+    setSuccess('')
+    setCreatingStaff(true)
+    try {
+      const permissions = {
+        view_bookings: Boolean(staffForm.view_bookings || staffForm.manage_bookings),
+        manage_bookings: Boolean(staffForm.manage_bookings),
+        view_invoices: Boolean(staffForm.view_invoices || staffForm.manage_invoices),
+        manage_invoices: Boolean(staffForm.manage_invoices),
+      }
+      await callStaffFunction({
+        action: 'create',
+        full_name: staffForm.full_name.trim(),
+        email: staffForm.email.trim().toLowerCase(),
+        password: staffForm.password,
+        permissions,
+      })
+      setStaffForm({ full_name: '', email: '', password: '', ...emptyPermissions })
+      setPermissionMessage('Staff account created successfully. Share the temporary password securely and ask the staff member to change it after signing in.')
+      await loadDashboard()
+    } catch (err) {
+      setPermissionMessage(`Could not create staff account: ${err.message}`)
+    } finally {
+      setCreatingStaff(false)
+    }
+  }
+
+  async function handleStaffActive(member) {
+    if (member.role === 'admin') return
+    const nextActive = !member.is_active
+    const actionLabel = nextActive ? 'reactivate' : 'deactivate'
+    if (!window.confirm(`Are you sure you want to ${actionLabel} ${member.full_name || member.email}?`)) return
+    setStaffActionBusy((current) => ({ ...current, [member.id]: true }))
+    setPermissionMessage('')
+    try {
+      await callStaffFunction({ action: 'set_active', user_id: member.id, is_active: nextActive })
+      setPermissionMessage(`Staff account ${nextActive ? 'reactivated' : 'deactivated'} successfully.`)
+      await loadDashboard()
+    } catch (err) {
+      setPermissionMessage(`Could not ${actionLabel} account: ${err.message}`)
+    } finally {
+      setStaffActionBusy((current) => ({ ...current, [member.id]: false }))
+    }
+  }
+
+  async function handleResetStaffPassword(member) {
+    const password = String(staffResetPasswords[member.id] || '')
+    if (password.length < 8) {
+      setPermissionMessage('Enter a temporary password with at least 8 characters before resetting.')
+      return
+    }
+    if (!window.confirm(`Reset the password for ${member.full_name || member.email}?`)) return
+    setStaffActionBusy((current) => ({ ...current, [member.id]: true }))
+    setPermissionMessage('')
+    try {
+      await callStaffFunction({ action: 'reset_password', user_id: member.id, password })
+      setStaffResetPasswords((current) => ({ ...current, [member.id]: '' }))
+      setPermissionMessage(`Temporary password reset for ${member.full_name || member.email}. Share it securely and ask them to change it after signing in.`)
+    } catch (err) {
+      setPermissionMessage(`Could not reset password: ${err.message}`)
+    } finally {
+      setStaffActionBusy((current) => ({ ...current, [member.id]: false }))
     }
   }
 
@@ -1434,84 +1527,122 @@ export default function AdminDashboard() {
         )}
 
         {activeSection === 'staff' && (
-          <section style={panelStyle}>
-            <SectionHeading description="Control what each staff account can view and manage.">
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}>
-                <ShieldCheck size={18} color={GREEN} /> Staff Management
-              </span>
-            </SectionHeading>
+          <section>
+            <section style={panelStyle}>
+              <SectionHeading description="Create staff logins, set permissions, reset temporary passwords, and deactivate access.">
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+                  <ShieldCheck size={18} color={GREEN} /> Staff Management
+                </span>
+              </SectionHeading>
 
-            {permissionMessage && (
-              <p role="status" style={{ color: permissionMessage.startsWith('Could not') ? '#9f2424' : GREEN, fontSize: 13 }}>
-                {permissionMessage}
+              {permissionMessage && (
+                <p role="status" style={{ color: permissionMessage.startsWith('Could not') ? '#9f2424' : GREEN, background: permissionMessage.startsWith('Could not') ? '#fff1f1' : '#f0faf5', padding: 11, borderRadius: 8, fontSize: 13, overflowWrap: 'anywhere' }}>
+                  {permissionMessage}
+                </p>
+              )}
+
+              <h3 style={{ margin: '18px 0 12px', fontSize: 15, color: DARK }}>Create a staff account</h3>
+              <p style={{ color: MUTED, fontSize: 12, lineHeight: 1.6, marginTop: 0 }}>
+                Use a real email address as the staff username. The temporary password is sent securely to Supabase Auth and is not saved in your database.
               </p>
-            )}
+              <form onSubmit={handleCreateStaff}>
+                <div style={formGridStyle}>
+                  <label style={labelStyle}>Full name
+                    <input style={inputStyle} value={staffForm.full_name} onChange={(event) => updateStaffForm('full_name', event.target.value)} required maxLength={120} placeholder="Staff member name" />
+                  </label>
+                  <label style={labelStyle}>Email / username
+                    <input style={inputStyle} type="email" autoComplete="off" value={staffForm.email} onChange={(event) => updateStaffForm('email', event.target.value)} required maxLength={254} placeholder="staff@example.com" />
+                  </label>
+                  <label style={labelStyle}>Temporary password
+                    <input style={inputStyle} type="password" autoComplete="new-password" minLength={8} value={staffForm.password} onChange={(event) => updateStaffForm('password', event.target.value)} required placeholder="At least 8 characters" />
+                  </label>
+                </div>
+                <div style={{ border: `1px solid ${BORDER}`, borderRadius: 9, padding: 13, marginTop: 14 }}>
+                  <strong style={{ display: 'block', fontSize: 13, marginBottom: 10 }}>Permissions</strong>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: 10 }}>
+                    {[
+                      ['view_bookings', 'View bookings'],
+                      ['manage_bookings', 'Manage bookings'],
+                      ['view_invoices', 'View invoices'],
+                      ['manage_invoices', 'Manage invoices'],
+                    ].map(([key, label]) => (
+                      <label key={key} style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: 12, color: DARK }}>
+                        <input type="checkbox" checked={Boolean(staffForm[key])} onChange={(event) => updateStaffForm(key, event.target.checked)} /> {label}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <button type="submit" style={{ ...buttonStyle, marginTop: 14 }} disabled={creatingStaff}>
+                  {creatingStaff ? <LoaderCircle size={15} /> : <Plus size={15} />}
+                  {creatingStaff ? 'Creating account...' : 'Create staff account'}
+                </button>
+              </form>
+            </section>
 
-            {team.length === 0 ? (
-              <p style={{ color: MUTED, fontSize: 13 }}>No staff profiles found.</p>
-            ) : (
-              <div style={{ display: 'grid', gap: 12 }}>
-                {team.map((member) => {
-                  const permissions = {
-                    ...emptyPermissions,
-                    ...staffPermissions[member.id],
-                  }
-                  const isAdmin = member.role === 'admin'
-
-                  return (
-                    <div key={member.id} style={{ border: `1px solid ${BORDER}`, borderRadius: 9, padding: 14 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap', marginBottom: 12 }}>
-                        <div>
-                          <strong style={{ fontSize: 14 }}>{member.full_name || 'Unnamed staff member'}</strong>
-                          <div style={{ color: MUTED, fontSize: 12 }}>{member.email || 'No email'}</div>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
-                          <span style={{ fontSize: 11, padding: '4px 8px', borderRadius: 20, background: isAdmin ? '#e8f5ef' : '#f0f2f0', color: isAdmin ? GREEN : DARK }}>
-                            {member.role || 'staff'}
-                          </span>
-                          <span style={{ fontSize: 11, padding: '4px 8px', borderRadius: 20, background: member.is_active ? '#dff7e9' : '#fee2e2', color: member.is_active ? '#166534' : '#991b1b' }}>
-                            {member.is_active ? 'Active' : 'Inactive'}
-                          </span>
-                        </div>
-                      </div>
-
-                      {isAdmin ? (
-                        <p style={{ color: MUTED, fontSize: 12, margin: 0 }}>Admin accounts retain full dashboard access.</p>
-                      ) : (
-                        <>
-                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: 9 }}>
-                            {[
-                              ['view_bookings', 'View bookings'],
-                              ['manage_bookings', 'Manage bookings'],
-                              ['view_invoices', 'View invoices'],
-                              ['manage_invoices', 'Manage invoices'],
-                            ].map(([key, label]) => (
-                              <label key={key} style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: 12, color: DARK }}>
-                                <input
-                                  type="checkbox"
-                                  checked={Boolean(permissions[key])}
-                                  onChange={(event) => toggleStaffPermission(member.id, key, event.target.checked)}
-                                />
-                                {label}
-                              </label>
-                            ))}
+            <section style={panelStyle}>
+              <SectionHeading description="Review account status and adjust permissions for existing staff members.">Staff accounts</SectionHeading>
+              {team.length === 0 ? (
+                <p style={{ color: MUTED, fontSize: 13 }}>No staff profiles found.</p>
+              ) : (
+                <div style={{ display: 'grid', gap: 12 }}>
+                  {team.map((member) => {
+                    const permissions = { ...emptyPermissions, ...staffPermissions[member.id] }
+                    const isAdmin = member.role === 'admin'
+                    const busy = Boolean(staffActionBusy[member.id])
+                    return (
+                      <div key={member.id} style={{ border: `1px solid ${BORDER}`, borderRadius: 9, padding: 14, opacity: member.is_active ? 1 : 0.85 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap', marginBottom: 12 }}>
+                          <div>
+                            <strong style={{ fontSize: 14 }}>{member.full_name || 'Unnamed staff member'}</strong>
+                            <div style={{ color: MUTED, fontSize: 12, overflowWrap: 'anywhere' }}>{member.email || 'No email'}</div>
+                            <div style={{ color: MUTED, fontSize: 11, marginTop: 4 }}>Created: {formatDate(member.created_at)}</div>
                           </div>
-                          <button
-                            type="button"
-                            style={{ ...buttonStyle, marginTop: 12 }}
-                            disabled={Boolean(permissionSaving[member.id])}
-                            onClick={() => saveStaffPermissions(member.id)}
-                          >
-                            {permissionSaving[member.id] ? <LoaderCircle size={15} /> : <Save size={15} />}
-                            Save permissions
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-            )}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
+                            <span style={{ fontSize: 11, padding: '4px 8px', borderRadius: 20, background: isAdmin ? '#e8f5ef' : '#f0f2f0', color: isAdmin ? GREEN : DARK }}>{member.role || 'staff'}</span>
+                            <span style={{ fontSize: 11, padding: '4px 8px', borderRadius: 20, background: member.is_active ? '#dff7e9' : '#fee2e2', color: member.is_active ? '#166534' : '#991b1b' }}>{member.is_active ? 'Active' : 'Inactive'}</span>
+                          </div>
+                        </div>
+
+                        {isAdmin ? (
+                          <p style={{ color: MUTED, fontSize: 12, margin: 0 }}>Admin accounts retain full dashboard access. Account controls are disabled for admin accounts.</p>
+                        ) : (
+                          <>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: 9 }}>
+                              {[
+                                ['view_bookings', 'View bookings'],
+                                ['manage_bookings', 'Manage bookings'],
+                                ['view_invoices', 'View invoices'],
+                                ['manage_invoices', 'Manage invoices'],
+                              ].map(([key, label]) => (
+                                <label key={key} style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: 12, color: DARK }}>
+                                  <input type="checkbox" checked={Boolean(permissions[key])} onChange={(event) => toggleStaffPermission(member.id, key, event.target.checked)} /> {label}
+                                </label>
+                              ))}
+                            </div>
+                            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
+                              <button type="button" style={buttonStyle} disabled={Boolean(permissionSaving[member.id])} onClick={() => saveStaffPermissions(member.id)}>
+                                {permissionSaving[member.id] ? <LoaderCircle size={15} /> : <Save size={15} />} Save permissions
+                              </button>
+                              <button type="button" style={{ ...buttonStyle, background: member.is_active ? '#fff1f1' : '#e8f5ef', color: member.is_active ? '#991b1b' : GREEN, borderColor: member.is_active ? '#fecaca' : '#b9e4ce' }} disabled={busy} onClick={() => handleStaffActive(member)}>
+                                {busy ? <LoaderCircle size={15} /> : null}{member.is_active ? 'Deactivate account' : 'Reactivate account'}
+                              </button>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', gap: 8, marginTop: 12, alignItems: 'end' }}>
+                              <label style={labelStyle}>New temporary password
+                                <input style={inputStyle} type="password" autoComplete="new-password" minLength={8} placeholder="At least 8 characters" value={staffResetPasswords[member.id] || ''} onChange={(event) => setStaffResetPasswords((current) => ({ ...current, [member.id]: event.target.value }))} />
+                              </label>
+                              <button type="button" style={{ ...buttonStyle, background: '#fff', color: DARK, borderColor: BORDER }} disabled={busy || String(staffResetPasswords[member.id] || '').length < 8} onClick={() => handleResetStaffPassword(member)}>
+                                {busy ? <LoaderCircle size={15} /> : <ShieldCheck size={15} />} Reset password
+                              </button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </section>
           </section>
         )}
 
