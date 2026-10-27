@@ -40,7 +40,7 @@ export const projects = [
     title: 'Compact kitchen degrease',
     category: 'Kitchen',
     before: img('Small Kichten Before.jpg'),
-    after: img('Small Kichten After .jpg'),
+    after: img('Small Kichten After.jpg'),
   },
   {
     title: 'Colourful armchair refresh',
@@ -87,7 +87,7 @@ export const projects = [
   {
     title: 'Self-contain room reset',
     category: 'Bedroom',
-    before: img('RoomSelf Before..jpg'),
+    before: img('RoomSelf Before .jpg'),
     after: img('RoomSelf After .jpg'),
   },
   {
