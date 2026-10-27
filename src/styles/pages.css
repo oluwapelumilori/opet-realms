@@ -2,6 +2,11 @@
    PAGES.CSS
    Loaded after index.css. Reuses its variables:
    --green, --green-dark, --green-light, --border, --muted, --text, --white
+
+   NOTE: The navbar styles live in index.css (NAVBAR section) and the
+   before/after slider + gallery grid styles live in before-after.css.
+   Do not add .navbar, .nav-*, .ba-* or .ba-grid rules here, because this
+   file loads last and would override them.
    ========================================================= */
 
 /* ================================
@@ -16,231 +21,6 @@
 
 .section-heading-left p {
   margin-left: 0;
-}
-
-/* ================================
-   NAVBAR
-================================ */
-
-.site-header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  border-bottom: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(10px);
-}
-
-.navbar {
-  display: flex;
-  min-height: 80px;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-}
-
-.brand {
-  display: inline-flex;
-  flex-shrink: 0;
-  align-items: center;
-  gap: 12px;
-}
-
-.brand-logo {
-  width: auto;
-  height: 44px;
-  max-width: 60px;
-  border-radius: 8px;
-  object-fit: contain;
-}
-
-.brand-text {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.15;
-}
-
-.brand-name {
-  color: var(--text);
-  font-family: 'Telegraf', 'Montserrat', sans-serif;
-  font-size: 1.2rem;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-}
-
-.brand-tagline {
-  color: var(--green);
-  font-size: 0.6rem;
-  font-weight: 800;
-  letter-spacing: 0.2em;
-}
-
-.nav-links {
-  display: flex;
-  flex: 1;
-  align-items: center;
-  gap: 24px;
-}
-
-.nav-menu {
-  display: flex;
-  flex: 1;
-  align-items: center;
-  justify-content: center;
-  gap: 28px;
-}
-
-.nav-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.nav-link {
-  position: relative;
-  padding: 6px 0;
-  color: var(--text);
-  font-size: 0.88rem;
-  font-weight: 600;
-  white-space: nowrap;
-  transition: color 180ms ease;
-}
-
-.nav-link::after {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--green);
-  content: '';
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 200ms ease;
-}
-
-.nav-link:hover {
-  color: var(--green);
-}
-
-.nav-link:hover::after {
-  transform: scaleX(1);
-}
-
-.nav-phone {
-  display: inline-flex;
-  min-height: 46px;
-  align-items: center;
-  gap: 8px;
-  padding: 0 18px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  white-space: nowrap;
-  transition:
-    color 180ms ease,
-    border-color 180ms ease;
-}
-
-.nav-phone:hover {
-  color: var(--green);
-  border-color: var(--green);
-}
-
-.nav-cta {
-  min-height: 46px;
-  padding: 10px 22px;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  white-space: nowrap;
-}
-
-.mobile-menu-toggle {
-  display: none;
-  width: 46px;
-  height: 46px;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  color: var(--text);
-  background: var(--white);
-}
-
-.mobile-menu-toggle:hover {
-  color: var(--green);
-  border-color: var(--green);
-}
-
-@media (max-width: 1000px) {
-  .navbar {
-    min-height: 70px;
-  }
-
-  .mobile-menu-toggle {
-    display: inline-flex;
-  }
-
-  .nav-links {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    left: 0;
-    display: none;
-    flex: none;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0;
-    padding: 12px 24px 24px;
-    border-bottom: 1px solid var(--border);
-    background: var(--white);
-    box-shadow: 0 18px 30px rgba(19, 52, 33, 0.1);
-  }
-
-  .nav-links-open {
-    display: flex;
-  }
-
-  .nav-menu {
-    flex: none;
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: flex-start;
-    gap: 0;
-  }
-
-  .nav-link {
-    padding: 16px 0;
-    border-bottom: 1px solid #edf2ee;
-    font-size: 0.95rem;
-  }
-
-  .nav-link::after {
-    display: none;
-  }
-
-  .nav-actions {
-    flex-direction: column;
-    align-items: stretch;
-    margin-top: 18px;
-  }
-
-  .nav-phone {
-    justify-content: center;
-  }
-
-  .nav-cta {
-    width: 100%;
-  }
-}
-
-@media (max-width: 420px) {
-  .brand-tagline {
-    display: none;
-  }
 }
 
 /* ================================
@@ -526,131 +306,6 @@
 }
 
 /* ================================
-   BEFORE & AFTER SLIDER
-================================ */
-
-.before-after-section {
-  background: var(--white);
-}
-
-.ba-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 24px;
-}
-
-.ba-slider {
-  position: relative;
-  aspect-ratio: 4 / 3;
-  overflow: hidden;
-  border-radius: 18px;
-  background: var(--green-light);
-  user-select: none;
-}
-
-.ba-image {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  pointer-events: none;
-}
-
-.ba-label {
-  position: absolute;
-  top: 14px;
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  pointer-events: none;
-}
-
-.ba-label-before {
-  left: 14px;
-  color: var(--white);
-  background: rgba(23, 35, 29, 0.85);
-}
-
-.ba-label-after {
-  right: 14px;
-  color: var(--text);
-  background: rgba(255, 255, 255, 0.92);
-}
-
-.ba-divider {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: var(--white);
-  transform: translateX(-50%);
-  pointer-events: none;
-}
-
-.ba-handle {
-  position: absolute;
-  top: 50%;
-  display: grid;
-  width: 42px;
-  height: 42px;
-  place-items: center;
-  border-radius: 50%;
-  color: var(--green);
-  background: var(--white);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-}
-
-.ba-range {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  opacity: 0;
-  cursor: ew-resize;
-  touch-action: pan-y;
-}
-
-.ba-caption {
-  margin: 14px 0 0;
-  font-size: 1rem;
-  letter-spacing: -0.01em;
-}
-
-.ba-gallery-link {
-  margin-top: 40px;
-  text-align: center;
-}
-
-.ba-gallery-link a {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--green);
-  font-weight: 800;
-}
-
-.ba-gallery-link a:hover {
-  color: var(--green-dark);
-}
-
-@media (max-width: 900px) {
-  .ba-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 600px) {
-  .ba-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* ================================
    HOW IT WORKS
 ================================ */
 
@@ -742,7 +397,8 @@
 }
 
 /* ================================
-   GALLERY PAGE
+   GALLERY PAGE (legacy classes)
+   The live gallery uses the .ba-* classes in before-after.css.
 ================================ */
 
 .gallery-filters {
@@ -1287,7 +943,6 @@
 ================================ */
 
 @media (prefers-reduced-motion: reduce) {
-  .nav-link::after,
   .gallery-card,
   .gallery-image-wrap img {
     transition: none;
