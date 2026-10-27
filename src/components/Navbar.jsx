@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
@@ -21,7 +22,6 @@ export default function Navbar() {
 
     if (location.pathname === '/' && location.hash) {
       const sectionId = location.hash.slice(1)
-
       let attempts = 0
 
       const scrollToSection = () => {
@@ -46,7 +46,6 @@ export default function Navbar() {
   return (
     <header className="navbar">
       <div className="container navbar-inner">
-        {/* Logo */}
         <Link
           to="/"
           className="navbar-logo"
@@ -62,18 +61,20 @@ export default function Navbar() {
           />
         </Link>
 
-        {/* Navigation links (also the dropdown menu on mobile) */}
         <nav
           className={`nav-links ${menuOpen ? 'nav-links-open' : ''}`}
           aria-label="Main navigation"
         >
           {navigation.map((item) => (
-            <Link key={item.label} to={item.href} onClick={closeMenu}>
+            <Link
+              key={item.label}
+              to={item.href}
+              onClick={closeMenu}
+            >
               {item.label}
             </Link>
           ))}
 
-          {/* Mobile action buttons (hidden on desktop) */}
           <div className="nav-mobile-actions">
             <Link
               to="/#services"
@@ -93,23 +94,31 @@ export default function Navbar() {
           </div>
         </nav>
 
-        {/* Desktop action buttons (hidden on mobile) */}
         <div className="nav-actions">
-          <Link to="/#services" className="button button-outline nav-cta">
+          <Link
+            to="/#services"
+            className="button button-outline nav-cta"
+          >
             View Our Services
           </Link>
 
-          <Link to="/quote" className="button button-primary nav-cta">
+          <Link
+            to="/quote"
+            className="button button-primary nav-cta"
+          >
             Request a Quote
           </Link>
         </div>
 
-        {/* Mobile menu button (hidden on desktop) */}
         <button
           type="button"
           className="nav-menu-toggle"
           onClick={() => setMenuOpen((open) => !open)}
-          aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+          aria-label={
+            menuOpen
+              ? 'Close navigation menu'
+              : 'Open navigation menu'
+          }
           aria-expanded={menuOpen}
         >
           {menuOpen ? <X size={24} /> : <Menu size={24} />}
