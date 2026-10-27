@@ -19,11 +19,11 @@ export default function AdminLogin() {
 
   async function handleSubmit(event) {
     event.preventDefault()
+
     setError('')
     setLoading(true)
 
     try {
-      // Sign in with Supabase Auth.
       const {
         data: loginData,
         error: loginError,
@@ -33,18 +33,17 @@ export default function AdminLogin() {
       })
 
       if (loginError) {
-        throw new Error(loginError.message)
+        throw new Error(
+          'Unable to sign in with those details. Check your email and password.'
+        )
       }
 
       const user = loginData.user
 
       if (!user) {
-        throw new Error(
-          'Sign-in did not return a user. Please try again.'
-        )
+        throw new Error('Sign-in did not return a user. Please try again.')
       }
 
-      // Fetch the profile belonging to this exact Auth user.
       const {
         data: profile,
         error: profileError,
@@ -55,52 +54,46 @@ export default function AdminLogin() {
         .maybeSingle()
 
       if (profileError) {
-        console.error(
-          'Admin profile lookup failed:',
-          {
-            code: profileError.code,
-            message: profileError.message,
-            details: profileError.details,
-            hint: profileError.hint,
-          }
-        )
+        console.error('Staff profile verification failed:', profileError)
 
         throw new Error(
-          `Could not verify your staff profile: ${profileError.message} (${profileError.code}).`
+          'We could not verify your staff profile. Please try again or contact the administrator.'
         )
       }
 
       if (!profile) {
         throw new Error(
-          'No staff profile was found for this account. Please check that the staff profile ID matches your Supabase Auth UID.'
+          'No staff profile is linked to this account. Please contact the administrator.'
         )
       }
 
-      if (!profile.is_active) {
+      if (profile.is_active !== true) {
         throw new Error(
-          'Your staff account is inactive. Please contact the administrator.'
+          'Your account is inactive. Please contact the administrator.'
         )
       }
 
-      if (profile.role !== 'admin') {
-        throw new Error(
-          'Your account does not have administrator access.'
-        )
+      if (profile.role === 'admin') {
+        navigate('/admin', { replace: true })
+        return
       }
 
-      // Verification succeeded. Open the dashboard.
-      navigate('/admin', { replace: true })
+      if (profile.role === 'staff') {
+        navigate('/staff', { replace: true })
+        return
+      }
+
+      throw new Error(
+        'Your account does not have an authorised dashboard role. Please contact the administrator.'
+      )
     } catch (err) {
-      console.error('Admin login error:', err)
+      console.error('Shared login failed:', err)
 
-      // Clear the session if sign-in succeeded but
-      // profile verification failed.
-      await supabase.auth.signOut().catch((signOutError) => {
-        console.error(
-          'Unable to clear failed login session:',
-          signOutError
-        )
-      })
+      try {
+        await supabase.auth.signOut()
+      } catch (signOutError) {
+        console.error('Unable to clear failed login session:', signOutError)
+      }
 
       setError(
         err instanceof Error
@@ -124,13 +117,13 @@ export default function AdminLogin() {
         </div>
 
         <p className="admin-login-eyebrow">
-          SECURE ADMIN PORTAL
+          SECURE TEAM PORTAL
         </p>
 
         <h1>Welcome back</h1>
 
         <p className="admin-login-description">
-          Sign in to manage bookings, invoices and your team.
+          Sign in to access your Opet Realms workspace.
         </p>
 
         <form onSubmit={handleSubmit}>
@@ -145,11 +138,9 @@ export default function AdminLogin() {
               id="admin-email"
               type="email"
               autoComplete="username"
-              placeholder="admin@example.com"
+              placeholder="Enter your email address"
               value={email}
-              onChange={(event) =>
-                setEmail(event.target.value)
-              }
+              onChange={(event) => setEmail(event.target.value)}
               required
             />
           </div>
@@ -167,9 +158,7 @@ export default function AdminLogin() {
               autoComplete="current-password"
               placeholder="Enter your password"
               value={password}
-              onChange={(event) =>
-                setPassword(event.target.value)
-              }
+              onChange={(event) => setPassword(event.target.value)}
               required
             />
           </div>
@@ -185,9 +174,7 @@ export default function AdminLogin() {
             className="admin-login-button"
             disabled={loading}
           >
-            {loading
-              ? 'Verifying account...'
-              : 'Sign in to dashboard'}
+            {loading ? 'Verifying account...' : 'Sign in'}
 
             {!loading && <ArrowRight size={18} />}
           </button>
