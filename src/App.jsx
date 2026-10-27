@@ -1,5 +1,5 @@
 
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Link } from 'react-router-dom'
 
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
@@ -11,7 +11,7 @@ import Gallery from './pages/Gallery'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsConditions from './pages/TermsConditions'
 import AdminLogin from './pages/AdminLogin'
-import AdminDashboard from './pages/AdminDashboard'
+import AdminEntry from './pages/AdminEntry'
 
 function PageLayout({ children }) {
   return (
@@ -29,9 +29,9 @@ function NotFound() {
       <section className="container section text-center">
         <h1>Page not found</h1>
         <p>Sorry, we couldn't find that page.</p>
-        <a href="/" className="button button-primary">
+        <Link to="/" className="button button-primary">
           Return Home
-        </a>
+        </Link>
       </section>
     </PageLayout>
   )
@@ -88,7 +88,12 @@ export default function App() {
 
         <Route
           path="/admin"
-          element={<AdminDashboard />}
+          element={<AdminEntry />}
+        />
+
+        <Route
+          path="/staff"
+          element={<AdminEntry />}
         />
 
         <Route path="*" element={<NotFound />} />
