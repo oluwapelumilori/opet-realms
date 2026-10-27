@@ -1,3 +1,4 @@
+
 import { useState } from 'react'
 import { ArrowLeftRight } from 'lucide-react'
 import '../styles/before-after.css'
@@ -18,7 +19,7 @@ export default function BeforeAfterSlider({
     <div className="ba-slider">
       {!afterFailed && (
         <img
-          className="ba-image"
+          className="ba-image ba-image-after"
           src={after}
           alt={`${title} after cleaning`}
           loading="lazy"
@@ -39,7 +40,9 @@ export default function BeforeAfterSlider({
           onError={() => setBeforeFailed(true)}
           style={
             bothLoaded
-              ? { clipPath: `inset(0 ${100 - position}% 0 0)` }
+              ? {
+                  clipPath: `inset(0 ${100 - position}% 0 0)`,
+                }
               : undefined
           }
         />
@@ -50,9 +53,15 @@ export default function BeforeAfterSlider({
           <span className="ba-label ba-label-before">Before</span>
           <span className="ba-label ba-label-after">After</span>
 
-          <span className="ba-divider" style={{ left: `${position}%` }} />
+          <span
+            className="ba-divider"
+            style={{ left: `${position}%` }}
+          />
 
-          <span className="ba-handle" style={{ left: `${position}%` }}>
+          <span
+            className="ba-handle"
+            style={{ left: `${position}%` }}
+          >
             <ArrowLeftRight size={18} aria-hidden="true" />
           </span>
 
@@ -63,7 +72,9 @@ export default function BeforeAfterSlider({
             max="100"
             step="0.5"
             value={position}
-            onChange={(event) => setPosition(Number(event.target.value))}
+            onChange={(event) =>
+              setPosition(Number(event.target.value))
+            }
             aria-label={`Compare before and after: ${title}`}
           />
         </>
@@ -87,7 +98,11 @@ export default function BeforeAfterSlider({
         </>
       )}
 
-      {noneLoaded && <span className="ba-missing">Photos coming soon</span>}
+      {noneLoaded && (
+        <span className="ba-missing">
+          Photos coming soon
+        </span>
+      )}
     </div>
   )
 }
