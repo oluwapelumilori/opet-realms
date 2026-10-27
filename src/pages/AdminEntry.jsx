@@ -1,50 +1,81 @@
+
 import { useEffect, useState } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 import { LoaderCircle } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import AdminDashboard from './AdminDashboard'
+import StaffDashboard from './StaffDashboard'
 
-// One login for everyone. After signing in, admins see the full dashboard
-// and active staff are sent to the staff dashboard.
 export default function AdminEntry() {
+  const location = useLocation()
   const [destination, setDestination] = useState('checking')
 
   useEffect(() => {
     let cancelled = false
 
-    async function decide() {
+    async function verifyAccess() {
       try {
         const {
           data: { session },
+          error: sessionError,
         } = await supabase.auth.getSession()
 
+        if (sessionError) {
+          throw sessionError
+        }
+
         if (!session) {
-          if (!cancelled) setDestination('login')
+          if (!cancelled) {
+            setDestination('login')
+          }
           return
         }
 
-        const { data: profile } = await supabase
+        const {
+          data: profile,
+          error: profileError,
+        } = await supabase
           .from('staff_profiles')
-          .select('role, is_active')
+          .select('id, role, is_active')
           .eq('id', session.user.id)
           .maybeSingle()
 
-        if (cancelled) return
-
-        if (profile && profile.is_active && profile.role !== 'admin') {
-          setDestination('staff')
-        } else {
-          // Admins, and anything unexpected, go to the admin dashboard,
-          // which already signs out accounts that should not be there.
-          setDestination('admin')
+        if (profileError) {
+          throw profileError
         }
-      } catch (err) {
-        console.error('Admin entry check failed:', err)
-        if (!cancelled) setDestination('admin')
+
+        if (
+          !profile ||
+          profile.is_active !== true ||
+          !['admin', 'staff'].includes(profile.role)
+        ) {
+          await supabase.auth.signOut()
+
+          if (!cancelled) {
+            setDestination('login')
+          }
+          return
+        }
+
+        if (!cancelled) {
+          setDestination(profile.role)
+        }
+      } catch (error) {
+        console.error('Dashboard access verification failed:', error)
+
+        try {
+          await supabase.auth.signOut()
+        } catch (signOutError) {
+          console.error('Unable to clear invalid session:', signOutError)
+        }
+
+        if (!cancelled) {
+          setDestination('login')
+        }
       }
     }
 
-    decide()
+    verifyAccess()
 
     return () => {
       cancelled = true
@@ -55,16 +86,31 @@ export default function AdminEntry() {
     return (
       <main
         style={{
-          minHeight: '60vh',
+          minHeight: '100vh',
           display: 'grid',
           placeItems: 'center',
+          background: '#f7faf8',
           color: '#087f5b',
+          fontFamily: 'Montserrat, sans-serif',
         }}
       >
         <div style={{ textAlign: 'center' }}>
-          <LoaderCircle size={30} />
-          <p>Loading...</p>
+          <LoaderCircle
+            size={32}
+            style={{
+              animation: 'opet-spin 1s linear infinite',
+            }}
+          />
+          <p>Verifying your account...</p>
         </div>
+
+        <style>
+          {`
+            @keyframes opet-spin {
+              to { transform: rotate(360deg); }
+            }
+          `}
+        </style>
       </main>
     )
   }
@@ -73,9 +119,21 @@ export default function AdminEntry() {
     return <Navigate to="/admin/login" replace />
   }
 
-  if (destination === 'staff') {
-    return <Navigate to="/staff" replace />
+  if (destination === 'admin') {
+    if (location.pathname !== '/admin') {
+      return <Navigate to="/admin" replace />
+    }
+
+    return <AdminDashboard />
   }
 
-  return <AdminDashboard />
+  if (destination === 'staff') {
+    if (location.pathname !== '/staff') {
+      return <Navigate to="/staff" replace />
+    }
+
+    return <StaffDashboard />
+  }
+
+  return <Navigate to="/admin/login" replace />
 }
