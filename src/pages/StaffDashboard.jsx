@@ -262,6 +262,10 @@ export default function StaffDashboard() {
   const [loading, setLoading] = useState(true)
   const [savingBooking, setSavingBooking] = useState(false)
   const [savingInvoice, setSavingInvoice] = useState(false)
+  const [savingPassword, setSavingPassword] = useState(false)
+  const [showPasswordForm, setShowPasswordForm] = useState(false)
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [staffName, setStaffName] = useState('Team member')
 
   const [permissions, setPermissions] = useState(noPermissions)
@@ -494,6 +498,39 @@ export default function StaffDashboard() {
       return
     }
     navigate('/admin/login', { replace: true })
+  }
+
+  async function handleChangePassword(event) {
+    event.preventDefault()
+    setError('')
+    setSuccess('')
+
+    if (newPassword.length < 8) {
+      setError('Your new password must contain at least 8 characters.')
+      return
+    }
+
+    if (newPassword !== confirmPassword) {
+      setError('The password confirmation does not match.')
+      return
+    }
+
+    setSavingPassword(true)
+    try {
+      const { error: passwordError } = await supabase.auth.updateUser({
+        password: newPassword,
+      })
+      if (passwordError) throw passwordError
+
+      setNewPassword('')
+      setConfirmPassword('')
+      setShowPasswordForm(false)
+      setSuccess('Your password has been changed successfully.')
+    } catch (err) {
+      setError(err.message || 'Could not change your password. Please try again.')
+    } finally {
+      setSavingPassword(false)
+    }
   }
 
   async function handleCreateBooking(event) {
@@ -1047,6 +1084,17 @@ export default function StaffDashboard() {
           </div>
 
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              style={{ ...buttonStyle, background: '#fff', color: DARK, border: `1px solid ${BORDER}` }}
+              onClick={() => {
+                setShowPasswordForm((shown) => !shown)
+                setError('')
+                setSuccess('')
+              }}
+            >
+              <ShieldCheck size={15} /> Change password
+            </button>
             <button type="button" style={buttonStyle} onClick={loadDashboard}>
               <RefreshCw size={15} /> Refresh
             </button>
@@ -1059,6 +1107,60 @@ export default function StaffDashboard() {
             </button>
           </div>
         </header>
+
+        {showPasswordForm && (
+          <section style={panelStyle}>
+            <SectionHeading description="Choose a new password for your staff login. Use at least 8 characters." action={
+              <button
+                type="button"
+                onClick={() => {
+                  setShowPasswordForm(false)
+                  setNewPassword('')
+                  setConfirmPassword('')
+                }}
+                style={{ ...buttonStyle, background: '#fff', color: DARK, border: `1px solid ${BORDER}` }}
+              >
+                <X size={15} /> Cancel
+              </button>
+            }>
+              Change password
+            </SectionHeading>
+            <form onSubmit={handleChangePassword} style={formGridStyle}>
+              <label style={labelStyle}>
+                New password
+                <input
+                  style={inputStyle}
+                  type="password"
+                  autoComplete="new-password"
+                  minLength={8}
+                  required
+                  value={newPassword}
+                  onChange={(event) => setNewPassword(event.target.value)}
+                  placeholder="At least 8 characters"
+                />
+              </label>
+              <label style={labelStyle}>
+                Confirm new password
+                <input
+                  style={inputStyle}
+                  type="password"
+                  autoComplete="new-password"
+                  minLength={8}
+                  required
+                  value={confirmPassword}
+                  onChange={(event) => setConfirmPassword(event.target.value)}
+                  placeholder="Enter the new password again"
+                />
+              </label>
+              <div style={{ display: 'flex', alignItems: 'end' }}>
+                <button type="submit" style={buttonStyle} disabled={savingPassword}>
+                  {savingPassword ? <LoaderCircle size={15} /> : <Save size={15} />}
+                  {savingPassword ? 'Updating password...' : 'Save new password'}
+                </button>
+              </div>
+            </form>
+          </section>
+        )}
 
         {hasAnyAccess && (
           <nav
