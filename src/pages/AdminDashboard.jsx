@@ -20,10 +20,11 @@ import {
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 
-const GREEN = '#087f5b'
-const DARK = '#17231d'
-const MUTED = '#68746d'
-const BORDER = '#e2e9e4'
+const GREEN = '#16365E' // Opet Realms brand navy
+const ACCENT = '#21C9D0' // brand accent
+const DARK = '#14243A'
+const MUTED = '#66758A'
+const BORDER = '#DCE4EE'
 
 const BOOKING_STATUSES = [
   { value: 'new', label: 'New' },
@@ -98,7 +99,7 @@ const thStyle = {
   padding: '11px 12px',
   textAlign: 'left',
   color: MUTED,
-  background: '#f6f9f7',
+  background: '#F5F8FC',
   borderBottom: `1px solid ${BORDER}`,
   whiteSpace: 'nowrap',
   fontWeight: 700,
@@ -127,9 +128,9 @@ const emptySettings = {
   whatsapp_number: '',
   email: '',
   address: '',
-  bank_name: 'Moniepoint MFB',
-  account_number: '6748383853',
-  account_name: 'Opet Realms',
+  bank_name: '',
+  account_number: '',
+  account_name: '',
   default_invoice_payment_terms: '',
   default_invoice_notes: '',
   quote_validity_days: 7,
@@ -635,8 +636,8 @@ export default function AdminDashboard() {
     const email = safe(settings.email || '')
     const address = safe(settings.address || '')
     popup.document.write(`<!doctype html><html><head><title>${safe(title)}</title><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>
-      *{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;color:#17231d;margin:0;background:#eef3ef;line-height:1.5;font-size:12px}.sheet{max-width:850px;margin:24px auto;background:#fff;padding:38px 42px;box-shadow:0 4px 24px #102b1b12}.top{display:flex;justify-content:space-between;gap:24px;align-items:flex-start;border-bottom:3px solid #087f5b;padding-bottom:20px}.logo{display:block;width:170px;max-height:64px;object-fit:contain;object-position:left center;margin-bottom:7px}.brand{font-size:24px;font-weight:800;letter-spacing:.3px;color:#087f5b}.tag{font-size:10px;letter-spacing:1.4px;color:#68746d;margin-top:3px}.contact{text-align:right;color:#68746d;font-size:11px;white-space:pre-line}.doc-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin:26px 0 24px}.doc-title{font-size:27px;letter-spacing:.5px;line-height:1.1;margin:0;color:#17231d}.ref{font-size:12px;color:#087f5b;font-weight:700;margin-top:8px}.meta{border:1px solid #dce7df;border-radius:7px;min-width:205px;overflow:hidden}.meta div{display:flex;justify-content:space-between;gap:18px;padding:7px 10px;border-bottom:1px solid #e8eee9}.meta div:last-child{border:0}.meta span:first-child{color:#68746d}.meta span:last-child{font-weight:700;text-align:right}.columns{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:25px}.block-title{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:#087f5b;font-weight:800;margin-bottom:8px}.details{background:#f6faf7;border:1px solid #e2e9e4;border-radius:7px;padding:13px}.details p{margin:3px 0;overflow-wrap:anywhere}.section{margin:22px 0}.section h3{font-size:12px;margin:0 0 9px;color:#087f5b}.description{white-space:pre-wrap;overflow-wrap:anywhere}.total{margin-left:auto;width:300px;max-width:100%;margin-top:14px}.total div{display:flex;justify-content:space-between;padding:8px 10px;border-bottom:1px solid #e2e9e4}.total .grand{background:#087f5b;color:#fff;font-weight:800;font-size:15px;border:0;border-radius:0 0 5px 5px}.total .subtle{background:#f0f7f2;font-weight:700}.callout{background:#f0f7f2;border:1px solid #dce9df;border-radius:7px;padding:14px;margin-top:18px}.callout h3{margin:0 0 7px;color:#087f5b;font-size:12px}.callout p{margin:4px 0;white-space:pre-wrap;overflow-wrap:anywhere}.status{display:inline-block;padding:5px 9px;border-radius:99px;background:#e8f5ec;color:#087f5b;font-weight:800;text-transform:uppercase;font-size:10px}.foot{border-top:1px solid #dce7df;margin-top:30px;padding-top:13px;color:#68746d;font-size:10px;display:flex;justify-content:space-between;gap:12px}.small{color:#68746d;font-size:10px} @media print{body{background:#fff}.sheet{margin:0 auto;padding:20px 24px;box-shadow:none;max-width:none}.no-print{display:none!important}@page{size:A4;margin:10mm}} @media(max-width:620px){.sheet{margin:0;padding:20px}.top,.doc-head{flex-direction:column}.contact{text-align:left}.columns{grid-template-columns:1fr}.meta{width:100%}}
-      </style></head><body><main class="sheet"><header class="top"><div><img class="logo" src="https://opet-realms-f2mh.vercel.app/images/opet-realms-logo.png.jpg" alt="Opet Realms logo" onerror="this.style.display='none'"><div class="brand">${businessName}</div><div class="tag">PROFESSIONAL CLEANING · FUMIGATION · GARMENT CARE</div></div><div class="contact">${phone}${email ? '\n'+email : ''}${address ? '\n'+address : ''}</div></header>${body}<footer class="foot"><span>${businessName}${phone ? ' · '+phone : ''}</span><span>Thank you for choosing Opet Realms.</span></footer></main><script>window.onload=()=>window.print()</script></body></html>`)
+      *{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;color:#14243A;margin:0;background:#eef3ef;line-height:1.5;font-size:12px}.sheet{max-width:850px;margin:24px auto;background:#fff;padding:38px 42px;box-shadow:0 4px 24px #102b1b12}.top{display:flex;justify-content:space-between;gap:24px;align-items:flex-start;border-bottom:3px solid #16365E;padding-bottom:20px}.logo{display:block;width:170px;max-height:64px;object-fit:contain;object-position:left center;margin-bottom:7px}.brand{font-size:24px;font-weight:800;letter-spacing:.3px;color:#16365E}.tag{font-size:10px;letter-spacing:1.4px;color:#66758A;margin-top:3px}.contact{text-align:right;color:#66758A;font-size:11px;white-space:pre-line}.doc-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin:26px 0 24px}.doc-title{font-size:27px;letter-spacing:.5px;line-height:1.1;margin:0;color:#14243A}.ref{font-size:12px;color:#16365E;font-weight:700;margin-top:8px}.meta{border:1px solid #DCE4EE;border-radius:7px;min-width:205px;overflow:hidden}.meta div{display:flex;justify-content:space-between;gap:18px;padding:7px 10px;border-bottom:1px solid #e8eee9}.meta div:last-child{border:0}.meta span:first-child{color:#66758A}.meta span:last-child{font-weight:700;text-align:right}.columns{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:25px}.block-title{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:#16365E;font-weight:800;margin-bottom:8px}.details{background:#F5F8FC;border:1px solid #DCE4EE;border-radius:7px;padding:13px}.details p{margin:3px 0;overflow-wrap:anywhere}.section{margin:22px 0}.section h3{font-size:12px;margin:0 0 9px;color:#16365E}.description{white-space:pre-wrap;overflow-wrap:anywhere}.total{margin-left:auto;width:300px;max-width:100%;margin-top:14px}.total div{display:flex;justify-content:space-between;padding:8px 10px;border-bottom:1px solid #DCE4EE}.total .grand{background:#16365E;color:#fff;font-weight:800;font-size:15px;border:0;border-radius:0 0 5px 5px}.total .subtle{background:#EEF7FA;font-weight:700}.callout{background:#EEF7FA;border:1px solid #DCE4EE;border-radius:7px;padding:14px;margin-top:18px}.callout h3{margin:0 0 7px;color:#16365E;font-size:12px}.callout p{margin:4px 0;white-space:pre-wrap;overflow-wrap:anywhere}.status{display:inline-block;padding:5px 9px;border-radius:99px;background:#EAF4FA;color:#16365E;font-weight:800;text-transform:uppercase;font-size:10px}.foot{border-top:1px solid #DCE4EE;margin-top:30px;padding-top:13px;color:#66758A;font-size:10px;display:flex;justify-content:space-between;gap:12px}.small{color:#66758A;font-size:10px} @media print{body{background:#fff}.sheet{margin:0 auto;padding:20px 24px;box-shadow:none;max-width:none}.no-print{display:none!important}@page{size:A4;margin:10mm}} @media(max-width:620px){.sheet{margin:0;padding:20px}.top,.doc-head{flex-direction:column}.contact{text-align:left}.columns{grid-template-columns:1fr}.meta{width:100%}}
+      </style></head><body><main class="sheet"><header class="top"><div><img class="logo" src="https://opet-realms-f2mh.vercel.app/images/opet-realms-logo.png.jpg" alt="Opet Realms logo" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><div class="brand" style="display:none">${businessName}</div><div class="tag">PROFESSIONAL CLEANING · FUMIGATION · GARMENT CARE</div></div><div class="contact">${phone}${email ? '\n'+email : ''}${address ? '\n'+address : ''}</div></header>${body}<footer class="foot"><span>${businessName}${phone ? ' · '+phone : ''}</span><span>Thank you for choosing Opet Realms.</span></footer></main><script>window.onload=()=>window.print()</script></body></html>`)
     popup.document.close()
   }
 
@@ -659,7 +660,7 @@ export default function AdminDashboard() {
     const paymentTerms = notes.split('\n').filter((line) => /^Payment terms:/i.test(line.trim())).map((line) => line.replace(/^Payment terms:\s*/i, '')).join('\n') || settings.default_invoice_payment_terms || 'Please pay by the due date shown.'
     const deposit = String(invoice.deposit_option || '').toLowerCase().includes('deposit')
     const depositAmount = Number(invoice.deposit_amount || (deposit ? amount * .7 : amount))
-    const body = `<div class="doc-head"><div><h1 class="doc-title">INVOICE</h1><div class="ref">${safe(invoice.invoice_ref || 'Invoice')}</div><p class="small">Payment request for the service listed below</p></div><div class="meta"><div><span>Issue date</span><span>${safe(formatDate(invoice.issue_date))}</span></div><div><span>Due date</span><span>${safe(formatDate(invoice.due_date))}</span></div><div><span>Booking ref.</span><span>${safe(booking?.booking_ref || '—')}</span></div></div></div><div class="columns"><section class="details"><div class="block-title">Bill to</div><p><strong>${safe(invoice.customer_name || 'Customer')}</strong></p><p>${safe(booking?.phone || '')}</p><p>${safe(booking?.email || '')}</p><p>${safe(booking?.address || '')}</p></section><section class="details"><div class="block-title">Service</div><p><strong>${safe(booking?.service || description.split('\n')[0] || 'Professional service')}</strong></p><p>${safe(booking?.property_type || '')}</p><p>${safe(booking?.preferred_date ? formatDate(booking.preferred_date) : '')}</p></section></div><section class="section"><h3>Invoice summary</h3><div class="details description">${safe(description || 'Service as agreed with the customer.')}</div><div class="total"><div><span>Invoice total</span><strong>${safe(formatMoney(amount))}</strong></div><div><span>Paid to date</span><strong>${safe(formatMoney(paid))}</strong></div><div class="subtle"><span>Balance outstanding</span><strong>${safe(formatMoney(balance))}</strong></div><div class="grand"><span>${deposit ? '70% deposit due' : 'Amount due'}</span><span>${safe(formatMoney(deposit ? Math.max(0, depositAmount - paid) : balance))}</span></div></div></section><div class="columns"><section class="callout"><h3>Payment terms</h3><p>${safe(paymentTerms)}</p>${deposit ? `<p><strong>Deposit:</strong> ${safe(formatMoney(depositAmount))}</p><p><strong>Balance after deposit:</strong> ${safe(formatMoney(Math.max(0, amount-depositAmount)))}</p>` : ''}</section><section class="callout"><h3>Bank transfer details</h3><p><strong>Bank:</strong> ${safe(settings.bank_name || 'Please confirm bank details with Opet Realms')}</p><p><strong>Account name:</strong> ${safe(settings.account_name || '—')}</p><p><strong>Account number:</strong> ${safe(settings.account_number || '—')}</p><p><strong>Payment reference:</strong> ${safe(invoice.invoice_ref || '—')}</p></section></div><p><span class="status">${safe(balance <= 0 ? 'Paid in full' : paid > 0 ? 'Part payment received' : 'Awaiting payment')}</span></p>`
+    const body = `<div class="doc-head"><div><h1 class="doc-title">INVOICE</h1><div class="ref">${safe(invoice.invoice_ref || 'Invoice')}</div><p class="small">Payment request for the service listed below</p></div><div class="meta"><div><span>Issue date</span><span>${safe(formatDate(invoice.issue_date))}</span></div><div><span>Due date</span><span>${safe(formatDate(invoice.due_date))}</span></div><div><span>Booking ref.</span><span>${safe(booking?.booking_ref || '—')}</span></div></div></div><div class="columns"><section class="details"><div class="block-title">Bill to</div><p><strong>${safe(invoice.customer_name || 'Customer')}</strong></p><p>${safe(booking?.phone || '')}</p><p>${safe(booking?.email || '')}</p><p>${safe(booking?.address || '')}</p></section><section class="details"><div class="block-title">Service</div><p><strong>${safe(booking?.service || description.split('\n')[0] || 'Professional service')}</strong></p><p>${safe(booking?.property_type || '')}</p><p>${safe(booking?.preferred_date ? formatDate(booking.preferred_date) : '')}</p></section></div><section class="section"><h3>Invoice summary</h3><div class="details description">${safe(description || 'Service as agreed with the customer.')}</div><div class="total"><div><span>Invoice total</span><strong>${safe(formatMoney(amount))}</strong></div><div><span>Paid to date</span><strong>${safe(formatMoney(paid))}</strong></div><div class="subtle"><span>Balance outstanding</span><strong>${safe(formatMoney(balance))}</strong></div><div class="grand"><span>${deposit ? '70% deposit due' : 'Amount due'}</span><span>${safe(formatMoney(deposit ? Math.max(0, depositAmount - paid) : balance))}</span></div></div></section><div class="columns"><section class="callout"><h3>Payment terms</h3><p>${safe(paymentTerms)}</p>${deposit ? `<p><strong>Deposit:</strong> ${safe(formatMoney(depositAmount))}</p><p><strong>Balance after deposit:</strong> ${safe(formatMoney(Math.max(0, amount-depositAmount)))}</p>` : ''}</section><section class="callout"><h3>Bank transfer details</h3><p><strong>Bank:</strong> ${safe(settings.bank_name || 'Add bank details in Business Settings')}</p><p><strong>Account name:</strong> ${safe(settings.account_name || 'Not set')}</p><p><strong>Account number:</strong> ${safe(settings.account_number || 'Not set')}</p><p><strong>Payment reference:</strong> ${safe(invoice.invoice_ref || '—')}</p></section></div><p><span class="status">${safe(balance <= 0 ? 'Paid in full' : paid > 0 ? 'Part payment received' : 'Awaiting payment')}</span></p>`
     printDocument(invoice.invoice_ref || 'Invoice', body)
   }
 
@@ -1010,11 +1011,9 @@ export default function AdminDashboard() {
           invoiceForm.payment_option === 'deposit'
             ? `70% deposit due: ${formatMoney(depositAmount)}. Balance: ${formatMoney(amount - depositAmount)}.`
             : '',
-          settings.bank_name
-            ? `Bank: ${settings.bank_name}`
-            : 'Bank: Moniepoint MFB',
-          `Account name: ${settings.account_name || 'Opet Realms'}`,
-          `Account number: ${settings.account_number || '6748383853'}`,
+          settings.bank_name.trim() ? `Bank: ${settings.bank_name.trim()}` : '',
+          settings.account_name.trim() ? `Account name: ${settings.account_name.trim()}` : '',
+          settings.account_number.trim() ? `Account number: ${settings.account_number.trim()}` : '',
         ]
           .filter(Boolean)
           .join('\n'),
@@ -1096,7 +1095,7 @@ export default function AdminDashboard() {
                 cursor: 'pointer',
                 border: active ? `2px solid ${GREEN}` : `1px solid ${BORDER}`,
                 padding: 13,
-                background: active ? '#f0faf5' : '#fff',
+                background: active ? '#EEF7FA' : '#fff',
                 color: DARK,
               }}
             >
@@ -1237,7 +1236,7 @@ export default function AdminDashboard() {
     <main
       style={{
         minHeight: '100vh',
-        background: '#f6f9f7',
+        background: '#F5F8FC',
         color: DARK,
         padding: '20px 0 42px',
       }}
@@ -1344,50 +1343,7 @@ export default function AdminDashboard() {
               {renderBookingStatusCards()}
             </section>
 
-            <section style={panelStyle}>
-              <SectionHeading
-                description="The latest customer bookings."
-                action={<button type="button" style={buttonStyle} onClick={() => setActiveSection('bookings')}>View bookings</button>}
-              >
-                Recent bookings
-              </SectionHeading>
-              {renderBookingsTable(bookings.slice(0, 5))}
-            </section>
 
-            <section style={panelStyle}>
-              <SectionHeading
-                description="Recently created invoices."
-                action={<button type="button" style={buttonStyle} onClick={() => setActiveSection('invoices')}>View invoices</button>}
-              >
-                Recent invoices
-              </SectionHeading>
-              {invoices.length === 0 ? (
-                <p style={{ color: MUTED, fontSize: 13 }}>No invoices yet.</p>
-              ) : (
-                <div style={{ overflowX: 'auto' }}>
-                  <table style={tableStyle}>
-                    <thead>
-                      <tr>
-                        {['Invoice', 'Customer', 'Amount', 'Issue date', 'Status'].map((heading) => (
-                          <th key={heading} style={thStyle}>{heading}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {invoices.slice(0, 5).map((invoice) => (
-                        <tr key={invoice.id}>
-                          <td style={tdStyle}><strong>{invoice.invoice_ref || '—'}</strong></td>
-                          <td style={tdStyle}>{invoice.customer_name || '—'}</td>
-                          <td style={tdStyle}>{formatMoney(invoice.amount)}</td>
-                          <td style={tdStyle}>{formatDate(invoice.issue_date)}</td>
-                          <td style={tdStyle}><StatusPill status={invoice.status || 'unpaid'} /></td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </section>
           </>
         )}
 
@@ -1657,7 +1613,7 @@ export default function AdminDashboard() {
                 </div>
 
                 {invoiceForm.payment_option === 'deposit' && Number(invoiceForm.amount) > 0 && (
-                  <div style={{ background: '#f0faf5', border: `1px solid ${BORDER}`, borderRadius: 8, padding: 12, marginTop: 14, fontSize: 13 }}>
+                  <div style={{ background: '#EEF7FA', border: `1px solid ${BORDER}`, borderRadius: 8, padding: 12, marginTop: 14, fontSize: 13 }}>
                     <strong>70% deposit:</strong> {formatMoney(Number(invoiceForm.amount) * 0.7)}
                     <span style={{ margin: '0 12px', color: MUTED }}>·</span>
                     <strong>Remaining balance:</strong> {formatMoney(Number(invoiceForm.amount) * 0.3)}
@@ -1674,7 +1630,7 @@ export default function AdminDashboard() {
                   />
                 </label>
 
-                <div style={{ background: '#f6f9f7', border: `1px solid ${BORDER}`, borderRadius: 8, padding: 13, marginTop: 14, fontSize: 13, lineHeight: 1.8 }}>
+                <div style={{ background: '#F5F8FC', border: `1px solid ${BORDER}`, borderRadius: 8, padding: 13, marginTop: 14, fontSize: 13, lineHeight: 1.8 }}>
                   <strong>Bank transfer details</strong>
                   <div>{settings.bank_name || 'Add bank name in Business Settings'}</div>
                   <div>Account name: {settings.account_name || 'Not set'}</div>
@@ -1806,7 +1762,7 @@ export default function AdminDashboard() {
               </SectionHeading>
 
               {permissionMessage && (
-                <p role="status" style={{ color: permissionMessage.startsWith('Could not') ? '#9f2424' : GREEN, background: permissionMessage.startsWith('Could not') ? '#fff1f1' : '#f0faf5', padding: 11, borderRadius: 8, fontSize: 13, overflowWrap: 'anywhere' }}>
+                <p role="status" style={{ color: permissionMessage.startsWith('Could not') ? '#9f2424' : GREEN, background: permissionMessage.startsWith('Could not') ? '#fff1f1' : '#EEF7FA', padding: 11, borderRadius: 8, fontSize: 13, overflowWrap: 'anywhere' }}>
                   {permissionMessage}
                 </p>
               )}
