@@ -53,8 +53,8 @@ export default function Navbar() {
           onClick={closeMenu}
         >
           <img
-            src="/images/opet-realms-logo.png.jpg"
-            alt="Opet Realms logo"
+            src="/images/opet-realms-logo.png"
+            alt="Opet Realms — Sharp & Spotless"
             onError={(event) => {
               event.currentTarget.style.display = 'none'
             }}
