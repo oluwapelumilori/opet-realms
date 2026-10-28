@@ -301,9 +301,14 @@ export default function AdminDashboard() {
   const [bookingStatusFilter, setBookingStatusFilter] = useState('all')
   const [bookingSearch, setBookingSearch] = useState('')
   const [invoiceSearch, setInvoiceSearch] = useState('')
-  const [showBookingForm, setShowBookingForm] = useState(true)
+  const [showBookingForm, setShowBookingForm] = useState(false)
+  const [showInvoiceForm, setShowInvoiceForm] = useState(false)
+  const [showQuoteForm, setShowQuoteForm] = useState(false)
+  const [showReceiptForm, setShowReceiptForm] = useState(false)
+  const [showStaffForm, setShowStaffForm] = useState(false)
 
   const [error, setError] = useState('')
+  const [moduleErrors, setModuleErrors] = useState({})
   const [success, setSuccess] = useState('')
   const [permissionMessage, setPermissionMessage] = useState('')
   const [creatingStaff, setCreatingStaff] = useState(false)
@@ -405,32 +410,37 @@ export default function AdminDashboard() {
       if (invoicesResult.error) {
         console.error('Could not load invoices:', invoicesResult.error)
         setInvoices([])
+        setModuleErrors((current) => ({ ...current, invoices: invoicesResult.error.message }))
       } else {
         setInvoices(invoicesResult.data || [])
+        setModuleErrors((current) => ({ ...current, invoices: '' }))
       }
 
       if (quotesResult.error) {
         console.error('Could not load quotations:', quotesResult.error)
         setQuotes([])
-        if (activeSection === 'quotes') {
-          setError(`Bookings loaded, but quotations could not be loaded: ${quotesResult.error.message}`)
-        }
+        setModuleErrors((current) => ({ ...current, quotes: quotesResult.error.message }))
       } else {
         setQuotes(quotesResult.data || [])
+        setModuleErrors((current) => ({ ...current, quotes: '' }))
       }
 
       if (receiptsResult.error) {
         console.error('Could not load receipts:', receiptsResult.error)
         setReceipts([])
+        setModuleErrors((current) => ({ ...current, receipts: receiptsResult.error.message }))
       } else {
         setReceipts(receiptsResult.data || [])
+        setModuleErrors((current) => ({ ...current, receipts: '' }))
       }
 
       if (teamResult.error) {
         console.error('Could not load staff profiles:', teamResult.error)
         setTeam([])
+        setModuleErrors((current) => ({ ...current, staff: teamResult.error.message }))
       } else {
         setTeam(teamResult.data || [])
+        setModuleErrors((current) => ({ ...current, staff: '' }))
       }
 
       const permissionMap = {}
@@ -453,8 +463,10 @@ export default function AdminDashboard() {
 
       if (settingsResult.error) {
         setSettingsLoaded(false)
+        setModuleErrors((current) => ({ ...current, settings: settingsResult.error.message }))
         console.error('Could not load business settings:', settingsResult.error)
       } else if (settingsResult.data) {
+        setModuleErrors((current) => ({ ...current, settings: '' }))
         setSettings({
           ...emptySettings,
           ...settingsResult.data,
@@ -465,6 +477,7 @@ export default function AdminDashboard() {
         setSettingsLoaded(true)
       } else {
         setSettingsLoaded(false)
+        setModuleErrors((current) => ({ ...current, settings: 'No business_settings row with id = 1 was found.' }))
       }
     } catch (err) {
       console.error('Admin dashboard error:', err)
@@ -572,6 +585,7 @@ export default function AdminDashboard() {
       })
       if (insertError) throw insertError
       setQuoteForm({ booking_id: '', customer_name: '', customer_phone: '', customer_email: '', service_description: '', amount: '', valid_until: '', terms: '', notes: '' })
+      setShowQuoteForm(false)
       setSuccess(`Quotation ${quoteRef} created successfully.`)
       await loadDashboard()
     } catch (err) { setError(err.message || 'Could not create quotation.') }
@@ -618,6 +632,7 @@ export default function AdminDashboard() {
         if (statusError) throw statusError
       }
       setReceiptForm({ invoice_id: '', amount_received: '', payment_date: new Date().toISOString().slice(0, 10), payment_method: 'bank_transfer', payment_reference: '', notes: '' })
+      setShowReceiptForm(false)
       setSuccess(`Receipt ${receiptRef} recorded. Only record payments that have been verified.`)
       await loadDashboard()
     } catch (err) { setError(err.message || 'Could not record receipt.') }
@@ -833,6 +848,7 @@ export default function AdminDashboard() {
         permissions,
       })
       setStaffForm({ full_name: '', email: '', password: '', ...emptyPermissions })
+      setShowStaffForm(false)
       setPermissionMessage('Staff account created successfully. Share the temporary password securely and ask the staff member to change it after signing in.')
       await loadDashboard()
     } catch (err) {
@@ -923,6 +939,23 @@ export default function AdminDashboard() {
     }
   }
 
+  function selectBookingForQuote(booking) {
+    setQuoteForm((current) => ({
+      ...current,
+      booking_id: booking.id,
+      customer_name: booking.customer_name || '',
+      customer_phone: booking.phone || '',
+      customer_email: booking.email || '',
+      service_description: [booking.service, booking.property_type].filter(Boolean).join(' — '),
+      valid_until: settings.quote_validity_days ? new Date(Date.now() + Number(settings.quote_validity_days) * 86400000).toISOString().slice(0, 10) : '',
+      terms: current.terms || settings.default_invoice_payment_terms || '',
+    }))
+    setActiveSection('quotes')
+    setShowQuoteForm(true)
+    setSuccess('')
+    setError('')
+  }
+
   function selectBookingForInvoice(booking) {
     setInvoiceForm((current) => ({
       ...current,
@@ -934,6 +967,7 @@ export default function AdminDashboard() {
       notes: settings.default_invoice_notes || '',
     }))
     setActiveSection('invoices')
+    setShowInvoiceForm(true)
     setSuccess('')
     setError('')
   }
@@ -993,6 +1027,7 @@ export default function AdminDashboard() {
       if (insertError) throw insertError
 
       setInvoiceForm({ ...emptyInvoiceForm })
+      setShowInvoiceForm(false)
       setSuccess(`Invoice ${invoiceRef} created successfully.`)
       await loadDashboard()
     } catch (err) {
@@ -1165,6 +1200,13 @@ export default function AdminDashboard() {
                       )}
                       <button
                         type="button"
+                        onClick={() => selectBookingForQuote(booking)}
+                        style={{ ...buttonStyle, background: '#fff', color: DARK, borderColor: BORDER, minHeight: 32, padding: '6px 9px', fontSize: 11 }}
+                      >
+                        <ClipboardList size={14} /> Quote
+                      </button>
+                      <button
+                        type="button"
                         onClick={() => selectBookingForInvoice(booking)}
                         style={{ ...buttonStyle, background: DARK, minHeight: 32, padding: '6px 9px', fontSize: 11 }}
                       >
@@ -1310,50 +1352,6 @@ export default function AdminDashboard() {
               {renderBookingStatusCards()}
             </section>
 
-            <section style={panelStyle}>
-              <SectionHeading
-                description="The latest customer bookings."
-                action={<button type="button" style={buttonStyle} onClick={() => setActiveSection('bookings')}>View bookings</button>}
-              >
-                Recent bookings
-              </SectionHeading>
-              {renderBookingsTable(bookings.slice(0, 5))}
-            </section>
-
-            <section style={panelStyle}>
-              <SectionHeading
-                description="Recently created invoices."
-                action={<button type="button" style={buttonStyle} onClick={() => setActiveSection('invoices')}>View invoices</button>}
-              >
-                Recent invoices
-              </SectionHeading>
-              {invoices.length === 0 ? (
-                <p style={{ color: MUTED, fontSize: 13 }}>No invoices yet.</p>
-              ) : (
-                <div style={{ overflowX: 'auto' }}>
-                  <table style={tableStyle}>
-                    <thead>
-                      <tr>
-                        {['Invoice', 'Customer', 'Amount', 'Issue date', 'Status'].map((heading) => (
-                          <th key={heading} style={thStyle}>{heading}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {invoices.slice(0, 5).map((invoice) => (
-                        <tr key={invoice.id}>
-                          <td style={tdStyle}><strong>{invoice.invoice_ref || '—'}</strong></td>
-                          <td style={tdStyle}>{invoice.customer_name || '—'}</td>
-                          <td style={tdStyle}>{formatMoney(invoice.amount)}</td>
-                          <td style={tdStyle}>{formatDate(invoice.issue_date)}</td>
-                          <td style={tdStyle}><StatusPill status={invoice.status || 'unpaid'} /></td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </section>
           </>
         )}
 
@@ -1523,12 +1521,13 @@ export default function AdminDashboard() {
 
         {activeSection === 'invoices' && (
           <>
+            {moduleErrors.invoices && <div role="alert" style={{ ...panelStyle, color: '#9f2424', background: '#fff8f8', borderColor: '#f0c7c7' }}>Invoices could not be loaded from Supabase: {moduleErrors.invoices}</div>}
             <section style={panelStyle}>
-              <SectionHeading description="Create an invoice for an existing booking or enter a customer manually.">
+              <SectionHeading description="Create an invoice for an existing booking or enter a customer manually." action={<button type="button" style={buttonStyle} onClick={() => setShowInvoiceForm((value) => !value)}>{showInvoiceForm ? <X size={15} /> : <Plus size={15} />}{showInvoiceForm ? 'Close form' : 'Create invoice'}</button>}>
                 Create an invoice
               </SectionHeading>
 
-              <form onSubmit={handleCreateInvoice}>
+              {showInvoiceForm && <form onSubmit={handleCreateInvoice}>
                 <div style={formGridStyle}>
                   <label style={labelStyle}>
                     Link to booking (optional)
@@ -1651,11 +1650,11 @@ export default function AdminDashboard() {
                   {savingInvoice ? <LoaderCircle size={15} /> : <Save size={15} />}
                   {savingInvoice ? 'Creating invoice...' : 'Create invoice'}
                 </button>
-              </form>
+              </form>}
             </section>
 
             <section style={panelStyle}>
-              <SectionHeading description="Search invoices and update payment status when payment is confirmed.">
+              <SectionHeading description="Search invoices and review their current payment status.">
                 Invoices & receipts
               </SectionHeading>
 
@@ -1696,19 +1695,22 @@ export default function AdminDashboard() {
                           <td style={tdStyle}>{formatDate(invoice.due_date)}</td>
                           <td style={tdStyle}><StatusPill status={invoice.status || 'unpaid'} /></td>
                           <td style={tdStyle}>
-                            <select
-                              aria-label={`Payment status for ${invoice.invoice_ref || invoice.customer_name}`}
-                              value={['draft','sent','unpaid','paid','cancelled'].includes(String(invoice.status || '').toLowerCase()) ? String(invoice.status).toLowerCase() : 'unpaid'}
-                              onChange={(event) => updateInvoiceStatus(invoice.id, event.target.value)}
-                              style={{ ...inputStyle, minWidth: 110, padding: '6px 8px', fontSize: 12 }}
-                            >
-                              <option value="draft">Draft</option>
-                              <option value="sent">Sent</option>
-                              <option value="unpaid">Unpaid</option>
-                              <option value="paid">Paid</option>
-                              <option value="cancelled">Cancelled</option>
-                            </select>
+                            <div style={{ display: 'grid', gap: 6, minWidth: 130 }}>
+                              <StatusPill status={invoice.status || 'unpaid'} />
+                              <select
+                                aria-label={`Invoice status for ${invoice.invoice_ref || invoice.customer_name}`}
+                                value={['draft','sent','unpaid','cancelled'].includes(String(invoice.status || '').toLowerCase()) ? String(invoice.status).toLowerCase() : 'unpaid'}
+                                onChange={(event) => updateInvoiceStatus(invoice.id, event.target.value)}
+                                style={{ ...inputStyle, minWidth: 110, padding: '6px 8px', fontSize: 12 }}
+                              >
+                                <option value="draft">Draft</option>
+                                <option value="sent">Sent</option>
+                                <option value="unpaid">Unpaid</option>
+                                <option value="cancelled">Cancelled</option>
+                              </select>
+                            </div>
                           </td>
+                          <td style={tdStyle}><button type="button" style={{ ...buttonStyle, minHeight: 32, padding: '6px 9px', fontSize: 11 }} onClick={() => printInvoice(invoice)}>Print / Save PDF</button></td>
                         </tr>
                       ))}
                     </tbody>
@@ -1721,9 +1723,10 @@ export default function AdminDashboard() {
 
         {activeSection === 'quotes' && (
           <>
+            {moduleErrors.quotes && <div role="alert" style={{ ...panelStyle, color: '#9f2424', background: '#fff8f8', borderColor: '#f0c7c7' }}>Quotes could not be loaded from Supabase: {moduleErrors.quotes}</div>}
             <section style={panelStyle}>
-              <SectionHeading description="Select an existing booking before creating a quotation. The document can be printed or saved as PDF.">Create a quotation</SectionHeading>
-              <form onSubmit={handleCreateQuote}>
+              <SectionHeading description="Select an existing booking before creating a quotation. The document can be printed or saved as PDF." action={<button type="button" style={buttonStyle} onClick={() => setShowQuoteForm((value) => !value)}>{showQuoteForm ? <X size={15} /> : <Plus size={15} />}{showQuoteForm ? 'Close form' : 'Create quote'}</button>}>Create a quotation</SectionHeading>
+              {showQuoteForm && <form onSubmit={handleCreateQuote}>
                 <div style={formGridStyle}>
                   <label style={labelStyle}>Link booking *<select required style={inputStyle} value={quoteForm.booking_id} onChange={(event) => { const b = bookings.find((item) => item.id === event.target.value); setQuoteForm({ ...quoteForm, booking_id: event.target.value, customer_name: b?.customer_name || quoteForm.customer_name, customer_phone: b?.phone || quoteForm.customer_phone, customer_email: b?.email || quoteForm.customer_email, service_description: b ? [b.service, b.property_type].filter(Boolean).join(' — ') : quoteForm.service_description }) }}><option value="">Select a booking</option>{bookings.map((b) => <option key={b.id} value={b.id}>{b.booking_ref || 'Booking'} — {b.customer_name}</option>)}</select></label>
                   <label style={labelStyle}>Customer name *<input style={inputStyle} required value={quoteForm.customer_name} onChange={(e) => setQuoteForm({ ...quoteForm, customer_name: e.target.value })} /></label>
@@ -1736,7 +1739,7 @@ export default function AdminDashboard() {
                 <label style={{ ...labelStyle, marginTop: 14 }}>Terms<textarea style={{ ...inputStyle, minHeight: 65 }} value={quoteForm.terms} onChange={(e) => setQuoteForm({ ...quoteForm, terms: e.target.value })} placeholder="Payment terms, validity, what is included..." /></label>
                 <label style={{ ...labelStyle, marginTop: 14 }}>Notes<textarea style={{ ...inputStyle, minHeight: 65 }} value={quoteForm.notes} onChange={(e) => setQuoteForm({ ...quoteForm, notes: e.target.value })} /></label>
                 <button type="submit" style={{ ...buttonStyle, marginTop: 14 }} disabled={savingQuote}>{savingQuote ? 'Saving quotation...' : 'Create quotation'}</button>
-              </form>
+              </form>}
             </section>
             <section style={panelStyle}><SectionHeading description="Update the quote status as the customer responds.">All quotations</SectionHeading><label style={{ ...labelStyle, maxWidth: 420, marginBottom: 14 }}>Search quotations<input style={inputStyle} value={quoteSearch} onChange={(e) => setQuoteSearch(e.target.value)} placeholder="Reference, customer or service" /></label>
               {filteredQuotes.length ? <div style={{ overflowX: 'auto' }}><table style={tableStyle}><thead><tr>{['Reference','Customer','Description','Amount','Valid until','Status','Actions'].map((h) => <th key={h} style={thStyle}>{h}</th>)}</tr></thead><tbody>{filteredQuotes.map((q) => <tr key={q.id}><td style={tdStyle}><strong>{q.quote_ref}</strong></td><td style={tdStyle}>{q.customer_name}</td><td style={tdStyle}>{q.service_description}</td><td style={tdStyle}>{formatMoney(q.amount)}</td><td style={tdStyle}>{formatDate(q.valid_until)}</td><td style={tdStyle}><StatusPill status={q.status} /></td><td style={tdStyle}><div style={{ display: 'grid', gap: 6 }}><select style={{ ...inputStyle, minWidth: 120, padding: '6px 8px' }} value={q.status} onChange={(e) => updateQuoteStatus(q.id, e.target.value)}>{['draft','sent','accepted','declined','expired','cancelled'].map((st) => <option key={st} value={st}>{st[0].toUpperCase()+st.slice(1)}</option>)}</select><button type="button" style={{ ...buttonStyle, minHeight: 32 }} onClick={() => printQuote(q)}>Print / Save PDF</button></div></td></tr>)}</tbody></table></div> : <p style={{ color: MUTED, fontSize: 13 }}>No quotations found.</p>}
@@ -1746,14 +1749,15 @@ export default function AdminDashboard() {
 
         {activeSection === 'receipts' && (
           <>
-            <section style={panelStyle}><SectionHeading description="Record money only after it has been verified in the business account. Each receipt is a separate payment record.">Record a payment / receipt</SectionHeading>
-              <form onSubmit={handleCreateReceipt}><div style={formGridStyle}>
+            {moduleErrors.receipts && <div role="alert" style={{ ...panelStyle, color: '#9f2424', background: '#fff8f8', borderColor: '#f0c7c7' }}>Receipts could not be loaded from Supabase: {moduleErrors.receipts}</div>}
+            <section style={panelStyle}><SectionHeading description="Record money only after it has been verified in the business account. Each receipt is a separate payment record." action={<button type="button" style={buttonStyle} onClick={() => setShowReceiptForm((value) => !value)}>{showReceiptForm ? <X size={15} /> : <Plus size={15} />}{showReceiptForm ? 'Close form' : 'Record payment'}</button>}>Record a payment / receipt</SectionHeading>
+              {showReceiptForm && <form onSubmit={handleCreateReceipt}><div style={formGridStyle}>
                 <label style={labelStyle}>Invoice *<select required style={inputStyle} value={receiptForm.invoice_id} onChange={(e) => { const inv = invoices.find((item) => item.id === e.target.value); setReceiptForm({ ...receiptForm, invoice_id: e.target.value, amount_received: inv ? String(Math.max(0, Number(inv.amount || 0) - receipts.filter((r) => r.invoice_id === inv.id).reduce((sum, r) => sum + Number(r.amount_received || 0), 0))) : receiptForm.amount_received }) }}><option value="">Select invoice</option>{invoices.filter((i) => i.status !== 'paid' && i.status !== 'cancelled').map((i) => <option key={i.id} value={i.id}>{i.invoice_ref} — {i.customer_name} ({formatMoney(i.amount)})</option>)}</select></label>
                 <label style={labelStyle}>Amount received (₦) *<input type="number" required min="0.01" step="0.01" style={inputStyle} value={receiptForm.amount_received} onChange={(e) => setReceiptForm({ ...receiptForm, amount_received: e.target.value })} /></label>
                 <label style={labelStyle}>Payment date<input type="date" style={inputStyle} value={receiptForm.payment_date} onChange={(e) => setReceiptForm({ ...receiptForm, payment_date: e.target.value })} /></label>
                 <label style={labelStyle}>Payment method<select style={inputStyle} value={receiptForm.payment_method} onChange={(e) => setReceiptForm({ ...receiptForm, payment_method: e.target.value })}>{['bank_transfer','cash','card','other'].map((m) => <option key={m} value={m}>{m.replace('_',' ').replace(/^./, c => c.toUpperCase())}</option>)}</select></label>
                 <label style={labelStyle}>Payment reference<input style={inputStyle} value={receiptForm.payment_reference} onChange={(e) => setReceiptForm({ ...receiptForm, payment_reference: e.target.value })} placeholder="Bank transaction reference" /></label>
-              </div><label style={{ ...labelStyle, marginTop: 14 }}>Notes<textarea style={{ ...inputStyle, minHeight: 65 }} value={receiptForm.notes} onChange={(e) => setReceiptForm({ ...receiptForm, notes: e.target.value })} /></label><button type="submit" style={{ ...buttonStyle, marginTop: 14 }} disabled={savingReceipt}>{savingReceipt ? 'Recording payment...' : 'Record payment and create receipt'}</button></form>
+              </div><label style={{ ...labelStyle, marginTop: 14 }}>Notes<textarea style={{ ...inputStyle, minHeight: 65 }} value={receiptForm.notes} onChange={(e) => setReceiptForm({ ...receiptForm, notes: e.target.value })} /></label><button type="submit" style={{ ...buttonStyle, marginTop: 14 }} disabled={savingReceipt}>{savingReceipt ? 'Recording payment...' : 'Record payment and create receipt'}</button></form>}
             </section>
             <section style={panelStyle}><SectionHeading description="Receipts are payment records and should not be created until payment is confirmed.">Receipt history</SectionHeading><label style={{ ...labelStyle, maxWidth: 420, marginBottom: 14 }}>Search receipts<input style={inputStyle} value={receiptSearch} onChange={(e) => setReceiptSearch(e.target.value)} placeholder="Receipt reference, customer or payment ref" /></label>
               {filteredReceipts.length ? <div style={{ overflowX: 'auto' }}><table style={tableStyle}><thead><tr>{['Receipt','Customer','Invoice','Amount received','Date','Method','Actions'].map((h) => <th key={h} style={thStyle}>{h}</th>)}</tr></thead><tbody>{filteredReceipts.map((r) => { const inv = invoices.find((i) => i.id === r.invoice_id); return <tr key={r.id}><td style={tdStyle}><strong>{r.receipt_ref}</strong></td><td style={tdStyle}>{r.customer_name}</td><td style={tdStyle}>{inv?.invoice_ref || '—'}</td><td style={tdStyle}>{formatMoney(r.amount_received)}</td><td style={tdStyle}>{formatDate(r.payment_date)}</td><td style={tdStyle}>{String(r.payment_method || '').replace('_',' ')}</td><td style={tdStyle}><button type="button" style={{ ...buttonStyle, minHeight: 32 }} onClick={() => printReceipt({ ...r, invoice_ref: inv?.invoice_ref })}>Print / Save PDF</button></td></tr> })}</tbody></table></div> : <p style={{ color: MUTED, fontSize: 13 }}>No receipts recorded yet.</p>}
@@ -1763,8 +1767,9 @@ export default function AdminDashboard() {
 
         {activeSection === 'staff' && (
           <section>
+            {moduleErrors.staff && <div role="alert" style={{ ...panelStyle, color: '#9f2424', background: '#fff8f8', borderColor: '#f0c7c7' }}>Staff profiles could not be loaded from Supabase: {moduleErrors.staff}</div>}
             <section style={panelStyle}>
-              <SectionHeading description="Create staff logins, set permissions, reset temporary passwords, and deactivate access.">
+              <SectionHeading description="Create staff logins, set permissions, reset temporary passwords, and deactivate access." action={<button type="button" style={buttonStyle} onClick={() => setShowStaffForm((value) => !value)}>{showStaffForm ? <X size={15} /> : <Plus size={15} />}{showStaffForm ? 'Close form' : 'Create staff account'}</button>}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}>
                   <ShieldCheck size={18} color={GREEN} /> Staff Management
                 </span>
@@ -1776,6 +1781,7 @@ export default function AdminDashboard() {
                 </p>
               )}
 
+              {showStaffForm && <>
               <h3 style={{ margin: '18px 0 12px', fontSize: 15, color: DARK }}>Create a staff account</h3>
               <p style={{ color: MUTED, fontSize: 12, lineHeight: 1.6, marginTop: 0 }}>
                 Use a real email address as the staff username. The temporary password is sent securely to Supabase Auth and is not saved in your database.
@@ -1815,7 +1821,7 @@ export default function AdminDashboard() {
                   {creatingStaff ? <LoaderCircle size={15} /> : <Plus size={15} />}
                   {creatingStaff ? 'Creating account...' : 'Create staff account'}
                 </button>
-              </form>
+              </form></>}
             </section>
 
             <section style={panelStyle}>
@@ -1891,6 +1897,7 @@ export default function AdminDashboard() {
 
         {activeSection === 'settings' && (
           <section style={panelStyle}>
+            {moduleErrors.settings && <p role="alert" style={{ background: '#fff8e8', color: '#854d0e', borderRadius: 8, padding: 12, fontSize: 12 }}>Business settings could not be loaded: {moduleErrors.settings}</p>}
             <SectionHeading description="Update the business details used by the admin dashboard and invoice workflow.">
               Business Settings
             </SectionHeading>
