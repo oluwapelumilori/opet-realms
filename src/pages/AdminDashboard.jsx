@@ -16,6 +16,7 @@ import {
   ClipboardList,
   Search,
   MessageCircle,
+  MoreVertical,
   X,
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
@@ -57,6 +58,22 @@ const buttonStyle = {
   color: '#fff',
   fontWeight: 600,
   fontSize: 13,
+  cursor: 'pointer',
+}
+
+const menuButtonStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 8,
+  width: '100%',
+  border: 0,
+  borderRadius: 6,
+  background: '#fff',
+  color: DARK,
+  padding: '10px 9px',
+  fontSize: 12,
+  fontWeight: 600,
+  textAlign: 'left',
   cursor: 'pointer',
 }
 
@@ -156,6 +173,7 @@ const emptyInvoiceForm = {
   issue_date: new Date().toISOString().slice(0, 10),
   due_date: '',
   notes: '',
+  payment_terms: '',
   payment_option: 'full',
 }
 
@@ -303,6 +321,12 @@ export default function AdminDashboard() {
   const [bookingSearch, setBookingSearch] = useState('')
   const [invoiceSearch, setInvoiceSearch] = useState('')
   const [showBookingForm, setShowBookingForm] = useState(false)
+  const [openBookingMenu, setOpenBookingMenu] = useState('')
+  const [showInvoiceForm, setShowInvoiceForm] = useState(false)
+  const [showQuoteForm, setShowQuoteForm] = useState(false)
+  const [showReceiptForm, setShowReceiptForm] = useState(false)
+  const [showCreateStaffForm, setShowCreateStaffForm] = useState(false)
+  const [expandedStaffPermissions, setExpandedStaffPermissions] = useState({})
 
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -572,6 +596,7 @@ export default function AdminDashboard() {
       })
       if (insertError) throw insertError
       setQuoteForm({ booking_id: '', customer_name: '', customer_phone: '', customer_email: '', service_description: '', amount: '', valid_until: '', notes: '' })
+      setShowQuoteForm(false)
       setSuccess(`Quotation ${quoteRef} created successfully.`)
       await loadDashboard()
     } catch (err) { setError(err.message || 'Could not create quotation.') }
@@ -618,6 +643,7 @@ export default function AdminDashboard() {
         if (statusError) throw statusError
       }
       setReceiptForm({ invoice_id: '', amount_received: '', payment_date: new Date().toISOString().slice(0, 10), payment_method: 'bank_transfer', payment_reference: '', notes: '' })
+      setShowReceiptForm(false)
       setSuccess(`Receipt ${receiptRef} recorded. Only record payments that have been verified.`)
       await loadDashboard()
     } catch (err) { setError(err.message || 'Could not record receipt.') }
@@ -957,6 +983,21 @@ export default function AdminDashboard() {
     }
   }
 
+  function selectBookingForQuote(booking) {
+    setQuoteForm((current) => ({
+      ...current,
+      booking_id: booking.id,
+      customer_name: booking.customer_name || '',
+      customer_phone: booking.phone || '',
+      customer_email: booking.email || '',
+      service_description: [booking.service, booking.property_type].filter(Boolean).join(' — '),
+    }))
+    setShowQuoteForm(true)
+    setActiveSection('quotes')
+    setSuccess('')
+    setError('')
+  }
+
   function selectBookingForInvoice(booking) {
     setInvoiceForm((current) => ({
       ...current,
@@ -966,7 +1007,9 @@ export default function AdminDashboard() {
         .filter(Boolean)
         .join(' — '),
       notes: settings.default_invoice_notes || '',
+      payment_terms: settings.default_invoice_payment_terms || '',
     }))
+    setShowInvoiceForm(true)
     setActiveSection('invoices')
     setSuccess('')
     setError('')
@@ -1006,7 +1049,7 @@ export default function AdminDashboard() {
         due_date: invoiceForm.due_date || null,
         notes: [
           invoiceForm.description.trim(),
-          settings.default_invoice_payment_terms.trim() ? `Payment terms: ${settings.default_invoice_payment_terms.trim()}` : '',
+          (invoiceForm.payment_terms || settings.default_invoice_payment_terms).trim() ? `Payment terms: ${(invoiceForm.payment_terms || settings.default_invoice_payment_terms).trim()}` : '',
           invoiceForm.notes.trim(),
           invoiceForm.payment_option === 'deposit'
             ? `70% deposit due: ${formatMoney(depositAmount)}. Balance: ${formatMoney(amount - depositAmount)}.`
@@ -1026,6 +1069,7 @@ export default function AdminDashboard() {
       if (insertError) throw insertError
 
       setInvoiceForm({ ...emptyInvoiceForm })
+      setShowInvoiceForm(false)
       setSuccess(`Invoice ${invoiceRef} created successfully.`)
       await loadDashboard()
     } catch (err) {
@@ -1185,24 +1229,15 @@ export default function AdminDashboard() {
                     </select>
                   </td>
                   <td style={tdStyle}>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                      {chatUrl && (
-                        <a
-                          href={chatUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          style={{ ...buttonStyle, textDecoration: 'none', minHeight: 32, padding: '6px 9px', fontSize: 11 }}
-                        >
-                          <MessageCircle size={14} /> WhatsApp
-                        </a>
-                      )}
-                      <button
-                        type="button"
-                        onClick={() => selectBookingForInvoice(booking)}
-                        style={{ ...buttonStyle, background: DARK, minHeight: 32, padding: '6px 9px', fontSize: 11 }}
-                      >
-                        <FileText size={14} /> Invoice
+                    <div style={{ position: 'relative', display: 'inline-block' }}>
+                      <button type="button" aria-label={`Actions for ${booking.booking_ref || booking.customer_name}`} onClick={() => setOpenBookingMenu((current) => current === booking.id ? '' : booking.id)} style={{ ...buttonStyle, background: '#fff', color: DARK, borderColor: BORDER, minHeight: 34, padding: '6px 9px' }}>
+                        <MoreVertical size={17} /> Actions
                       </button>
+                      {openBookingMenu === booking.id && <div style={{ position: 'absolute', right: 0, top: 'calc(100% + 5px)', zIndex: 20, width: 180, padding: 5, background: '#fff', border: `1px solid ${BORDER}`, borderRadius: 9, boxShadow: '0 8px 24px #14243A20', display: 'grid', gap: 3 }}>
+                        <button type="button" onClick={() => { setOpenBookingMenu(''); selectBookingForQuote(booking) }} style={{ ...menuButtonStyle }}><FileText size={14} /> Create Quote</button>
+                        <button type="button" onClick={() => { setOpenBookingMenu(''); selectBookingForInvoice(booking) }} style={{ ...menuButtonStyle }}><FileText size={14} /> Create Invoice</button>
+                        {chatUrl && <a href={chatUrl} target="_blank" rel="noreferrer" onClick={() => setOpenBookingMenu('')} style={{ ...menuButtonStyle, textDecoration: 'none' }}><MessageCircle size={14} /> Send Message (WhatsApp)</a>}
+                      </div>}
                     </div>
                   </td>
                 </tr>
@@ -1514,11 +1549,11 @@ export default function AdminDashboard() {
         {activeSection === 'invoices' && (
           <>
             <section style={panelStyle}>
-              <SectionHeading description="Create an invoice for an existing booking or enter a customer manually.">
-                Create an invoice
+              <SectionHeading description="Your invoice list appears first. Open the form only when you need to create an invoice." action={<button type="button" style={buttonStyle} onClick={() => setShowInvoiceForm((v) => !v)}>{showInvoiceForm ? 'Close form' : 'Create invoice'}</button>}>
+                Invoices
               </SectionHeading>
 
-              <form onSubmit={handleCreateInvoice}>
+              {showInvoiceForm && <form onSubmit={handleCreateInvoice}>
                 <div style={formGridStyle}>
                   <label style={labelStyle}>
                     Link to booking (optional)
@@ -1635,18 +1670,20 @@ export default function AdminDashboard() {
                   <div>{settings.bank_name || 'Add bank name in Business Settings'}</div>
                   <div>Account name: {settings.account_name || 'Not set'}</div>
                   <div>Account number: {settings.account_number || 'Not set'}</div>
-                  <div style={{ marginTop: 8, color: MUTED }}>Payment terms: {settings.default_invoice_payment_terms || 'Add default terms in Business Settings'}</div>
+                  <label style={{ ...labelStyle, marginTop: 12 }}>Payment terms (shown on invoice)
+                    <textarea style={{ ...inputStyle, minHeight: 75, resize: 'vertical' }} value={invoiceForm.payment_terms} onChange={(event) => setInvoiceForm({ ...invoiceForm, payment_terms: event.target.value })} placeholder={settings.default_invoice_payment_terms || 'Add invoice payment terms in Business Settings'} />
+                  </label>
                 </div>
 
                 <button type="submit" style={{ ...buttonStyle, marginTop: 14 }} disabled={savingInvoice}>
                   {savingInvoice ? <LoaderCircle size={15} /> : <Save size={15} />}
                   {savingInvoice ? 'Creating invoice...' : 'Create invoice'}
                 </button>
-              </form>
+              </form>}
             </section>
 
             <section style={panelStyle}>
-              <SectionHeading description="Search invoices and update payment status when payment is confirmed.">
+              <SectionHeading description="Search invoices and print or save each invoice as a PDF.">
                 Invoices & receipts
               </SectionHeading>
 
@@ -1699,6 +1736,7 @@ export default function AdminDashboard() {
                               <option value="paid">Paid</option>
                               <option value="cancelled">Cancelled</option>
                             </select>
+                            <button type="button" style={{ ...buttonStyle, minHeight: 32, marginTop: 6 }} onClick={() => printInvoice(invoice)}>Download / Print PDF</button>
                           </td>
                         </tr>
                       ))}
@@ -1713,8 +1751,8 @@ export default function AdminDashboard() {
         {activeSection === 'quotes' && (
           <>
             <section style={panelStyle}>
-              <SectionHeading description="Select an existing booking before creating a quotation. The document can be printed or saved as PDF.">Create a quotation</SectionHeading>
-              <form onSubmit={handleCreateQuote}>
+              <SectionHeading description="Review existing quotations first. Open the form only when you need a new quotation." action={<button type="button" style={buttonStyle} onClick={() => setShowQuoteForm((v) => !v)}>{showQuoteForm ? 'Close form' : 'Create quote'}</button>}>Quotes</SectionHeading>
+              {showQuoteForm && <form onSubmit={handleCreateQuote}>
                 <div style={formGridStyle}>
                   <label style={labelStyle}>Link booking *<select required style={inputStyle} value={quoteForm.booking_id} onChange={(event) => { const b = bookings.find((item) => item.id === event.target.value); setQuoteForm({ ...quoteForm, booking_id: event.target.value, customer_name: b?.customer_name || quoteForm.customer_name, customer_phone: b?.phone || quoteForm.customer_phone, customer_email: b?.email || quoteForm.customer_email, service_description: b ? [b.service, b.property_type].filter(Boolean).join(' — ') : quoteForm.service_description }) }}><option value="">Select a booking</option>{bookings.map((b) => <option key={b.id} value={b.id}>{b.booking_ref || 'Booking'} — {b.customer_name}</option>)}</select></label>
                   <label style={labelStyle}>Customer name *<input style={inputStyle} required value={quoteForm.customer_name} onChange={(e) => setQuoteForm({ ...quoteForm, customer_name: e.target.value })} /></label>
@@ -1726,10 +1764,10 @@ export default function AdminDashboard() {
                 <label style={{ ...labelStyle, marginTop: 14 }}>Service description *<textarea required style={{ ...inputStyle, minHeight: 75 }} value={quoteForm.service_description} onChange={(e) => setQuoteForm({ ...quoteForm, service_description: e.target.value })} /></label>
                 <p style={{ color: MUTED, fontSize: 12, marginTop: 12 }}>Payment terms and bank details will appear on the invoice, not on this quotation.</p>
                 <label style={{ ...labelStyle, marginTop: 14 }}>Notes<textarea style={{ ...inputStyle, minHeight: 65 }} value={quoteForm.notes} onChange={(e) => setQuoteForm({ ...quoteForm, notes: e.target.value })} /></label>
-                <button type="submit" style={{ ...buttonStyle, marginTop: 14 }} disabled={savingQuote}>{savingQuote ? 'Saving quotation...' : 'Create quotation'}</button>
-              </form>
+                <button type="submit" style={{ ...buttonStyle, marginTop: 14 }} disabled={savingQuote}>{savingQuote ? 'Saving quotation...' : 'Save quotation'}</button>
+              </form>}
             </section>
-            <section style={panelStyle}><SectionHeading description="Update the quote status as the customer responds.">All quotations</SectionHeading><label style={{ ...labelStyle, maxWidth: 420, marginBottom: 14 }}>Search quotations<input style={inputStyle} value={quoteSearch} onChange={(e) => setQuoteSearch(e.target.value)} placeholder="Reference, customer or service" /></label>
+            <section style={panelStyle}><SectionHeading description="Update the quote status and download a saved quotation.">All quotations</SectionHeading><label style={{ ...labelStyle, maxWidth: 420, marginBottom: 14 }}>Search quotations<input style={inputStyle} value={quoteSearch} onChange={(e) => setQuoteSearch(e.target.value)} placeholder="Reference, customer or service" /></label>
               {filteredQuotes.length ? <div style={{ overflowX: 'auto' }}><table style={tableStyle}><thead><tr>{['Reference','Customer','Description','Amount','Valid until','Status','Actions'].map((h) => <th key={h} style={thStyle}>{h}</th>)}</tr></thead><tbody>{filteredQuotes.map((q) => <tr key={q.id}><td style={tdStyle}><strong>{q.quote_ref}</strong></td><td style={tdStyle}>{q.customer_name}</td><td style={tdStyle}>{q.service_description}</td><td style={tdStyle}>{formatMoney(q.amount)}</td><td style={tdStyle}>{formatDate(q.valid_until)}</td><td style={tdStyle}><StatusPill status={q.status} /></td><td style={tdStyle}><div style={{ display: 'grid', gap: 6 }}><select style={{ ...inputStyle, minWidth: 120, padding: '6px 8px' }} value={q.status} onChange={(e) => updateQuoteStatus(q.id, e.target.value)}>{['draft','sent','accepted','declined','expired','cancelled'].map((st) => <option key={st} value={st}>{st[0].toUpperCase()+st.slice(1)}</option>)}</select><button type="button" style={{ ...buttonStyle, minHeight: 32 }} onClick={() => printQuote(q)}>Print / Save PDF</button></div></td></tr>)}</tbody></table></div> : <p style={{ color: MUTED, fontSize: 13 }}>No quotations found.</p>}
             </section>
           </>
@@ -1737,14 +1775,14 @@ export default function AdminDashboard() {
 
         {activeSection === 'receipts' && (
           <>
-            <section style={panelStyle}><SectionHeading description="Record money only after it has been verified in the business account. Each receipt is a separate payment record.">Record a payment / receipt</SectionHeading>
-              <form onSubmit={handleCreateReceipt}><div style={formGridStyle}>
+            <section style={panelStyle}><SectionHeading description="Existing receipts appear below. Record a payment only after it has been verified." action={<button type="button" style={buttonStyle} onClick={() => setShowReceiptForm((v) => !v)}>{showReceiptForm ? 'Close form' : 'Record payment'}</button>}>Receipts</SectionHeading>
+              {showReceiptForm && <form onSubmit={handleCreateReceipt}><div style={formGridStyle}>
                 <label style={labelStyle}>Invoice *<select required style={inputStyle} value={receiptForm.invoice_id} onChange={(e) => { const inv = invoices.find((item) => item.id === e.target.value); setReceiptForm({ ...receiptForm, invoice_id: e.target.value, amount_received: inv ? String(Math.max(0, Number(inv.amount || 0) - receipts.filter((r) => r.invoice_id === inv.id).reduce((sum, r) => sum + Number(r.amount_received || 0), 0))) : receiptForm.amount_received }) }}><option value="">Select invoice</option>{invoices.filter((i) => i.status !== 'paid' && i.status !== 'cancelled').map((i) => <option key={i.id} value={i.id}>{i.invoice_ref} — {i.customer_name} ({formatMoney(i.amount)})</option>)}</select></label>
                 <label style={labelStyle}>Amount received (₦) *<input type="number" required min="0.01" step="0.01" style={inputStyle} value={receiptForm.amount_received} onChange={(e) => setReceiptForm({ ...receiptForm, amount_received: e.target.value })} /></label>
                 <label style={labelStyle}>Payment date<input type="date" style={inputStyle} value={receiptForm.payment_date} onChange={(e) => setReceiptForm({ ...receiptForm, payment_date: e.target.value })} /></label>
                 <label style={labelStyle}>Payment method<select style={inputStyle} value={receiptForm.payment_method} onChange={(e) => setReceiptForm({ ...receiptForm, payment_method: e.target.value })}>{['bank_transfer','cash','card','other'].map((m) => <option key={m} value={m}>{m.replace('_',' ').replace(/^./, c => c.toUpperCase())}</option>)}</select></label>
                 <label style={labelStyle}>Payment reference<input style={inputStyle} value={receiptForm.payment_reference} onChange={(e) => setReceiptForm({ ...receiptForm, payment_reference: e.target.value })} placeholder="Bank transaction reference" /></label>
-              </div><label style={{ ...labelStyle, marginTop: 14 }}>Notes<textarea style={{ ...inputStyle, minHeight: 65 }} value={receiptForm.notes} onChange={(e) => setReceiptForm({ ...receiptForm, notes: e.target.value })} /></label><button type="submit" style={{ ...buttonStyle, marginTop: 14 }} disabled={savingReceipt}>{savingReceipt ? 'Recording payment...' : 'Record payment and create receipt'}</button></form>
+              </div><label style={{ ...labelStyle, marginTop: 14 }}>Notes<textarea style={{ ...inputStyle, minHeight: 65 }} value={receiptForm.notes} onChange={(e) => setReceiptForm({ ...receiptForm, notes: e.target.value })} /></label><button type="submit" style={{ ...buttonStyle, marginTop: 14 }} disabled={savingReceipt}>{savingReceipt ? 'Recording payment...' : 'Record payment and create receipt'}</button></form>}
             </section>
             <section style={panelStyle}><SectionHeading description="Receipts are payment records and should not be created until payment is confirmed.">Receipt history</SectionHeading><label style={{ ...labelStyle, maxWidth: 420, marginBottom: 14 }}>Search receipts<input style={inputStyle} value={receiptSearch} onChange={(e) => setReceiptSearch(e.target.value)} placeholder="Receipt reference, customer or payment ref" /></label>
               {filteredReceipts.length ? <div style={{ overflowX: 'auto' }}><table style={tableStyle}><thead><tr>{['Receipt','Customer','Invoice','Amount received','Date','Method','Actions'].map((h) => <th key={h} style={thStyle}>{h}</th>)}</tr></thead><tbody>{filteredReceipts.map((r) => { const inv = invoices.find((i) => i.id === r.invoice_id); return <tr key={r.id}><td style={tdStyle}><strong>{r.receipt_ref}</strong></td><td style={tdStyle}>{r.customer_name}</td><td style={tdStyle}>{inv?.invoice_ref || '—'}</td><td style={tdStyle}>{formatMoney(r.amount_received)}</td><td style={tdStyle}>{formatDate(r.payment_date)}</td><td style={tdStyle}>{String(r.payment_method || '').replace('_',' ')}</td><td style={tdStyle}><button type="button" style={{ ...buttonStyle, minHeight: 32 }} onClick={() => printReceipt({ ...r, invoice_ref: inv?.invoice_ref })}>Print / Save PDF</button></td></tr> })}</tbody></table></div> : <p style={{ color: MUTED, fontSize: 13 }}>No receipts recorded yet.</p>}
@@ -1767,8 +1805,12 @@ export default function AdminDashboard() {
                 </p>
               )}
 
-              <h3 style={{ margin: '18px 0 12px', fontSize: 15, color: DARK }}>Create a staff account</h3>
-              <p style={{ color: MUTED, fontSize: 12, lineHeight: 1.6, marginTop: 0 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap', marginTop: 16 }}>
+                <h3 style={{ margin: 0, fontSize: 15, color: DARK }}>Staff accounts</h3>
+                <button type="button" style={buttonStyle} onClick={() => setShowCreateStaffForm((v) => !v)}>{showCreateStaffForm ? 'Close form' : 'Create staff'}</button>
+              </div>
+              {showCreateStaffForm && <>
+              <p style={{ color: MUTED, fontSize: 12, lineHeight: 1.6, marginTop: 12 }}>
                 Use a real email address as the staff username. The temporary password is sent securely to Supabase Auth and is not saved in your database.
               </p>
               <form onSubmit={handleCreateStaff}>
@@ -1806,11 +1848,11 @@ export default function AdminDashboard() {
                   {creatingStaff ? <LoaderCircle size={15} /> : <Plus size={15} />}
                   {creatingStaff ? 'Creating account...' : 'Create staff account'}
                 </button>
-              </form>
+              </form></>}
             </section>
 
             <section style={panelStyle}>
-              <SectionHeading description="Review account status and adjust permissions for existing staff members.">Staff accounts</SectionHeading>
+              <SectionHeading description="Select a staff member to expand their permissions and account controls.">Staff list</SectionHeading>
               {team.length === 0 ? (
                 <p style={{ color: MUTED, fontSize: 13 }}>No staff profiles found.</p>
               ) : (
@@ -1823,7 +1865,7 @@ export default function AdminDashboard() {
                       <div key={member.id} style={{ border: `1px solid ${BORDER}`, borderRadius: 9, padding: 14, opacity: member.is_active ? 1 : 0.85 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap', marginBottom: 12 }}>
                           <div>
-                            <strong style={{ fontSize: 14 }}>{member.full_name || 'Unnamed staff member'}</strong>
+                            <button type="button" onClick={() => setExpandedStaffPermissions((current) => ({ ...current, [member.id]: !current[member.id] }))} style={{ border: 0, background: 'transparent', padding: 0, color: DARK, fontWeight: 700, fontSize: 14, cursor: 'pointer', textAlign: 'left' }}>{member.full_name || 'Unnamed staff member'} <span style={{ color: MUTED, fontSize: 12 }}>{expandedStaffPermissions[member.id] ? '▲' : '▾'}</span></button>
                             <div style={{ color: MUTED, fontSize: 12, overflowWrap: 'anywhere' }}>{member.email || 'No email'}</div>
                             <div style={{ color: MUTED, fontSize: 11, marginTop: 4 }}>Created: {formatDate(member.created_at)}</div>
                           </div>
@@ -1833,7 +1875,7 @@ export default function AdminDashboard() {
                           </div>
                         </div>
 
-                        {isAdmin ? (
+                        {expandedStaffPermissions[member.id] && (isAdmin ? (
                           <p style={{ color: MUTED, fontSize: 12, margin: 0 }}>Admin accounts retain full dashboard access. Account controls are disabled for admin accounts.</p>
                         ) : (
                           <>
@@ -1870,7 +1912,7 @@ export default function AdminDashboard() {
                               </button>
                             </div>
                           </>
-                        )}
+                        ))}
                       </div>
                     )
                   })}
