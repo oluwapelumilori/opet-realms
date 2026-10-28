@@ -53,15 +53,13 @@ export default function Navbar() {
           onClick={closeMenu}
         >
           <img
-            src="/images/opet-realms-logo.png"
+            src="/images/opet-realms-logo.png.jpg"
             alt="Opet Realms — Sharp & Spotless"
-            onError={(event) => {
-              event.currentTarget.style.display = 'none'
-            }}
           />
         </Link>
 
         <nav
+          id="main-navigation"
           className={`nav-links ${menuOpen ? 'nav-links-open' : ''}`}
           aria-label="Main navigation"
         >
@@ -120,6 +118,7 @@ export default function Navbar() {
               : 'Open navigation menu'
           }
           aria-expanded={menuOpen}
+          aria-controls="main-navigation"
         >
           {menuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
