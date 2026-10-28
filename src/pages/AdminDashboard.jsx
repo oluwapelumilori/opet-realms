@@ -396,21 +396,48 @@ export default function AdminDashboard() {
           .maybeSingle(),
       ])
 
+      // Bookings are the primary customer requests. A failure in a newer,
+      // optional module (quotes, receipts, staff, or invoices) must never stop
+      // successfully loaded website requests from appearing in the dashboard.
       if (bookingsResult.error) throw bookingsResult.error
-      if (invoicesResult.error) throw invoicesResult.error
-      if (quotesResult.error) throw quotesResult.error
-      if (receiptsResult.error) throw receiptsResult.error
-      if (teamResult.error) throw teamResult.error
-      if (permissionsResult.error) throw permissionsResult.error
-
       setBookings(bookingsResult.data || [])
-      setInvoices(invoicesResult.data || [])
-      setQuotes(quotesResult.data || [])
-      setReceipts(receiptsResult.data || [])
-      setTeam(teamResult.data || [])
+
+      if (invoicesResult.error) {
+        console.error('Could not load invoices:', invoicesResult.error)
+        setInvoices([])
+      } else {
+        setInvoices(invoicesResult.data || [])
+      }
+
+      if (quotesResult.error) {
+        console.error('Could not load quotations:', quotesResult.error)
+        setQuotes([])
+        if (activeSection === 'quotes') {
+          setError(`Bookings loaded, but quotations could not be loaded: ${quotesResult.error.message}`)
+        }
+      } else {
+        setQuotes(quotesResult.data || [])
+      }
+
+      if (receiptsResult.error) {
+        console.error('Could not load receipts:', receiptsResult.error)
+        setReceipts([])
+      } else {
+        setReceipts(receiptsResult.data || [])
+      }
+
+      if (teamResult.error) {
+        console.error('Could not load staff profiles:', teamResult.error)
+        setTeam([])
+      } else {
+        setTeam(teamResult.data || [])
+      }
 
       const permissionMap = {}
-      ;(permissionsResult.data || []).forEach((permission) => {
+      if (permissionsResult.error) {
+        console.error('Could not load staff permissions:', permissionsResult.error)
+      }
+      ;(!permissionsResult.error ? permissionsResult.data || [] : []).forEach((permission) => {
         permissionMap[permission.staff_id] = {
           view_bookings: permission.view_bookings,
           manage_bookings: permission.manage_bookings,
@@ -523,6 +550,7 @@ export default function AdminDashboard() {
     setError(''); setSuccess(''); setSavingQuote(true)
     try {
       const selected = bookings.find((booking) => booking.id === quoteForm.booking_id)
+      if (!selected) throw new Error('Select an existing booking before creating a quotation.')
       if (!quoteForm.customer_name.trim()) throw new Error('Enter the customer name.')
       if (!quoteForm.service_description.trim()) throw new Error('Enter the quotation description.')
       const amount = Number(quoteForm.amount)
@@ -530,7 +558,7 @@ export default function AdminDashboard() {
       const quoteRef = makeReference('QUO')
       const { error: insertError } = await supabase.from('quotes').insert({
         quote_ref: quoteRef,
-        booking_id: quoteForm.booking_id || null,
+        booking_id: selected.id,
         customer_name: quoteForm.customer_name.trim(),
         customer_phone: quoteForm.customer_phone.trim() || selected?.phone || null,
         customer_email: quoteForm.customer_email.trim() || selected?.email || null,
@@ -1694,10 +1722,10 @@ export default function AdminDashboard() {
         {activeSection === 'quotes' && (
           <>
             <section style={panelStyle}>
-              <SectionHeading description="Create a quotation linked to a booking or enter customer details manually. The document can be printed or saved as PDF.">Create a quotation</SectionHeading>
+              <SectionHeading description="Select an existing booking before creating a quotation. The document can be printed or saved as PDF.">Create a quotation</SectionHeading>
               <form onSubmit={handleCreateQuote}>
                 <div style={formGridStyle}>
-                  <label style={labelStyle}>Link booking (optional)<select style={inputStyle} value={quoteForm.booking_id} onChange={(event) => { const b = bookings.find((item) => item.id === event.target.value); setQuoteForm({ ...quoteForm, booking_id: event.target.value, customer_name: b?.customer_name || quoteForm.customer_name, customer_phone: b?.phone || quoteForm.customer_phone, customer_email: b?.email || quoteForm.customer_email, service_description: b ? [b.service, b.property_type].filter(Boolean).join(' — ') : quoteForm.service_description }) }}><option value="">Manual quotation</option>{bookings.map((b) => <option key={b.id} value={b.id}>{b.booking_ref || 'Booking'} — {b.customer_name}</option>)}</select></label>
+                  <label style={labelStyle}>Link booking *<select required style={inputStyle} value={quoteForm.booking_id} onChange={(event) => { const b = bookings.find((item) => item.id === event.target.value); setQuoteForm({ ...quoteForm, booking_id: event.target.value, customer_name: b?.customer_name || quoteForm.customer_name, customer_phone: b?.phone || quoteForm.customer_phone, customer_email: b?.email || quoteForm.customer_email, service_description: b ? [b.service, b.property_type].filter(Boolean).join(' — ') : quoteForm.service_description }) }}><option value="">Select a booking</option>{bookings.map((b) => <option key={b.id} value={b.id}>{b.booking_ref || 'Booking'} — {b.customer_name}</option>)}</select></label>
                   <label style={labelStyle}>Customer name *<input style={inputStyle} required value={quoteForm.customer_name} onChange={(e) => setQuoteForm({ ...quoteForm, customer_name: e.target.value })} /></label>
                   <label style={labelStyle}>Customer phone<input style={inputStyle} value={quoteForm.customer_phone} onChange={(e) => setQuoteForm({ ...quoteForm, customer_phone: e.target.value })} /></label>
                   <label style={labelStyle}>Customer email<input type="email" style={inputStyle} value={quoteForm.customer_email} onChange={(e) => setQuoteForm({ ...quoteForm, customer_email: e.target.value })} /></label>
