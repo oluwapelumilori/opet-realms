@@ -391,20 +391,17 @@ textarea:focus-visible {
 }
 
 /* ================================
-   NAVBAR
-   Dark bar so the black logo image blends in.
-   If you switch to a transparent logo, change
-   --nav-bg to #ffffff and the link colours.
+   NAVBAR — white background, navy text, cyan accents
 ================================ */
 
 .navbar {
-  --nav-bg: #000000;
-  --nav-line: rgba(255, 255, 255, 0.14);
+  --nav-bg: #ffffff;
+  --nav-line: rgba(22, 54, 94, 0.14);
 
   position: sticky;
   top: 0;
   z-index: 100;
-  color: #ffffff;
+  color: var(--navy);
   background: var(--nav-bg);
   border-bottom: 1px solid var(--nav-line);
 }
@@ -446,7 +443,7 @@ textarea:focus-visible {
 }
 
 .nav-links > a {
-  color: #ffffff;
+  color: var(--navy);
   font-size: 0.85rem;
   font-weight: 600;
   transition: color 180ms ease;
@@ -470,10 +467,10 @@ textarea:focus-visible {
   white-space: nowrap;
 }
 
-/* Button colours on the dark bar */
+/* Button colours on the white navbar */
 .navbar .button-outline {
-  color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.7);
+  color: var(--navy);
+  border-color: rgba(22, 54, 94, 0.35);
 }
 
 .navbar .button-outline:hover {
@@ -529,7 +526,7 @@ textarea:focus-visible {
     padding: 8px 24px 24px;
     border-bottom: 1px solid var(--nav-line);
     background: var(--nav-bg);
-    box-shadow: 0 18px 30px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 18px 30px rgba(22, 54, 94, 0.12);
   }
 
   .nav-links.nav-links-open {
