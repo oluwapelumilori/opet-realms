@@ -127,9 +127,9 @@ const emptySettings = {
   whatsapp_number: '',
   email: '',
   address: '',
-  bank_name: 'Moniepoint MFB',
-  account_number: '6748383853',
-  account_name: 'Opet Realms',
+  bank_name: '',
+  account_number: '',
+  account_name: '',
   default_invoice_payment_terms: '',
   default_invoice_notes: '',
   quote_validity_days: 7,
@@ -302,13 +302,8 @@ export default function AdminDashboard() {
   const [bookingSearch, setBookingSearch] = useState('')
   const [invoiceSearch, setInvoiceSearch] = useState('')
   const [showBookingForm, setShowBookingForm] = useState(false)
-  const [showInvoiceForm, setShowInvoiceForm] = useState(false)
-  const [showQuoteForm, setShowQuoteForm] = useState(false)
-  const [showReceiptForm, setShowReceiptForm] = useState(false)
-  const [showStaffForm, setShowStaffForm] = useState(false)
 
   const [error, setError] = useState('')
-  const [moduleErrors, setModuleErrors] = useState({})
   const [success, setSuccess] = useState('')
   const [permissionMessage, setPermissionMessage] = useState('')
   const [creatingStaff, setCreatingStaff] = useState(false)
@@ -319,7 +314,7 @@ export default function AdminDashboard() {
 
   const [bookingForm, setBookingForm] = useState(emptyBookingForm)
   const [invoiceForm, setInvoiceForm] = useState(emptyInvoiceForm)
-  const [quoteForm, setQuoteForm] = useState({ booking_id: '', customer_name: '', customer_phone: '', customer_email: '', service_description: '', amount: '', valid_until: '', terms: '', notes: '' })
+  const [quoteForm, setQuoteForm] = useState({ booking_id: '', customer_name: '', customer_phone: '', customer_email: '', service_description: '', amount: '', valid_until: '', notes: '' })
   const [receiptForm, setReceiptForm] = useState({ invoice_id: '', amount_received: '', payment_date: new Date().toISOString().slice(0, 10), payment_method: 'bank_transfer', payment_reference: '', notes: '' })
 
   const loadDashboard = useCallback(async () => {
@@ -410,37 +405,32 @@ export default function AdminDashboard() {
       if (invoicesResult.error) {
         console.error('Could not load invoices:', invoicesResult.error)
         setInvoices([])
-        setModuleErrors((current) => ({ ...current, invoices: invoicesResult.error.message }))
       } else {
         setInvoices(invoicesResult.data || [])
-        setModuleErrors((current) => ({ ...current, invoices: '' }))
       }
 
       if (quotesResult.error) {
         console.error('Could not load quotations:', quotesResult.error)
         setQuotes([])
-        setModuleErrors((current) => ({ ...current, quotes: quotesResult.error.message }))
+        if (activeSection === 'quotes') {
+          setError(`Bookings loaded, but quotations could not be loaded: ${quotesResult.error.message}`)
+        }
       } else {
         setQuotes(quotesResult.data || [])
-        setModuleErrors((current) => ({ ...current, quotes: '' }))
       }
 
       if (receiptsResult.error) {
         console.error('Could not load receipts:', receiptsResult.error)
         setReceipts([])
-        setModuleErrors((current) => ({ ...current, receipts: receiptsResult.error.message }))
       } else {
         setReceipts(receiptsResult.data || [])
-        setModuleErrors((current) => ({ ...current, receipts: '' }))
       }
 
       if (teamResult.error) {
         console.error('Could not load staff profiles:', teamResult.error)
         setTeam([])
-        setModuleErrors((current) => ({ ...current, staff: teamResult.error.message }))
       } else {
         setTeam(teamResult.data || [])
-        setModuleErrors((current) => ({ ...current, staff: '' }))
       }
 
       const permissionMap = {}
@@ -463,10 +453,8 @@ export default function AdminDashboard() {
 
       if (settingsResult.error) {
         setSettingsLoaded(false)
-        setModuleErrors((current) => ({ ...current, settings: settingsResult.error.message }))
         console.error('Could not load business settings:', settingsResult.error)
       } else if (settingsResult.data) {
-        setModuleErrors((current) => ({ ...current, settings: '' }))
         setSettings({
           ...emptySettings,
           ...settingsResult.data,
@@ -477,7 +465,6 @@ export default function AdminDashboard() {
         setSettingsLoaded(true)
       } else {
         setSettingsLoaded(false)
-        setModuleErrors((current) => ({ ...current, settings: 'No business_settings row with id = 1 was found.' }))
       }
     } catch (err) {
       console.error('Admin dashboard error:', err)
@@ -580,12 +567,10 @@ export default function AdminDashboard() {
         status: 'draft',
         issue_date: new Date().toISOString().slice(0, 10),
         valid_until: quoteForm.valid_until || null,
-        terms: quoteForm.terms.trim() || null,
         notes: quoteForm.notes.trim() || null,
       })
       if (insertError) throw insertError
-      setQuoteForm({ booking_id: '', customer_name: '', customer_phone: '', customer_email: '', service_description: '', amount: '', valid_until: '', terms: '', notes: '' })
-      setShowQuoteForm(false)
+      setQuoteForm({ booking_id: '', customer_name: '', customer_phone: '', customer_email: '', service_description: '', amount: '', valid_until: '', notes: '' })
       setSuccess(`Quotation ${quoteRef} created successfully.`)
       await loadDashboard()
     } catch (err) { setError(err.message || 'Could not create quotation.') }
@@ -632,7 +617,6 @@ export default function AdminDashboard() {
         if (statusError) throw statusError
       }
       setReceiptForm({ invoice_id: '', amount_received: '', payment_date: new Date().toISOString().slice(0, 10), payment_method: 'bank_transfer', payment_reference: '', notes: '' })
-      setShowReceiptForm(false)
       setSuccess(`Receipt ${receiptRef} recorded. Only record payments that have been verified.`)
       await loadDashboard()
     } catch (err) { setError(err.message || 'Could not record receipt.') }
@@ -640,23 +624,57 @@ export default function AdminDashboard() {
   }
 
   function printDocument(title, body) {
-    const popup = window.open('', '_blank', 'width=850,height=700')
-    if (!popup) { setError('Your browser blocked the document window. Allow pop-ups for this site and try again.'); return }
+    const popup = window.open('', '_blank', 'width=950,height=800')
+    if (!popup) {
+      setError('Your browser blocked the document window. Allow pop-ups for this site and try again.')
+      return
+    }
     const safe = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]))
-    popup.document.write(`<!doctype html><html><head><title>${safe(title)}</title><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;color:#17231d;margin:40px;line-height:1.55}h1{color:#087f5b;font-size:24px}h2{font-size:17px}hr{border:0;border-top:1px solid #ddd;margin:24px 0}.muted{color:#68746d;font-size:12px}.amount{font-size:22px;font-weight:bold}pre{white-space:pre-wrap;font-family:inherit}</style></head><body>${body}<hr><p class="muted">${safe(settings.business_name || 'Opet Realms')} · ${safe(settings.phone || '')} · ${safe(settings.email || '')}</p><script>window.onload=()=>window.print()</script></body></html>`)
+    const businessName = safe(settings.business_name || 'Opet Realms')
+    const phone = safe(settings.phone || '')
+    const email = safe(settings.email || '')
+    const address = safe(settings.address || '')
+    popup.document.write(`<!doctype html><html><head><title>${safe(title)}</title><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>
+      *{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;color:#17231d;margin:0;background:#eef3ef;line-height:1.5;font-size:12px}.sheet{max-width:850px;margin:24px auto;background:#fff;padding:38px 42px;box-shadow:0 4px 24px #102b1b12}.top{display:flex;justify-content:space-between;gap:24px;align-items:flex-start;border-bottom:3px solid #087f5b;padding-bottom:20px}.logo{display:block;width:170px;max-height:64px;object-fit:contain;object-position:left center;margin-bottom:7px}.brand{font-size:24px;font-weight:800;letter-spacing:.3px;color:#087f5b}.tag{font-size:10px;letter-spacing:1.4px;color:#68746d;margin-top:3px}.contact{text-align:right;color:#68746d;font-size:11px;white-space:pre-line}.doc-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin:26px 0 24px}.doc-title{font-size:27px;letter-spacing:.5px;line-height:1.1;margin:0;color:#17231d}.ref{font-size:12px;color:#087f5b;font-weight:700;margin-top:8px}.meta{border:1px solid #dce7df;border-radius:7px;min-width:205px;overflow:hidden}.meta div{display:flex;justify-content:space-between;gap:18px;padding:7px 10px;border-bottom:1px solid #e8eee9}.meta div:last-child{border:0}.meta span:first-child{color:#68746d}.meta span:last-child{font-weight:700;text-align:right}.columns{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:25px}.block-title{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:#087f5b;font-weight:800;margin-bottom:8px}.details{background:#f6faf7;border:1px solid #e2e9e4;border-radius:7px;padding:13px}.details p{margin:3px 0;overflow-wrap:anywhere}.section{margin:22px 0}.section h3{font-size:12px;margin:0 0 9px;color:#087f5b}.description{white-space:pre-wrap;overflow-wrap:anywhere}.total{margin-left:auto;width:300px;max-width:100%;margin-top:14px}.total div{display:flex;justify-content:space-between;padding:8px 10px;border-bottom:1px solid #e2e9e4}.total .grand{background:#087f5b;color:#fff;font-weight:800;font-size:15px;border:0;border-radius:0 0 5px 5px}.total .subtle{background:#f0f7f2;font-weight:700}.callout{background:#f0f7f2;border:1px solid #dce9df;border-radius:7px;padding:14px;margin-top:18px}.callout h3{margin:0 0 7px;color:#087f5b;font-size:12px}.callout p{margin:4px 0;white-space:pre-wrap;overflow-wrap:anywhere}.status{display:inline-block;padding:5px 9px;border-radius:99px;background:#e8f5ec;color:#087f5b;font-weight:800;text-transform:uppercase;font-size:10px}.foot{border-top:1px solid #dce7df;margin-top:30px;padding-top:13px;color:#68746d;font-size:10px;display:flex;justify-content:space-between;gap:12px}.small{color:#68746d;font-size:10px} @media print{body{background:#fff}.sheet{margin:0 auto;padding:20px 24px;box-shadow:none;max-width:none}.no-print{display:none!important}@page{size:A4;margin:10mm}} @media(max-width:620px){.sheet{margin:0;padding:20px}.top,.doc-head{flex-direction:column}.contact{text-align:left}.columns{grid-template-columns:1fr}.meta{width:100%}}
+      </style></head><body><main class="sheet"><header class="top"><div><img class="logo" src="https://opet-realms-f2mh.vercel.app/images/opet-realms-logo.png.jpg" alt="Opet Realms logo" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><div class="brand" style="display:none">${businessName}</div><div class="tag">PROFESSIONAL CLEANING · FUMIGATION · GARMENT CARE</div></div><div class="contact">${phone}${email ? '\n'+email : ''}${address ? '\n'+address : ''}</div></header>${body}<footer class="foot"><span>${businessName}${phone ? ' · '+phone : ''}</span><span>Thank you for choosing Opet Realms.</span></footer></main><script>window.onload=()=>window.print()</script></body></html>`)
     popup.document.close()
   }
 
   function printQuote(quote) {
-    printDocument(quote.quote_ref || 'Quotation', `<h1>${settings.business_name || 'Opet Realms'}</h1><h2>QUOTATION</h2><p><b>Reference:</b> ${quote.quote_ref || '—'}<br><b>Customer:</b> ${quote.customer_name || '—'}<br><b>Issue date:</b> ${formatDate(quote.issue_date)}<br><b>Valid until:</b> ${formatDate(quote.valid_until)}</p><hr><h2>Service description</h2><pre>${quote.service_description || ''}</pre><p class="amount">Total: ${formatMoney(quote.amount)}</p><p><b>Terms</b><br><pre>${quote.terms || 'As agreed with the customer.'}</pre></p><p><b>Notes</b><br><pre>${quote.notes || '—'}</pre></p>`)
+    const safe = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]))
+    const booking = bookings.find((item) => item.id === quote.booking_id)
+    const body = `<div class="doc-head"><div><h1 class="doc-title">QUOTATION</h1><div class="ref">${safe(quote.quote_ref || 'Quotation')}</div></div><div class="meta"><div><span>Issue date</span><span>${safe(formatDate(quote.issue_date))}</span></div><div><span>Valid until</span><span>${safe(formatDate(quote.valid_until))}</span></div><div><span>Booking ref.</span><span>${safe(booking?.booking_ref || '—')}</span></div></div></div><div class="columns"><section class="details"><div class="block-title">Prepared for</div><p><strong>${safe(quote.customer_name || 'Customer')}</strong></p><p>${safe(quote.customer_phone || '')}</p><p>${safe(quote.customer_email || '')}</p></section><section class="details"><div class="block-title">Service details</div><p>${safe(booking?.address || '')}</p><p>${safe(booking?.service || '')}${booking?.property_type ? ' · '+safe(booking.property_type) : ''}</p></section></div><section class="section"><h3>Proposed service</h3><div class="details description">${safe(quote.service_description || 'Service as discussed')}</div><div class="total"><div class="grand"><span>Quotation total</span><span>${safe(formatMoney(quote.amount))}</span></div></div></section>${quote.notes ? `<section class="callout"><h3>Additional notes</h3><p>${safe(quote.notes)}</p></section>` : ''}<section class="callout"><h3>About this quotation</h3><p>This quotation outlines the proposed service and estimated price. Please confirm acceptance before the quotation validity date. Payment arrangements will be stated on the invoice issued for approved work.</p></section>`
+    printDocument(quote.quote_ref || 'Quotation', body)
   }
 
   function printInvoice(invoice) {
-    printDocument(invoice.invoice_ref || 'Invoice', `<h1>${settings.business_name || 'Opet Realms'}</h1><h2>INVOICE</h2><p><b>Reference:</b> ${invoice.invoice_ref || '—'}<br><b>Customer:</b> ${invoice.customer_name || '—'}<br><b>Issue date:</b> ${formatDate(invoice.issue_date)}<br><b>Due date:</b> ${formatDate(invoice.due_date)}</p><hr><pre>${invoice.notes || 'Service details as agreed.'}</pre><p class="amount">Total: ${formatMoney(invoice.amount)}</p><h2>Bank transfer details</h2><p>${settings.bank_name || 'Moniepoint MFB'}<br>Account name: ${settings.account_name || 'Opet Realms'}<br>Account number: ${settings.account_number || '6748383853'}</p><p>Status: ${invoice.status || 'unpaid'}</p>`)
+    const safe = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]))
+    const booking = bookings.find((item) => item.id === invoice.booking_id)
+    const relatedReceipts = receipts.filter((item) => item.invoice_id === invoice.id)
+    const paid = relatedReceipts.reduce((sum, item) => sum + Number(item.amount_received || 0), 0)
+    const amount = Number(invoice.amount || 0)
+    const balance = Math.max(0, amount - paid)
+    const notes = String(invoice.notes || '')
+    const description = notes.split('\n').filter((line) => !/^(Payment terms:|Bank:|Account name:|Account number:|70% deposit due:)/i.test(line.trim())).join('\n').trim()
+    const paymentTerms = notes.split('\n').filter((line) => /^Payment terms:/i.test(line.trim())).map((line) => line.replace(/^Payment terms:\s*/i, '')).join('\n') || settings.default_invoice_payment_terms || 'Please pay by the due date shown.'
+    const deposit = String(invoice.deposit_option || '').toLowerCase().includes('deposit')
+    const depositAmount = Number(invoice.deposit_amount || (deposit ? amount * .7 : amount))
+    const body = `<div class="doc-head"><div><h1 class="doc-title">INVOICE</h1><div class="ref">${safe(invoice.invoice_ref || 'Invoice')}</div><p class="small">Payment request for the service listed below</p></div><div class="meta"><div><span>Issue date</span><span>${safe(formatDate(invoice.issue_date))}</span></div><div><span>Due date</span><span>${safe(formatDate(invoice.due_date))}</span></div><div><span>Booking ref.</span><span>${safe(booking?.booking_ref || '—')}</span></div></div></div><div class="columns"><section class="details"><div class="block-title">Bill to</div><p><strong>${safe(invoice.customer_name || 'Customer')}</strong></p><p>${safe(booking?.phone || '')}</p><p>${safe(booking?.email || '')}</p><p>${safe(booking?.address || '')}</p></section><section class="details"><div class="block-title">Service</div><p><strong>${safe(booking?.service || description.split('\n')[0] || 'Professional service')}</strong></p><p>${safe(booking?.property_type || '')}</p><p>${safe(booking?.preferred_date ? formatDate(booking.preferred_date) : '')}</p></section></div><section class="section"><h3>Invoice summary</h3><div class="details description">${safe(description || 'Service as agreed with the customer.')}</div><div class="total"><div><span>Invoice total</span><strong>${safe(formatMoney(amount))}</strong></div><div><span>Paid to date</span><strong>${safe(formatMoney(paid))}</strong></div><div class="subtle"><span>Balance outstanding</span><strong>${safe(formatMoney(balance))}</strong></div><div class="grand"><span>${deposit ? '70% deposit due' : 'Amount due'}</span><span>${safe(formatMoney(deposit ? Math.max(0, depositAmount - paid) : balance))}</span></div></div></section><div class="columns"><section class="callout"><h3>Payment terms</h3><p>${safe(paymentTerms)}</p>${deposit ? `<p><strong>Deposit:</strong> ${safe(formatMoney(depositAmount))}</p><p><strong>Balance after deposit:</strong> ${safe(formatMoney(Math.max(0, amount-depositAmount)))}</p>` : ''}</section><section class="callout"><h3>Bank transfer details</h3><p><strong>Bank:</strong> ${safe(settings.bank_name || 'Add bank details in Business Settings')}</p><p><strong>Account name:</strong> ${safe(settings.account_name || 'Not set')}</p><p><strong>Account number:</strong> ${safe(settings.account_number || 'Not set')}</p><p><strong>Payment reference:</strong> ${safe(invoice.invoice_ref || '—')}</p></section></div><p><span class="status">${safe(balance <= 0 ? 'Paid in full' : paid > 0 ? 'Part payment received' : 'Awaiting payment')}</span></p>`
+    printDocument(invoice.invoice_ref || 'Invoice', body)
   }
 
   function printReceipt(receipt) {
-    printDocument(receipt.receipt_ref || 'Receipt', `<h1>${settings.business_name || 'Opet Realms'}</h1><h2>PAYMENT RECEIPT</h2><p><b>Receipt reference:</b> ${receipt.receipt_ref || '—'}<br><b>Invoice:</b> ${receipt.invoice_ref || '—'}<br><b>Customer:</b> ${receipt.customer_name || '—'}<br><b>Payment date:</b> ${formatDate(receipt.payment_date)}<br><b>Method:</b> ${receipt.payment_method || '—'}<br><b>Payment reference:</b> ${receipt.payment_reference || '—'}</p><p class="amount">Amount received: ${formatMoney(receipt.amount_received)}</p><p>${receipt.notes || ''}</p>`)
+    const safe = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]))
+    const invoice = invoices.find((item) => item.id === receipt.invoice_id)
+    const relatedReceipts = receipts.filter((item) => item.invoice_id === receipt.invoice_id)
+    const paidBefore = relatedReceipts.filter((item) => item.id !== receipt.id).reduce((sum, item) => sum + Number(item.amount_received || 0), 0)
+    const paidToDate = paidBefore + Number(receipt.amount_received || 0)
+    const invoiceTotal = Number(invoice?.amount || 0)
+    const balance = Math.max(0, invoiceTotal - paidToDate)
+    const paymentStatus = invoiceTotal > 0 && balance <= 0 ? 'Paid in full' : 'Part payment'
+    const booking = bookings.find((item) => item.id === (receipt.booking_id || invoice?.booking_id))
+    const body = `<div class="doc-head"><div><h1 class="doc-title">PAYMENT RECEIPT</h1><div class="ref">${safe(receipt.receipt_ref || 'Receipt')}</div><p class="small">Confirmation of payment received</p></div><div class="meta"><div><span>Payment date</span><span>${safe(formatDate(receipt.payment_date))}</span></div><div><span>Invoice no.</span><span>${safe(receipt.invoice_ref || invoice?.invoice_ref || '—')}</span></div><div><span>Booking ref.</span><span>${safe(booking?.booking_ref || '—')}</span></div></div></div><div class="columns"><section class="details"><div class="block-title">Received from</div><p><strong>${safe(receipt.customer_name || invoice?.customer_name || 'Customer')}</strong></p><p>${safe(booking?.phone || '')}</p><p>${safe(booking?.email || '')}</p><p>${safe(booking?.address || '')}</p></section><section class="details"><div class="block-title">Payment details</div><p><strong>Method:</strong> ${safe(String(receipt.payment_method || '—').replaceAll('_',' '))}</p><p><strong>Transaction ref.:</strong> ${safe(receipt.payment_reference || '—')}</p><p><strong>Service:</strong> ${safe(booking?.service || 'Service linked to invoice')}</p></section></div><section class="section"><h3>Payment summary</h3><div class="total" style="width:100%;max-width:none;margin-top:0"><div><span>Invoice total</span><strong>${safe(formatMoney(invoiceTotal))}</strong></div><div><span>Previously paid</span><strong>${safe(formatMoney(paidBefore))}</strong></div><div class="grand"><span>Payment received this time</span><span>${safe(formatMoney(receipt.amount_received))}</span></div><div><span>Total paid to date</span><strong>${safe(formatMoney(paidToDate))}</strong></div><div class="subtle"><span>Remaining balance</span><strong>${safe(formatMoney(balance))}</strong></div></div></section><div class="columns"><section class="callout"><h3>Payment status</h3><p><span class="status">${paymentStatus}</span></p><p>${balance > 0 ? `This receipt confirms the payment shown above. Outstanding balance: ${safe(formatMoney(balance))}.` : 'The invoice balance has been fully settled.'}</p></section><section class="callout"><h3>Notes</h3><p>${safe(receipt.notes || 'Thank you for your payment. We appreciate your business.')}</p></section></div><p class="small">This receipt confirms only the payment amount recorded above. Keep it for your records.</p>`
+    printDocument(receipt.receipt_ref || 'Payment Receipt', body)
   }
 
   async function handleSignOut() {
@@ -848,7 +866,6 @@ export default function AdminDashboard() {
         permissions,
       })
       setStaffForm({ full_name: '', email: '', password: '', ...emptyPermissions })
-      setShowStaffForm(false)
       setPermissionMessage('Staff account created successfully. Share the temporary password securely and ask the staff member to change it after signing in.')
       await loadDashboard()
     } catch (err) {
@@ -939,23 +956,6 @@ export default function AdminDashboard() {
     }
   }
 
-  function selectBookingForQuote(booking) {
-    setQuoteForm((current) => ({
-      ...current,
-      booking_id: booking.id,
-      customer_name: booking.customer_name || '',
-      customer_phone: booking.phone || '',
-      customer_email: booking.email || '',
-      service_description: [booking.service, booking.property_type].filter(Boolean).join(' — '),
-      valid_until: settings.quote_validity_days ? new Date(Date.now() + Number(settings.quote_validity_days) * 86400000).toISOString().slice(0, 10) : '',
-      terms: current.terms || settings.default_invoice_payment_terms || '',
-    }))
-    setActiveSection('quotes')
-    setShowQuoteForm(true)
-    setSuccess('')
-    setError('')
-  }
-
   function selectBookingForInvoice(booking) {
     setInvoiceForm((current) => ({
       ...current,
@@ -967,7 +967,6 @@ export default function AdminDashboard() {
       notes: settings.default_invoice_notes || '',
     }))
     setActiveSection('invoices')
-    setShowInvoiceForm(true)
     setSuccess('')
     setError('')
   }
@@ -1006,15 +1005,14 @@ export default function AdminDashboard() {
         due_date: invoiceForm.due_date || null,
         notes: [
           invoiceForm.description.trim(),
+          settings.default_invoice_payment_terms.trim() ? `Payment terms: ${settings.default_invoice_payment_terms.trim()}` : '',
           invoiceForm.notes.trim(),
           invoiceForm.payment_option === 'deposit'
             ? `70% deposit due: ${formatMoney(depositAmount)}. Balance: ${formatMoney(amount - depositAmount)}.`
             : '',
-          settings.bank_name
-            ? `Bank: ${settings.bank_name}`
-            : 'Bank: Moniepoint MFB',
-          `Account name: ${settings.account_name || 'Opet Realms'}`,
-          `Account number: ${settings.account_number || '6748383853'}`,
+          settings.bank_name.trim() ? `Bank: ${settings.bank_name.trim()}` : '',
+          settings.account_name.trim() ? `Account name: ${settings.account_name.trim()}` : '',
+          settings.account_number.trim() ? `Account number: ${settings.account_number.trim()}` : '',
         ]
           .filter(Boolean)
           .join('\n'),
@@ -1027,7 +1025,6 @@ export default function AdminDashboard() {
       if (insertError) throw insertError
 
       setInvoiceForm({ ...emptyInvoiceForm })
-      setShowInvoiceForm(false)
       setSuccess(`Invoice ${invoiceRef} created successfully.`)
       await loadDashboard()
     } catch (err) {
@@ -1200,13 +1197,6 @@ export default function AdminDashboard() {
                       )}
                       <button
                         type="button"
-                        onClick={() => selectBookingForQuote(booking)}
-                        style={{ ...buttonStyle, background: '#fff', color: DARK, borderColor: BORDER, minHeight: 32, padding: '6px 9px', fontSize: 11 }}
-                      >
-                        <ClipboardList size={14} /> Quote
-                      </button>
-                      <button
-                        type="button"
                         onClick={() => selectBookingForInvoice(booking)}
                         style={{ ...buttonStyle, background: DARK, minHeight: 32, padding: '6px 9px', fontSize: 11 }}
                       >
@@ -1352,6 +1342,50 @@ export default function AdminDashboard() {
               {renderBookingStatusCards()}
             </section>
 
+            <section style={panelStyle}>
+              <SectionHeading
+                description="The latest customer bookings."
+                action={<button type="button" style={buttonStyle} onClick={() => setActiveSection('bookings')}>View bookings</button>}
+              >
+                Recent bookings
+              </SectionHeading>
+              {renderBookingsTable(bookings.slice(0, 5))}
+            </section>
+
+            <section style={panelStyle}>
+              <SectionHeading
+                description="Recently created invoices."
+                action={<button type="button" style={buttonStyle} onClick={() => setActiveSection('invoices')}>View invoices</button>}
+              >
+                Recent invoices
+              </SectionHeading>
+              {invoices.length === 0 ? (
+                <p style={{ color: MUTED, fontSize: 13 }}>No invoices yet.</p>
+              ) : (
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={tableStyle}>
+                    <thead>
+                      <tr>
+                        {['Invoice', 'Customer', 'Amount', 'Issue date', 'Status'].map((heading) => (
+                          <th key={heading} style={thStyle}>{heading}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {invoices.slice(0, 5).map((invoice) => (
+                        <tr key={invoice.id}>
+                          <td style={tdStyle}><strong>{invoice.invoice_ref || '—'}</strong></td>
+                          <td style={tdStyle}>{invoice.customer_name || '—'}</td>
+                          <td style={tdStyle}>{formatMoney(invoice.amount)}</td>
+                          <td style={tdStyle}>{formatDate(invoice.issue_date)}</td>
+                          <td style={tdStyle}><StatusPill status={invoice.status || 'unpaid'} /></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </section>
           </>
         )}
 
@@ -1521,13 +1555,12 @@ export default function AdminDashboard() {
 
         {activeSection === 'invoices' && (
           <>
-            {moduleErrors.invoices && <div role="alert" style={{ ...panelStyle, color: '#9f2424', background: '#fff8f8', borderColor: '#f0c7c7' }}>Invoices could not be loaded from Supabase: {moduleErrors.invoices}</div>}
             <section style={panelStyle}>
-              <SectionHeading description="Create an invoice for an existing booking or enter a customer manually." action={<button type="button" style={buttonStyle} onClick={() => setShowInvoiceForm((value) => !value)}>{showInvoiceForm ? <X size={15} /> : <Plus size={15} />}{showInvoiceForm ? 'Close form' : 'Create invoice'}</button>}>
+              <SectionHeading description="Create an invoice for an existing booking or enter a customer manually.">
                 Create an invoice
               </SectionHeading>
 
-              {showInvoiceForm && <form onSubmit={handleCreateInvoice}>
+              <form onSubmit={handleCreateInvoice}>
                 <div style={formGridStyle}>
                   <label style={labelStyle}>
                     Link to booking (optional)
@@ -1630,7 +1663,7 @@ export default function AdminDashboard() {
                 )}
 
                 <label style={{ ...labelStyle, marginTop: 14 }}>
-                  Invoice notes
+                  Additional invoice notes
                   <textarea
                     style={{ ...inputStyle, minHeight: 75, resize: 'vertical' }}
                     value={invoiceForm.notes}
@@ -1641,20 +1674,21 @@ export default function AdminDashboard() {
 
                 <div style={{ background: '#f6f9f7', border: `1px solid ${BORDER}`, borderRadius: 8, padding: 13, marginTop: 14, fontSize: 13, lineHeight: 1.8 }}>
                   <strong>Bank transfer details</strong>
-                  <div>{settings.bank_name || 'Moniepoint MFB'}</div>
-                  <div>Account name: {settings.account_name || 'Opet Realms'}</div>
-                  <div>Account number: {settings.account_number || '6748383853'}</div>
+                  <div>{settings.bank_name || 'Add bank name in Business Settings'}</div>
+                  <div>Account name: {settings.account_name || 'Not set'}</div>
+                  <div>Account number: {settings.account_number || 'Not set'}</div>
+                  <div style={{ marginTop: 8, color: MUTED }}>Payment terms: {settings.default_invoice_payment_terms || 'Add default terms in Business Settings'}</div>
                 </div>
 
                 <button type="submit" style={{ ...buttonStyle, marginTop: 14 }} disabled={savingInvoice}>
                   {savingInvoice ? <LoaderCircle size={15} /> : <Save size={15} />}
                   {savingInvoice ? 'Creating invoice...' : 'Create invoice'}
                 </button>
-              </form>}
+              </form>
             </section>
 
             <section style={panelStyle}>
-              <SectionHeading description="Search invoices and review their current payment status.">
+              <SectionHeading description="Search invoices and update payment status when payment is confirmed.">
                 Invoices & receipts
               </SectionHeading>
 
@@ -1695,22 +1729,19 @@ export default function AdminDashboard() {
                           <td style={tdStyle}>{formatDate(invoice.due_date)}</td>
                           <td style={tdStyle}><StatusPill status={invoice.status || 'unpaid'} /></td>
                           <td style={tdStyle}>
-                            <div style={{ display: 'grid', gap: 6, minWidth: 130 }}>
-                              <StatusPill status={invoice.status || 'unpaid'} />
-                              <select
-                                aria-label={`Invoice status for ${invoice.invoice_ref || invoice.customer_name}`}
-                                value={['draft','sent','unpaid','cancelled'].includes(String(invoice.status || '').toLowerCase()) ? String(invoice.status).toLowerCase() : 'unpaid'}
-                                onChange={(event) => updateInvoiceStatus(invoice.id, event.target.value)}
-                                style={{ ...inputStyle, minWidth: 110, padding: '6px 8px', fontSize: 12 }}
-                              >
-                                <option value="draft">Draft</option>
-                                <option value="sent">Sent</option>
-                                <option value="unpaid">Unpaid</option>
-                                <option value="cancelled">Cancelled</option>
-                              </select>
-                            </div>
+                            <select
+                              aria-label={`Payment status for ${invoice.invoice_ref || invoice.customer_name}`}
+                              value={['draft','sent','unpaid','paid','cancelled'].includes(String(invoice.status || '').toLowerCase()) ? String(invoice.status).toLowerCase() : 'unpaid'}
+                              onChange={(event) => updateInvoiceStatus(invoice.id, event.target.value)}
+                              style={{ ...inputStyle, minWidth: 110, padding: '6px 8px', fontSize: 12 }}
+                            >
+                              <option value="draft">Draft</option>
+                              <option value="sent">Sent</option>
+                              <option value="unpaid">Unpaid</option>
+                              <option value="paid">Paid</option>
+                              <option value="cancelled">Cancelled</option>
+                            </select>
                           </td>
-                          <td style={tdStyle}><button type="button" style={{ ...buttonStyle, minHeight: 32, padding: '6px 9px', fontSize: 11 }} onClick={() => printInvoice(invoice)}>Print / Save PDF</button></td>
                         </tr>
                       ))}
                     </tbody>
@@ -1723,10 +1754,9 @@ export default function AdminDashboard() {
 
         {activeSection === 'quotes' && (
           <>
-            {moduleErrors.quotes && <div role="alert" style={{ ...panelStyle, color: '#9f2424', background: '#fff8f8', borderColor: '#f0c7c7' }}>Quotes could not be loaded from Supabase: {moduleErrors.quotes}</div>}
             <section style={panelStyle}>
-              <SectionHeading description="Select an existing booking before creating a quotation. The document can be printed or saved as PDF." action={<button type="button" style={buttonStyle} onClick={() => setShowQuoteForm((value) => !value)}>{showQuoteForm ? <X size={15} /> : <Plus size={15} />}{showQuoteForm ? 'Close form' : 'Create quote'}</button>}>Create a quotation</SectionHeading>
-              {showQuoteForm && <form onSubmit={handleCreateQuote}>
+              <SectionHeading description="Select an existing booking before creating a quotation. The document can be printed or saved as PDF.">Create a quotation</SectionHeading>
+              <form onSubmit={handleCreateQuote}>
                 <div style={formGridStyle}>
                   <label style={labelStyle}>Link booking *<select required style={inputStyle} value={quoteForm.booking_id} onChange={(event) => { const b = bookings.find((item) => item.id === event.target.value); setQuoteForm({ ...quoteForm, booking_id: event.target.value, customer_name: b?.customer_name || quoteForm.customer_name, customer_phone: b?.phone || quoteForm.customer_phone, customer_email: b?.email || quoteForm.customer_email, service_description: b ? [b.service, b.property_type].filter(Boolean).join(' — ') : quoteForm.service_description }) }}><option value="">Select a booking</option>{bookings.map((b) => <option key={b.id} value={b.id}>{b.booking_ref || 'Booking'} — {b.customer_name}</option>)}</select></label>
                   <label style={labelStyle}>Customer name *<input style={inputStyle} required value={quoteForm.customer_name} onChange={(e) => setQuoteForm({ ...quoteForm, customer_name: e.target.value })} /></label>
@@ -1736,10 +1766,10 @@ export default function AdminDashboard() {
                   <label style={labelStyle}>Valid until<input type="date" style={inputStyle} value={quoteForm.valid_until} onChange={(e) => setQuoteForm({ ...quoteForm, valid_until: e.target.value })} /></label>
                 </div>
                 <label style={{ ...labelStyle, marginTop: 14 }}>Service description *<textarea required style={{ ...inputStyle, minHeight: 75 }} value={quoteForm.service_description} onChange={(e) => setQuoteForm({ ...quoteForm, service_description: e.target.value })} /></label>
-                <label style={{ ...labelStyle, marginTop: 14 }}>Terms<textarea style={{ ...inputStyle, minHeight: 65 }} value={quoteForm.terms} onChange={(e) => setQuoteForm({ ...quoteForm, terms: e.target.value })} placeholder="Payment terms, validity, what is included..." /></label>
+                <p style={{ color: MUTED, fontSize: 12, marginTop: 12 }}>Payment terms and bank details will appear on the invoice, not on this quotation.</p>
                 <label style={{ ...labelStyle, marginTop: 14 }}>Notes<textarea style={{ ...inputStyle, minHeight: 65 }} value={quoteForm.notes} onChange={(e) => setQuoteForm({ ...quoteForm, notes: e.target.value })} /></label>
                 <button type="submit" style={{ ...buttonStyle, marginTop: 14 }} disabled={savingQuote}>{savingQuote ? 'Saving quotation...' : 'Create quotation'}</button>
-              </form>}
+              </form>
             </section>
             <section style={panelStyle}><SectionHeading description="Update the quote status as the customer responds.">All quotations</SectionHeading><label style={{ ...labelStyle, maxWidth: 420, marginBottom: 14 }}>Search quotations<input style={inputStyle} value={quoteSearch} onChange={(e) => setQuoteSearch(e.target.value)} placeholder="Reference, customer or service" /></label>
               {filteredQuotes.length ? <div style={{ overflowX: 'auto' }}><table style={tableStyle}><thead><tr>{['Reference','Customer','Description','Amount','Valid until','Status','Actions'].map((h) => <th key={h} style={thStyle}>{h}</th>)}</tr></thead><tbody>{filteredQuotes.map((q) => <tr key={q.id}><td style={tdStyle}><strong>{q.quote_ref}</strong></td><td style={tdStyle}>{q.customer_name}</td><td style={tdStyle}>{q.service_description}</td><td style={tdStyle}>{formatMoney(q.amount)}</td><td style={tdStyle}>{formatDate(q.valid_until)}</td><td style={tdStyle}><StatusPill status={q.status} /></td><td style={tdStyle}><div style={{ display: 'grid', gap: 6 }}><select style={{ ...inputStyle, minWidth: 120, padding: '6px 8px' }} value={q.status} onChange={(e) => updateQuoteStatus(q.id, e.target.value)}>{['draft','sent','accepted','declined','expired','cancelled'].map((st) => <option key={st} value={st}>{st[0].toUpperCase()+st.slice(1)}</option>)}</select><button type="button" style={{ ...buttonStyle, minHeight: 32 }} onClick={() => printQuote(q)}>Print / Save PDF</button></div></td></tr>)}</tbody></table></div> : <p style={{ color: MUTED, fontSize: 13 }}>No quotations found.</p>}
@@ -1749,15 +1779,14 @@ export default function AdminDashboard() {
 
         {activeSection === 'receipts' && (
           <>
-            {moduleErrors.receipts && <div role="alert" style={{ ...panelStyle, color: '#9f2424', background: '#fff8f8', borderColor: '#f0c7c7' }}>Receipts could not be loaded from Supabase: {moduleErrors.receipts}</div>}
-            <section style={panelStyle}><SectionHeading description="Record money only after it has been verified in the business account. Each receipt is a separate payment record." action={<button type="button" style={buttonStyle} onClick={() => setShowReceiptForm((value) => !value)}>{showReceiptForm ? <X size={15} /> : <Plus size={15} />}{showReceiptForm ? 'Close form' : 'Record payment'}</button>}>Record a payment / receipt</SectionHeading>
-              {showReceiptForm && <form onSubmit={handleCreateReceipt}><div style={formGridStyle}>
+            <section style={panelStyle}><SectionHeading description="Record money only after it has been verified in the business account. Each receipt is a separate payment record.">Record a payment / receipt</SectionHeading>
+              <form onSubmit={handleCreateReceipt}><div style={formGridStyle}>
                 <label style={labelStyle}>Invoice *<select required style={inputStyle} value={receiptForm.invoice_id} onChange={(e) => { const inv = invoices.find((item) => item.id === e.target.value); setReceiptForm({ ...receiptForm, invoice_id: e.target.value, amount_received: inv ? String(Math.max(0, Number(inv.amount || 0) - receipts.filter((r) => r.invoice_id === inv.id).reduce((sum, r) => sum + Number(r.amount_received || 0), 0))) : receiptForm.amount_received }) }}><option value="">Select invoice</option>{invoices.filter((i) => i.status !== 'paid' && i.status !== 'cancelled').map((i) => <option key={i.id} value={i.id}>{i.invoice_ref} — {i.customer_name} ({formatMoney(i.amount)})</option>)}</select></label>
                 <label style={labelStyle}>Amount received (₦) *<input type="number" required min="0.01" step="0.01" style={inputStyle} value={receiptForm.amount_received} onChange={(e) => setReceiptForm({ ...receiptForm, amount_received: e.target.value })} /></label>
                 <label style={labelStyle}>Payment date<input type="date" style={inputStyle} value={receiptForm.payment_date} onChange={(e) => setReceiptForm({ ...receiptForm, payment_date: e.target.value })} /></label>
                 <label style={labelStyle}>Payment method<select style={inputStyle} value={receiptForm.payment_method} onChange={(e) => setReceiptForm({ ...receiptForm, payment_method: e.target.value })}>{['bank_transfer','cash','card','other'].map((m) => <option key={m} value={m}>{m.replace('_',' ').replace(/^./, c => c.toUpperCase())}</option>)}</select></label>
                 <label style={labelStyle}>Payment reference<input style={inputStyle} value={receiptForm.payment_reference} onChange={(e) => setReceiptForm({ ...receiptForm, payment_reference: e.target.value })} placeholder="Bank transaction reference" /></label>
-              </div><label style={{ ...labelStyle, marginTop: 14 }}>Notes<textarea style={{ ...inputStyle, minHeight: 65 }} value={receiptForm.notes} onChange={(e) => setReceiptForm({ ...receiptForm, notes: e.target.value })} /></label><button type="submit" style={{ ...buttonStyle, marginTop: 14 }} disabled={savingReceipt}>{savingReceipt ? 'Recording payment...' : 'Record payment and create receipt'}</button></form>}
+              </div><label style={{ ...labelStyle, marginTop: 14 }}>Notes<textarea style={{ ...inputStyle, minHeight: 65 }} value={receiptForm.notes} onChange={(e) => setReceiptForm({ ...receiptForm, notes: e.target.value })} /></label><button type="submit" style={{ ...buttonStyle, marginTop: 14 }} disabled={savingReceipt}>{savingReceipt ? 'Recording payment...' : 'Record payment and create receipt'}</button></form>
             </section>
             <section style={panelStyle}><SectionHeading description="Receipts are payment records and should not be created until payment is confirmed.">Receipt history</SectionHeading><label style={{ ...labelStyle, maxWidth: 420, marginBottom: 14 }}>Search receipts<input style={inputStyle} value={receiptSearch} onChange={(e) => setReceiptSearch(e.target.value)} placeholder="Receipt reference, customer or payment ref" /></label>
               {filteredReceipts.length ? <div style={{ overflowX: 'auto' }}><table style={tableStyle}><thead><tr>{['Receipt','Customer','Invoice','Amount received','Date','Method','Actions'].map((h) => <th key={h} style={thStyle}>{h}</th>)}</tr></thead><tbody>{filteredReceipts.map((r) => { const inv = invoices.find((i) => i.id === r.invoice_id); return <tr key={r.id}><td style={tdStyle}><strong>{r.receipt_ref}</strong></td><td style={tdStyle}>{r.customer_name}</td><td style={tdStyle}>{inv?.invoice_ref || '—'}</td><td style={tdStyle}>{formatMoney(r.amount_received)}</td><td style={tdStyle}>{formatDate(r.payment_date)}</td><td style={tdStyle}>{String(r.payment_method || '').replace('_',' ')}</td><td style={tdStyle}><button type="button" style={{ ...buttonStyle, minHeight: 32 }} onClick={() => printReceipt({ ...r, invoice_ref: inv?.invoice_ref })}>Print / Save PDF</button></td></tr> })}</tbody></table></div> : <p style={{ color: MUTED, fontSize: 13 }}>No receipts recorded yet.</p>}
@@ -1767,9 +1796,8 @@ export default function AdminDashboard() {
 
         {activeSection === 'staff' && (
           <section>
-            {moduleErrors.staff && <div role="alert" style={{ ...panelStyle, color: '#9f2424', background: '#fff8f8', borderColor: '#f0c7c7' }}>Staff profiles could not be loaded from Supabase: {moduleErrors.staff}</div>}
             <section style={panelStyle}>
-              <SectionHeading description="Create staff logins, set permissions, reset temporary passwords, and deactivate access." action={<button type="button" style={buttonStyle} onClick={() => setShowStaffForm((value) => !value)}>{showStaffForm ? <X size={15} /> : <Plus size={15} />}{showStaffForm ? 'Close form' : 'Create staff account'}</button>}>
+              <SectionHeading description="Create staff logins, set permissions, reset temporary passwords, and deactivate access.">
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}>
                   <ShieldCheck size={18} color={GREEN} /> Staff Management
                 </span>
@@ -1781,7 +1809,6 @@ export default function AdminDashboard() {
                 </p>
               )}
 
-              {showStaffForm && <>
               <h3 style={{ margin: '18px 0 12px', fontSize: 15, color: DARK }}>Create a staff account</h3>
               <p style={{ color: MUTED, fontSize: 12, lineHeight: 1.6, marginTop: 0 }}>
                 Use a real email address as the staff username. The temporary password is sent securely to Supabase Auth and is not saved in your database.
@@ -1821,7 +1848,7 @@ export default function AdminDashboard() {
                   {creatingStaff ? <LoaderCircle size={15} /> : <Plus size={15} />}
                   {creatingStaff ? 'Creating account...' : 'Create staff account'}
                 </button>
-              </form></>}
+              </form>
             </section>
 
             <section style={panelStyle}>
@@ -1897,7 +1924,6 @@ export default function AdminDashboard() {
 
         {activeSection === 'settings' && (
           <section style={panelStyle}>
-            {moduleErrors.settings && <p role="alert" style={{ background: '#fff8e8', color: '#854d0e', borderRadius: 8, padding: 12, fontSize: 12 }}>Business settings could not be loaded: {moduleErrors.settings}</p>}
             <SectionHeading description="Update the business details used by the admin dashboard and invoice workflow.">
               Business Settings
             </SectionHeading>
