@@ -1,14 +1,17 @@
 
-/*
- * Opet Realms — responsive dashboard layer
- * Presentation only: no database, authentication, permissions or workflow logic.
- * Desktop styles remain controlled by the existing dashboard styles.
- */
+/* Opet Realms dashboard — mobile app-style presentation.
+   Desktop layout and all React/Supabase behaviour remain unchanged. */
 
 .opet-admin-dashboard,
 .opet-staff-dashboard {
+  --or-navy: #082f50;
+  --or-blue: #163f65;
+  --or-cyan: #20c7d0;
+  --or-ink: #142b43;
+  --or-muted: #6c8194;
+  --or-line: #dce8f0;
+  --or-page: #f3f7fb;
   width: 100%;
-  max-width: 100%;
   min-width: 0;
   overflow-x: clip;
   -webkit-text-size-adjust: 100%;
@@ -17,17 +20,6 @@
 .opet-admin-dashboard *,
 .opet-staff-dashboard * {
   box-sizing: border-box;
-}
-
-.opet-admin-dashboard > div,
-.opet-staff-dashboard > div,
-.opet-admin-dashboard section,
-.opet-staff-dashboard section,
-.opet-admin-dashboard header,
-.opet-staff-dashboard header,
-.opet-admin-dashboard form,
-.opet-staff-dashboard form {
-  min-width: 0;
 }
 
 .opet-admin-dashboard button,
@@ -44,17 +36,6 @@
 .opet-staff-dashboard textarea {
   max-width: 100%;
   min-width: 0;
-  font-size: 16px;
-}
-
-/* Keep wide data tables usable without forcing the whole page wider. */
-.opet-admin-dashboard [style*="overflowX"],
-.opet-staff-dashboard [style*="overflowX"] {
-  max-width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-inline: contain;
-  scrollbar-width: thin;
 }
 
 .opet-admin-dashboard table,
@@ -65,133 +46,252 @@
 @media (max-width: 760px) {
   .opet-admin-dashboard,
   .opet-staff-dashboard {
-    padding: 10px 0 24px !important;
+    min-height: 100vh !important;
+    background: var(--or-page) !important;
+    padding: 0 0 calc(88px + env(safe-area-inset-bottom)) !important;
+    overflow-x: hidden !important;
   }
 
-  .opet-admin-dashboard > div,
-  .opet-staff-dashboard > div {
-    width: calc(100% - 24px) !important;
-    max-width: 560px;
+  .opet-dashboard-shell {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 0 14px !important;
   }
 
-  /* Compact mobile header. */
-  .opet-admin-dashboard > div > header,
-  .opet-staff-dashboard > div > header {
+  /* Mobile navy header */
+  .opet-dashboard-header {
+    position: relative;
     display: flex !important;
-    align-items: flex-start !important;
-    flex-direction: column !important;
-    gap: 12px !important;
-    padding: 16px !important;
-    margin-bottom: 12px !important;
-    border-radius: 16px !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 10px !important;
+    margin: 0 -14px 16px !important;
+    padding: 20px 16px 18px !important;
+    min-height: 112px;
+    border: 0 !important;
+    border-radius: 0 0 22px 22px !important;
+    background: linear-gradient(
+      135deg,
+      #062d4d 0%,
+      #16466d 100%
+    ) !important;
+    color: #fff !important;
+    box-shadow: 0 7px 22px rgba(8, 47, 80, 0.16) !important;
   }
 
-  .opet-admin-dashboard > div > header h1,
-  .opet-staff-dashboard > div > header h1 {
+  .opet-dashboard-header > div:first-child {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .opet-dashboard-header > div:first-child p {
+    color: #bceef0 !important;
+  }
+
+  .opet-dashboard-header h1 {
+    color: #fff !important;
     font-size: 21px !important;
-    line-height: 1.25 !important;
-    letter-spacing: -0.35px;
+    line-height: 1.22 !important;
+    letter-spacing: -0.35px !important;
+    white-space: normal !important;
   }
 
-  .opet-admin-dashboard > div > header > div:last-child,
-  .opet-staff-dashboard > div > header > div:last-child {
+  .opet-dashboard-header > div:first-child p:last-child {
+    color: #d7e7f2 !important;
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+  }
+
+  .opet-dashboard-header > div:last-child {
     display: flex !important;
-    width: 100%;
-    flex-wrap: wrap !important;
-    gap: 8px !important;
+    flex: 0 0 auto !important;
+    flex-direction: column !important;
+    gap: 6px !important;
   }
 
-  .opet-admin-dashboard > div > header > div:last-child button,
-  .opet-staff-dashboard > div > header > div:last-child button {
-    flex: 1 1 120px;
-    min-height: 44px !important;
-    padding: 10px 12px !important;
-    border-radius: 10px !important;
+  .opet-dashboard-header button {
+    min-height: 34px !important;
+    padding: 7px 9px !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    border-radius: 9px !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    color: #fff !important;
+    font-size: 11px !important;
+    white-space: nowrap !important;
   }
 
-  /* Horizontally scrollable section navigation. */
-  .opet-admin-dashboard > div > nav,
-  .opet-staff-dashboard > div > nav {
+  /* Fixed bottom navigation */
+  .opet-dashboard-nav {
+    position: fixed !important;
+    z-index: 1000 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
     display: flex !important;
     flex-wrap: nowrap !important;
-    gap: 8px !important;
-    width: 100%;
-    margin: 0 0 14px !important;
-    padding: 2px 1px 9px;
+    justify-content: flex-start !important;
+    gap: 3px !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 8px 7px calc(8px + env(safe-area-inset-bottom)) !important;
     overflow-x: auto !important;
-    overflow-y: hidden;
+    overflow-y: hidden !important;
+    background: rgba(255, 255, 255, 0.97) !important;
+    border-top: 1px solid #dce7ef !important;
+    box-shadow: 0 -5px 22px rgba(17, 48, 74, 0.09) !important;
+    backdrop-filter: blur(14px);
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior-inline: contain;
   }
 
-  .opet-admin-dashboard > div > nav::-webkit-scrollbar,
-  .opet-staff-dashboard > div > nav::-webkit-scrollbar {
+  .opet-dashboard-nav::-webkit-scrollbar {
     display: none;
   }
 
-  .opet-admin-dashboard > div > nav button,
-  .opet-staff-dashboard > div > nav button {
-    flex: 0 0 auto;
-    min-height: 42px !important;
-    padding: 9px 13px !important;
-    border-radius: 999px !important;
-    white-space: nowrap;
+  .opet-dashboard-nav button {
+    display: flex !important;
+    flex: 1 0 72px !important;
+    min-width: 68px !important;
+    min-height: 54px !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    padding: 5px 4px !important;
+    border: 0 !important;
+    border-radius: 11px !important;
+    background: transparent !important;
+    color: #60778d !important;
+    font-size: 10px !important;
+    line-height: 1.1 !important;
+    font-weight: 650 !important;
+    white-space: normal !important;
   }
 
-  /* Main content panels. */
+  .opet-dashboard-nav button[aria-current="page"],
+  .opet-dashboard-nav button:focus-visible {
+    color: #087f87 !important;
+    background: #e8f8f8 !important;
+  }
+
+  .opet-dashboard-nav button svg {
+    width: 19px !important;
+    height: 19px !important;
+    flex: 0 0 auto;
+  }
+
+  /* Main dashboard cards */
   .opet-admin-dashboard section,
   .opet-staff-dashboard section {
-    overflow-wrap: anywhere;
-    border-radius: 14px !important;
-  }
-
-  .opet-admin-dashboard section[style*="padding"],
-  .opet-staff-dashboard section[style*="padding"] {
-    padding: 15px !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
     margin-bottom: 12px !important;
+    padding: 15px !important;
+    border: 1px solid var(--or-line) !important;
+    border-radius: 16px !important;
+    background: #fff !important;
+    box-shadow: 0 3px 13px rgba(18, 54, 83, 0.045) !important;
+    overflow-wrap: anywhere;
   }
 
   .opet-admin-dashboard section h2,
-  .opet-staff-dashboard section h2,
-  .opet-admin-dashboard section h3,
-  .opet-staff-dashboard section h3 {
-    line-height: 1.3;
+  .opet-staff-dashboard section h2 {
+    font-size: 16px !important;
+    line-height: 1.3 !important;
+    color: var(--or-ink) !important;
   }
 
-  /* Summary cards: two columns on mobile. */
-  .opet-admin-dashboard > div > div[style*="gridTemplateColumns"],
-  .opet-staff-dashboard > div > div[style*="gridTemplateColumns"] {
+  .opet-admin-dashboard section p,
+  .opet-staff-dashboard section p {
+    line-height: 1.45;
+  }
+
+  .opet-admin-dashboard section > div,
+  .opet-staff-dashboard section > div {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  /* Overview metric cards */
+  .opet-dashboard-shell > div[style*="gridTemplateColumns"] {
+    display: grid !important;
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     gap: 9px !important;
+    margin: 0 0 13px !important;
   }
 
-  .opet-admin-dashboard > div > div[style*="gridTemplateColumns"] > section,
-  .opet-staff-dashboard > div > div[style*="gridTemplateColumns"] > section {
-    min-width: 0;
-    padding: 13px !important;
+  .opet-dashboard-shell > div[style*="gridTemplateColumns"] > section {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    min-width: 0 !important;
+    min-height: 112px !important;
     margin: 0 !important;
-    border-radius: 13px !important;
+    padding: 13px !important;
+    border-radius: 15px !important;
+    background: linear-gradient(145deg, #fff, #f5fbfd) !important;
   }
 
-  .opet-admin-dashboard > div > div[style*="gridTemplateColumns"] > section strong,
-  .opet-staff-dashboard > div > div[style*="gridTemplateColumns"] > section strong {
-    font-size: 23px !important;
+  .opet-dashboard-shell > div[style*="gridTemplateColumns"] > section svg {
+    width: 21px !important;
+    height: 21px !important;
+    color: #078b91 !important;
   }
 
-  /* Forms: one field per row. */
+  .opet-dashboard-shell > div[style*="gridTemplateColumns"] > section p {
+    margin: 8px 0 3px !important;
+    color: #62798d !important;
+    font-size: 11px !important;
+    line-height: 1.25 !important;
+  }
+
+  .opet-dashboard-shell > div[style*="gridTemplateColumns"] > section strong {
+    font-size: 24px !important;
+    line-height: 1.1 !important;
+    color: #102f4c !important;
+  }
+
+  /* Buttons and action controls */
+  .opet-admin-dashboard button,
+  .opet-staff-dashboard button {
+    max-width: 100%;
+  }
+
+  .opet-admin-dashboard section button,
+  .opet-staff-dashboard section button {
+    min-height: 40px !important;
+    border-radius: 10px !important;
+    font-size: 12px !important;
+  }
+
+  .opet-admin-dashboard section [style*="display: flex"],
+  .opet-staff-dashboard section [style*="display: flex"] {
+    flex-wrap: wrap;
+  }
+
+  /* Mobile-friendly forms */
+  .opet-admin-dashboard form,
+  .opet-staff-dashboard form {
+    width: 100%;
+    min-width: 0;
+  }
+
   .opet-admin-dashboard form > div[style*="gridTemplateColumns"],
-  .opet-staff-dashboard form > div[style*="gridTemplateColumns"],
-  .opet-admin-dashboard section > div[style*="gridTemplateColumns"],
-  .opet-staff-dashboard section > div[style*="gridTemplateColumns"] {
+  .opet-staff-dashboard form > div[style*="gridTemplateColumns"] {
+    display: grid !important;
     grid-template-columns: minmax(0, 1fr) !important;
-    gap: 12px !important;
+    gap: 11px !important;
   }
 
   .opet-admin-dashboard label,
   .opet-staff-dashboard label {
-    min-width: 0;
-    line-height: 1.4;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    min-width: 0 !important;
+    font-size: 12px !important;
+    line-height: 1.35 !important;
   }
 
   .opet-admin-dashboard input,
@@ -200,10 +300,12 @@
   .opet-staff-dashboard input,
   .opet-staff-dashboard select,
   .opet-staff-dashboard textarea {
-    width: 100%;
-    min-height: 44px !important;
-    padding: 10px 12px !important;
+    width: 100% !important;
+    min-height: 46px !important;
+    padding: 11px 12px !important;
     border-radius: 10px !important;
+    font-size: 16px !important;
+    line-height: 1.35 !important;
   }
 
   .opet-admin-dashboard textarea,
@@ -211,16 +313,27 @@
     min-height: 88px !important;
   }
 
-  .opet-admin-dashboard form button,
-  .opet-staff-dashboard form button {
-    min-height: 45px !important;
-    border-radius: 10px !important;
+  .opet-admin-dashboard form button[type="submit"],
+  .opet-staff-dashboard form button[type="submit"] {
+    width: 100% !important;
+    min-height: 48px !important;
+    margin-top: 14px !important;
   }
 
-  /* Tables remain readable and scroll within their own container. */
+  /* Tables scroll inside their own surface */
+  .opet-admin-dashboard div[style*="overflowX"],
+  .opet-staff-dashboard div[style*="overflowX"],
+  .opet-admin-dashboard div[style*="overflow-x"],
+  .opet-staff-dashboard div[style*="overflow-x"] {
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    border-radius: 10px;
+  }
+
   .opet-admin-dashboard table,
   .opet-staff-dashboard table {
-    min-width: 620px !important;
+    min-width: 650px !important;
     font-size: 12px !important;
   }
 
@@ -229,54 +342,64 @@
   .opet-staff-dashboard th,
   .opet-staff-dashboard td {
     padding: 10px !important;
-    white-space: normal;
-    overflow-wrap: anywhere;
-    vertical-align: middle;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
   }
 
-  .opet-admin-dashboard table button,
-  .opet-staff-dashboard table button,
-  .opet-admin-dashboard table select,
-  .opet-staff-dashboard table select {
-    min-height: 38px !important;
-    white-space: nowrap;
+  .opet-admin-dashboard td button,
+  .opet-staff-dashboard td button {
+    white-space: nowrap !important;
   }
 
-  /* Prevent long action rows from overflowing. */
-  .opet-admin-dashboard section > div,
-  .opet-staff-dashboard section > div {
-    max-width: 100%;
+  /* Alerts and footer */
+  .opet-dashboard-shell > [role="alert"],
+  .opet-dashboard-shell > [role="status"] {
+    padding: 12px !important;
+    font-size: 12px !important;
+    border-radius: 12px !important;
   }
 
-  .opet-admin-dashboard section button,
-  .opet-staff-dashboard section button {
-    max-width: 100%;
+  .opet-admin-dashboard footer,
+  .opet-staff-dashboard footer {
+    padding: 12px 0 !important;
+    font-size: 10px !important;
   }
 }
 
-@media (max-width: 420px) {
-  .opet-admin-dashboard > div,
-  .opet-staff-dashboard > div {
-    width: calc(100% - 20px) !important;
+@media (max-width: 390px) {
+  .opet-dashboard-shell {
+    padding-left: 11px !important;
+    padding-right: 11px !important;
   }
 
-  .opet-admin-dashboard > div > header,
-  .opet-staff-dashboard > div > header {
-    padding: 14px !important;
+  .opet-dashboard-header {
+    margin-left: -11px !important;
+    margin-right: -11px !important;
+    padding-left: 13px !important;
+    padding-right: 13px !important;
   }
 
-  .opet-admin-dashboard > div > header h1,
-  .opet-staff-dashboard > div > header h1 {
-    font-size: 20px !important;
+  .opet-dashboard-header h1 {
+    font-size: 19px !important;
   }
 
-  .opet-admin-dashboard > div > header > div:last-child button,
-  .opet-staff-dashboard > div > header > div:last-child button {
-    flex-basis: 100%;
+  .opet-dashboard-header button {
+    font-size: 10px !important;
+    padding: 6px 7px !important;
   }
 
-  .opet-admin-dashboard > div > div[style*="gridTemplateColumns"] > section,
-  .opet-staff-dashboard > div > div[style*="gridTemplateColumns"] > section {
+  .opet-dashboard-shell > div[style*="gridTemplateColumns"] > section {
+    min-height: 103px !important;
     padding: 11px !important;
+  }
+
+  .opet-dashboard-shell > div[style*="gridTemplateColumns"] > section strong {
+    font-size: 22px !important;
+  }
+
+  .opet-dashboard-nav button {
+    flex-basis: 64px !important;
+    min-width: 62px !important;
+    font-size: 9px !important;
   }
 }
