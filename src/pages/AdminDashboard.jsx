@@ -20,14 +20,13 @@ import {
   X,
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import './dashboard-responsive.css'
 
 const GREEN = '#16365E' // Opet Realms brand navy
 const ACCENT = '#21C9D0' // brand accent
 const DARK = '#14243A'
 const MUTED = '#66758A'
 const BORDER = '#DCE4EE'
-
-const SERVICE_OPTIONS = ['Home Cleaning', 'Deep Cleaning', 'Fumigation', 'Upholstery Cleaning', 'Laundry']
 
 const BOOKING_STATUSES = [
   { value: 'new', label: 'New' },
@@ -665,7 +664,7 @@ export default function AdminDashboard() {
     const address = safe(settings.address || '')
     popup.document.write(`<!doctype html><html><head><title>${safe(title)}</title><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>
       *{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;color:#14243A;margin:0;background:#eef3ef;line-height:1.5;font-size:12px}.sheet{max-width:850px;margin:24px auto;background:#fff;padding:38px 42px;box-shadow:0 4px 24px #102b1b12}.top{display:flex;justify-content:space-between;gap:24px;align-items:flex-start;border-bottom:3px solid #16365E;padding-bottom:20px}.logo{display:block;width:170px;max-height:64px;object-fit:contain;object-position:left center;margin-bottom:7px}.brand{font-size:24px;font-weight:800;letter-spacing:.3px;color:#16365E}.tag{font-size:10px;letter-spacing:1.4px;color:#66758A;margin-top:3px}.contact{text-align:right;color:#66758A;font-size:11px;white-space:pre-line}.doc-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin:26px 0 24px}.doc-title{font-size:27px;letter-spacing:.5px;line-height:1.1;margin:0;color:#14243A}.ref{font-size:12px;color:#16365E;font-weight:700;margin-top:8px}.meta{border:1px solid #DCE4EE;border-radius:7px;min-width:205px;overflow:hidden}.meta div{display:flex;justify-content:space-between;gap:18px;padding:7px 10px;border-bottom:1px solid #e8eee9}.meta div:last-child{border:0}.meta span:first-child{color:#66758A}.meta span:last-child{font-weight:700;text-align:right}.columns{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:25px}.block-title{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:#16365E;font-weight:800;margin-bottom:8px}.details{background:#F5F8FC;border:1px solid #DCE4EE;border-radius:7px;padding:13px}.details p{margin:3px 0;overflow-wrap:anywhere}.section{margin:22px 0}.section h3{font-size:12px;margin:0 0 9px;color:#16365E}.description{white-space:pre-wrap;overflow-wrap:anywhere}.total{margin-left:auto;width:300px;max-width:100%;margin-top:14px}.total div{display:flex;justify-content:space-between;padding:8px 10px;border-bottom:1px solid #DCE4EE}.total .grand{background:#16365E;color:#fff;font-weight:800;font-size:15px;border:0;border-radius:0 0 5px 5px}.total .subtle{background:#EEF7FA;font-weight:700}.callout{background:#EEF7FA;border:1px solid #DCE4EE;border-radius:7px;padding:14px;margin-top:18px}.callout h3{margin:0 0 7px;color:#16365E;font-size:12px}.callout p{margin:4px 0;white-space:pre-wrap;overflow-wrap:anywhere}.status{display:inline-block;padding:5px 9px;border-radius:99px;background:#EAF4FA;color:#16365E;font-weight:800;text-transform:uppercase;font-size:10px}.foot{border-top:1px solid #DCE4EE;margin-top:30px;padding-top:13px;color:#66758A;font-size:10px;display:flex;justify-content:space-between;gap:12px}.small{color:#66758A;font-size:10px} @media print{body{background:#fff}.sheet{margin:0 auto;padding:20px 24px;box-shadow:none;max-width:none}.no-print{display:none!important}@page{size:A4;margin:10mm}} @media(max-width:620px){.sheet{margin:0;padding:20px}.top,.doc-head{flex-direction:column}.contact{text-align:left}.columns{grid-template-columns:1fr}.meta{width:100%}}
-      </style></head><body><main class="sheet"><header class="top"><div><img class="logo" src="https://opet-realms-f2mh.vercel.app/images/opet-realms-logo.png.jpg" alt="Opet Realms logo" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><div class="brand" style="display:none">${businessName}</div><div class="tag">PROFESSIONAL CLEANING · FUMIGATION · UPHOLSTERY · LAUNDRY</div></div><div class="contact">${phone}${email ? '\n'+email : ''}${address ? '\n'+address : ''}</div></header>${body}<footer class="foot"><span>${businessName}${phone ? ' · '+phone : ''}</span><span>Thank you for choosing Opet Realms.</span></footer></main><script>window.onload=()=>window.print()</script></body></html>`)
+      </style></head><body><main class="sheet"><header class="top"><div><img class="logo" src="https://opet-realms-f2mh.vercel.app/images/opet-realms-logo.png.jpg" alt="Opet Realms logo" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><div class="brand" style="display:none">${businessName}</div><div class="tag">PROFESSIONAL CLEANING · FUMIGATION · GARMENT CARE</div></div><div class="contact">${phone}${email ? '\n'+email : ''}${address ? '\n'+address : ''}</div></header>${body}<footer class="foot"><span>${businessName}${phone ? ' · '+phone : ''}</span><span>Thank you for choosing Opet Realms.</span></footer></main><script>window.onload=()=>window.print()</script></body></html>`)
     popup.document.close()
   }
 
@@ -1271,6 +1270,7 @@ export default function AdminDashboard() {
 
   return (
     <main
+      className="opet-admin-dashboard"
       style={{
         minHeight: '100vh',
         background: '#F5F8FC',
@@ -1471,17 +1471,13 @@ export default function AdminDashboard() {
 
                     <label style={labelStyle}>
                       Service *
-                      <select
+                      <input
                         style={inputStyle}
                         required
+                        placeholder="e.g. Deep Cleaning"
                         value={bookingForm.service}
                         onChange={(event) => setBookingForm({ ...bookingForm, service: event.target.value })}
-                      >
-                        <option value="">Select a service</option>
-                        {SERVICE_OPTIONS.map((service) => (
-                          <option key={service} value={service}>{service}</option>
-                        ))}
-                      </select>
+                      />
                     </label>
 
                     <label style={labelStyle}>
