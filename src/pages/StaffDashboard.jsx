@@ -397,3 +397,4 @@ export default function StaffDashboard() {
     <footer style={{ textAlign: 'center', color: MUTED, fontSize: 11, padding: '8px 0' }}>Opet Realms · Staff dashboard</footer>
   </div></main>
 }
+ 
