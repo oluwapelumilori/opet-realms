@@ -1,0 +1,150 @@
+/* Opet Realms dashboard responsive layer.
+   This file changes presentation only; it does not alter dashboard logic. */
+.opet-admin-dashboard,
+.opet-staff-dashboard {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+.opet-admin-dashboard > div,
+.opet-staff-dashboard > div {
+  min-width: 0;
+}
+
+.opet-admin-dashboard section,
+.opet-staff-dashboard section,
+.opet-admin-dashboard header,
+.opet-staff-dashboard header {
+  min-width: 0;
+}
+
+.opet-admin-dashboard table,
+.opet-staff-dashboard table {
+  max-width: 100%;
+}
+
+.opet-admin-dashboard [style*="overflowX"],
+.opet-staff-dashboard [style*="overflowX"] {
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-inline: contain;
+}
+
+.opet-admin-dashboard input,
+.opet-admin-dashboard select,
+.opet-admin-dashboard textarea,
+.opet-staff-dashboard input,
+.opet-staff-dashboard select,
+.opet-staff-dashboard textarea {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.opet-admin-dashboard button,
+.opet-staff-dashboard button {
+  touch-action: manipulation;
+}
+
+@media (max-width: 760px) {
+  .opet-admin-dashboard,
+  .opet-staff-dashboard {
+    padding-top: 12px !important;
+    padding-bottom: 24px !important;
+  }
+
+  .opet-admin-dashboard > div,
+  .opet-staff-dashboard > div {
+    width: calc(100% - 24px) !important;
+  }
+
+  .opet-admin-dashboard > div > header,
+  .opet-staff-dashboard > div > header {
+    align-items: stretch !important;
+    gap: 12px !important;
+    padding: 15px !important;
+  }
+
+  .opet-admin-dashboard > div > header > div:last-child,
+  .opet-staff-dashboard > div > header > div:last-child {
+    width: 100%;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+
+  .opet-admin-dashboard > div > header > div:last-child button,
+  .opet-staff-dashboard > div > header > div:last-child button {
+    flex: 1 1 auto;
+    min-height: 42px !important;
+  }
+
+  .opet-admin-dashboard > div > nav,
+  .opet-staff-dashboard > div > nav {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden;
+    padding: 2px 1px 10px;
+    margin-right: -1px;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .opet-admin-dashboard > div > nav button,
+  .opet-staff-dashboard > div > nav button {
+    flex: 0 0 auto;
+    min-height: 42px !important;
+    white-space: nowrap;
+  }
+
+  .opet-admin-dashboard section,
+  .opet-staff-dashboard section {
+    overflow-wrap: anywhere;
+  }
+
+  .opet-admin-dashboard section[style*="padding"],
+  .opet-staff-dashboard section[style*="padding"] {
+    padding: 14px !important;
+  }
+
+  .opet-admin-dashboard form,
+  .opet-staff-dashboard form {
+    min-width: 0;
+  }
+
+  .opet-admin-dashboard form button[type="submit"],
+  .opet-staff-dashboard form button[type="submit"] {
+    min-height: 44px !important;
+  }
+
+  .opet-admin-dashboard table,
+  .opet-staff-dashboard table {
+    min-width: 620px !important;
+    font-size: 12px !important;
+  }
+
+  .opet-admin-dashboard th,
+  .opet-admin-dashboard td,
+  .opet-staff-dashboard th,
+  .opet-staff-dashboard td {
+    padding: 9px 10px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .opet-admin-dashboard > div,
+  .opet-staff-dashboard > div {
+    width: calc(100% - 20px) !important;
+  }
+
+  .opet-admin-dashboard > div > header h1,
+  .opet-staff-dashboard > div > header h1 {
+    font-size: 20px !important;
+  }
+
+  .opet-admin-dashboard > div > header > div:last-child button,
+  .opet-staff-dashboard > div > header > div:last-child button {
+    flex-basis: 100%;
+  }
+}
