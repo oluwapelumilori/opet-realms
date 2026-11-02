@@ -190,6 +190,15 @@ function makeReference(prefix) {
   return `${prefix}-${Date.now().toString().slice(-8)}`
 }
 
+function generateBookingReference() {
+  const now = new Date()
+  const yy = String(now.getFullYear()).slice(-2)
+  const mm = String(now.getMonth() + 1).padStart(2, '0')
+  const dd = String(now.getDate()).padStart(2, '0')
+  const rand = Math.floor(1000 + Math.random() * 9000)
+  return `OR-${yy}${mm}${dd}-${rand}`
+}
+
 function whatsappUrl(phone, message = '') {
   const number = String(phone || '').replace(/\D/g, '')
   if (!number) return ''
@@ -481,24 +490,19 @@ export default function AdminDashboard() {
     navigate('/admin/login', { replace: true })
   }
 
-  async function handleCreateBooking(event) {
+  async function handleCreateBooking(event, bookingDetails) {
     event.preventDefault()
     setError('')
     setSuccess('')
     setSavingBooking(true)
 
     try {
-      if (!bookingForm.service.trim()) throw new Error('Please select at least one service.')
-      const bookingRef = makeReference('OR')
+      const bookingRef = generateBookingReference()
 
       const payload = {
-        ...bookingForm,
+        ...bookingDetails,
         booking_ref: bookingRef,
         status: 'new',
-        preferred_date: bookingForm.preferred_date || null,
-        preferred_time: bookingForm.preferred_time || null,
-        email: bookingForm.email.trim() || null,
-        notes: bookingForm.notes.trim() || null,
       }
 
       const { error: insertError } = await supabase
@@ -1221,87 +1225,13 @@ export default function AdminDashboard() {
               </SectionHeading>
 
               {showBookingForm && (
-                <form onSubmit={handleCreateBooking}>
-                  <div style={formGridStyle}>
-                    <label style={labelStyle}>
-                      Customer name *
-                      <input
-                        style={inputStyle}
-                        required
-                        value={bookingForm.customer_name}
-                        onChange={(event) => setBookingForm({ ...bookingForm, customer_name: event.target.value })}
-                      />
-                    </label>
-
-                    <label style={labelStyle}>
-                      Phone *
-                      <input
-                        style={inputStyle}
-                        required
-                        value={bookingForm.phone}
-                        onChange={(event) => setBookingForm({ ...bookingForm, phone: event.target.value })}
-                      />
-                    </label>
-
-                    <label style={labelStyle}>
-                      Email
-                      <input
-                        type="email"
-                        style={inputStyle}
-                        value={bookingForm.email}
-                        onChange={(event) => setBookingForm({ ...bookingForm, email: event.target.value })}
-                      />
-                    </label>
-
-                    <label style={labelStyle}>
-                      Preferred date
-                      <input
-                        type="date"
-                        style={inputStyle}
-                        value={bookingForm.preferred_date}
-                        onChange={(event) => setBookingForm({ ...bookingForm, preferred_date: event.target.value })}
-                      />
-                    </label>
-
-                    <label style={labelStyle}>
-                      Preferred time
-                      <input
-                        style={inputStyle}
-                        placeholder="e.g. 10:00 AM"
-                        value={bookingForm.preferred_time}
-                        onChange={(event) => setBookingForm({ ...bookingForm, preferred_time: event.target.value })}
-                      />
-                    </label>
-
-                    <label style={labelStyle}>
-                      Address / area *
-                      <input
-                        style={inputStyle}
-                        required
-                        placeholder="Customer's service address"
-                        value={bookingForm.address}
-                        onChange={(event) => setBookingForm({ ...bookingForm, address: event.target.value })}
-                      />
-                    </label>
-                  </div>
-
-                  <MultiServiceBookingFields value={bookingForm.service} onChange={(service) => setBookingForm((current) => ({ ...current, service }))} inputStyle={inputStyle} labelStyle={labelStyle} />
-
-                  <label style={{ ...labelStyle, marginTop: 14 }}>
-                    Notes
-                    <textarea
-                      style={{ ...inputStyle, minHeight: 80, resize: 'vertical' }}
-                      value={bookingForm.notes}
-                      onChange={(event) => setBookingForm({ ...bookingForm, notes: event.target.value })}
-                    />
-                  </label>
-
-                  <button type="submit" style={{ ...buttonStyle, marginTop: 14 }} disabled={savingBooking}>
-                    {savingBooking ? <LoaderCircle size={15} /> : <Plus size={15} />}
-                    {savingBooking ? 'Creating booking...' : 'Save booking'}
-                  </button>
-                </form>
+                <MultiServiceBookingFields
+                  saving={savingBooking}
+                  error={error}
+                  onSubmit={handleCreateBooking}
+                />
               )}
+
             </section>
 
             <section style={panelStyle}>
