@@ -1,24 +1,31 @@
+
 import { useMemo, useState } from 'react'
 import { Check, ClipboardList } from 'lucide-react'
 import { SERVICES } from '../data/services'
 import { GARMENT_PRICES, formatNaira } from '../config'
 
-const BEDBUG_TREATMENTS = ['1-visit intensive', '2-visit with follow-up']
+const BEDBUG_TREATMENTS = [
+  '1-visit intensive',
+  '2-visit with follow-up',
+]
 
 const emptyGarments = () =>
-  Object.fromEntries(GARMENT_PRICES.map((item) => [item.id, 0]))
+  Object.fromEntries(
+    GARMENT_PRICES.map((item) => [item.id, 0])
+  )
 
 const todayLocal = () => {
   const now = new Date()
   const mm = String(now.getMonth() + 1).padStart(2, '0')
   const dd = String(now.getDate()).padStart(2, '0')
+
   return `${now.getFullYear()}-${mm}-${dd}`
 }
 
 const fieldStyle = {
   display: 'grid',
   gap: 6,
-  color: '#34443a',
+  color: '#34443A',
   fontSize: 13,
   fontWeight: 600,
   minWidth: 0,
@@ -46,15 +53,19 @@ const sectionTitle = {
 
 export default function MultiServiceBookingFields({
   onSubmit,
-  saving,
-  error,
+  saving = false,
+  error = '',
 }) {
   const [checked, setChecked] = useState(() =>
-    Object.fromEntries(SERVICES.map((service) => [service.id, false]))
+    Object.fromEntries(
+      SERVICES.map((service) => [service.id, false])
+    )
   )
 
   const [choice, setChoice] = useState(() =>
-    Object.fromEntries(SERVICES.map((service) => [service.id, 0]))
+    Object.fromEntries(
+      SERVICES.map((service) => [service.id, 0])
+    )
   )
 
   const [bedbugTreatment, setBedbugTreatment] = useState(0)
@@ -105,58 +116,84 @@ export default function MultiServiceBookingFields({
     }))
   }
 
+  const updateChoice = (id, value) => {
+    setChoice((previous) => ({
+      ...previous,
+      [id]: Number(value),
+    }))
+  }
+
   const updateGarment = (id, value) => {
-    if (value !== '' && (!/^\d+$/.test(value) || Number(value) < 0)) {
+    if (value === '') {
+      setGarments((previous) => ({
+        ...previous,
+        [id]: 0,
+      }))
       return
     }
 
+    if (!/^\d+$/.test(value)) return
+
     setGarments((previous) => ({
       ...previous,
-      [id]: value === '' ? 0 : Number(value),
+      [id]: Number(value),
     }))
   }
 
   const buildServiceLines = () => {
     const lines = []
 
-    SERVICES.filter((service) => checked[service.id]).forEach((service) => {
-      const option = service.options[choice[service.id]]
+    SERVICES
+      .filter((service) => checked[service.id])
+      .forEach((service) => {
+        const option = service.options[choice[service.id]]
 
-      if (service.id === 'laundry') {
-        lines.push(`• ${service.title}`)
+        if (service.id === 'laundry') {
+          lines.push(`• ${service.title}`)
 
-        selectedGarments.forEach((item) => {
+          selectedGarments.forEach((item) => {
+            lines.push(
+              `   - ${item.name}: ${item.quantity} × ${formatNaira(item.price)} = ${formatNaira(item.total)}`
+            )
+          })
+
+          lines.push(`   Total garments: ${garmentCount}`)
           lines.push(
-            `   - ${item.name}: ${item.quantity} × ${formatNaira(
-              item.price
-            )} = ${formatNaira(item.total)}`
+            `   Estimated laundry total: ${formatNaira(laundryTotal)}`
           )
-        })
 
-        lines.push(`   Total garments: ${garmentCount}`)
+          return
+        }
+
+        if (service.id === 'upholstery') {
+          lines.push(
+            `• ${service.title} — ${option.label} × ${Number(upholsteryQty)}`
+          )
+
+          return
+        }
+
+        if (service.id === 'bedbug') {
+          lines.push(
+            `• ${service.title} — Size: ${option.label}, Treatment: ${BEDBUG_TREATMENTS[bedbugTreatment]}`
+          )
+
+          return
+        }
+
         lines.push(
-          `   Estimated laundry total: ${formatNaira(laundryTotal)}`
+          `• ${service.title} — Size: ${option.label}`
         )
-      } else if (service.id === 'upholstery') {
-        lines.push(
-          `• ${service.title} — ${option.label} × ${Number(
-            upholsteryQty
-          )}`
-        )
-      } else if (service.id === 'bedbug') {
-        lines.push(
-          `• ${service.title} — Size: ${option.label}, Treatment: ${BEDBUG_TREATMENTS[bedbugTreatment]}`
-        )
-      } else {
-        lines.push(`• ${service.title} — Size: ${option.label}`)
-      }
-    })
+      })
 
     return lines
   }
 
   const handleSubmit = (event) => {
     event.preventDefault()
+
+    if (saving) return
+
     setValidationError('')
 
     if (!SERVICES.some((service) => checked[service.id])) {
@@ -178,7 +215,7 @@ export default function MultiServiceBookingFields({
       (!Number.isInteger(upholsteryQuantity) || upholsteryQuantity < 1)
     ) {
       setValidationError(
-        'Please enter a whole-number quantity for upholstery & carpet care.'
+        'Please enter a valid whole-number quantity for upholstery & carpet care.'
       )
       return
     }
@@ -197,7 +234,7 @@ export default function MultiServiceBookingFields({
       return
     }
 
-    onSubmit(event, {
+    const bookingDetails = {
       customer_name: contact.name.trim(),
       phone: contact.phone.trim(),
       email: contact.email.trim() || null,
@@ -206,7 +243,11 @@ export default function MultiServiceBookingFields({
       preferred_date: details.date || null,
       preferred_time: null,
       notes: details.notes.trim() || null,
-    })
+    }
+
+    if (typeof onSubmit === 'function') {
+      onSubmit(event, bookingDetails)
+    }
   }
 
   const renderSizeSelect = (service) => (
@@ -217,10 +258,7 @@ export default function MultiServiceBookingFields({
         style={controlStyle}
         value={choice[service.id]}
         onChange={(event) =>
-          setChoice((previous) => ({
-            ...previous,
-            [service.id]: Number(event.target.value),
-          }))
+          updateChoice(service.id, event.target.value)
         }
       >
         {service.options.map((option, index) => (
@@ -255,7 +293,12 @@ export default function MultiServiceBookingFields({
             <ClipboardList size={23} color="#16365E" />
 
             <div>
-              <strong style={{ color: '#16365E', fontSize: 14 }}>
+              <strong
+                style={{
+                  color: '#16365E',
+                  fontSize: 14,
+                }}
+              >
                 Laundry Price Calculator
               </strong>
 
@@ -266,8 +309,7 @@ export default function MultiServiceBookingFields({
                   fontSize: 12,
                 }}
               >
-                Enter the quantity of each garment to calculate the
-                estimated laundry bill.
+                Enter the quantity of each garment to calculate the estimated laundry bill.
               </p>
             </div>
           </div>
@@ -278,8 +320,7 @@ export default function MultiServiceBookingFields({
                 key={item.id}
                 style={{
                   display: 'grid',
-                  gridTemplateColumns:
-                    'minmax(0,1fr) 90px minmax(90px,auto)',
+                  gridTemplateColumns: 'minmax(0,1fr) 90px minmax(90px,auto)',
                   alignItems: 'center',
                   gap: 9,
                   padding: '7px 0',
@@ -297,7 +338,12 @@ export default function MultiServiceBookingFields({
                     {item.name}
                   </strong>
 
-                  <span style={{ color: '#667789', fontSize: 11 }}>
+                  <span
+                    style={{
+                      color: '#667789',
+                      fontSize: 11,
+                    }}
+                  >
                     {formatNaira(item.price)} per item
                   </span>
                 </div>
@@ -361,7 +407,12 @@ export default function MultiServiceBookingFields({
                 {formatNaira(laundryTotal)}
               </strong>
 
-              <span style={{ color: '#667789', fontSize: 11 }}>
+              <span
+                style={{
+                  color: '#667789',
+                  fontSize: 11,
+                }}
+              >
                 {garmentCount}{' '}
                 {garmentCount === 1 ? 'garment' : 'garments'} selected
               </span>
@@ -370,13 +421,14 @@ export default function MultiServiceBookingFields({
             <button
               type="button"
               onClick={() => setGarments(emptyGarments())}
+              disabled={saving}
               style={{
                 border: '1px solid #16365E',
                 borderRadius: 7,
                 background: '#fff',
                 color: '#16365E',
                 padding: '8px 11px',
-                cursor: 'pointer',
+                cursor: saving ? 'not-allowed' : 'pointer',
                 fontWeight: 700,
                 fontSize: 12,
               }}
@@ -392,8 +444,7 @@ export default function MultiServiceBookingFields({
               fontSize: 11,
             }}
           >
-            The total is an estimate. Confirm the final amount with Opet
-            Realms before placing the order.
+            The total is an estimate. Confirm the final amount with Opet Realms before placing the order.
           </p>
         </div>
       )
@@ -463,9 +514,9 @@ export default function MultiServiceBookingFields({
                 setBedbugTreatment(Number(event.target.value))
               }
             >
-              {BEDBUG_TREATMENTS.map((label, index) => (
-                <option key={label} value={index}>
-                  {label}
+              {BEDBUG_TREATMENTS.map((treatment, index) => (
+                <option key={treatment} value={index}>
+                  {treatment}
                 </option>
               ))}
             </select>
@@ -503,38 +554,21 @@ export default function MultiServiceBookingFields({
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div
-        style={{
-          background: '#fff',
-          border: '1px solid #DCE5ED',
-          borderRadius: 12,
-          padding: 16,
-        }}
-      >
-        <h3 style={sectionTitle}>1. Services</h3>
+    <form onSubmit={handleSubmit} noValidate>
+      <h3 style={sectionTitle}>1. Services</h3>
 
-        <p
-          style={{
-            color: '#667789',
-            fontSize: 13,
-            margin: '0 0 14px',
-          }}
-        >
-          Select all the services the customer wants to book.
-        </p>
+      <div style={{ display: 'grid', gap: 10 }}>
+        {SERVICES.map((service) => {
+          const isOn = checked[service.id]
 
-        <div style={{ display: 'grid', gap: 12 }}>
-          {SERVICES.map((service) => (
+          return (
             <div
               key={service.id}
               style={{
-                border: checked[service.id]
-                  ? '1px solid #21C9D0'
-                  : '1px solid #DCE5ED',
-                borderRadius: 9,
+                border: `1px solid ${isOn ? '#21C9D0' : '#DCE5ED'}`,
+                borderRadius: 10,
                 padding: 13,
-                background: checked[service.id] ? '#F3FCFC' : '#fff',
+                background: isOn ? '#F3FCFC' : '#fff',
               }}
             >
               <label
@@ -547,7 +581,8 @@ export default function MultiServiceBookingFields({
               >
                 <input
                   type="checkbox"
-                  checked={!!checked[service.id]}
+                  checked={isOn}
+                  disabled={saving}
                   onChange={() => toggleService(service.id)}
                   style={{
                     width: 17,
@@ -557,10 +592,14 @@ export default function MultiServiceBookingFields({
                   }}
                 />
 
-                <span style={{ flex: 1, minWidth: 0 }}>
+                <span
+                  style={{
+                    display: 'grid',
+                    gap: 4,
+                  }}
+                >
                   <strong
                     style={{
-                      display: 'block',
                       color: '#16365E',
                       fontSize: 14,
                     }}
@@ -570,193 +609,239 @@ export default function MultiServiceBookingFields({
 
                   <span
                     style={{
-                      display: 'block',
                       color: '#667789',
                       fontSize: 12,
-                      lineHeight: 1.6,
-                      marginTop: 3,
+                      lineHeight: 1.5,
                     }}
                   >
                     {service.features.join(' · ')}
                   </span>
                 </span>
 
-                {checked[service.id] && (
-                  <Check size={18} color="#087f5b" />
+                {isOn && (
+                  <Check
+                    size={17}
+                    color="#087F5B"
+                    style={{
+                      marginLeft: 'auto',
+                      flexShrink: 0,
+                    }}
+                  />
                 )}
               </label>
 
-              {checked[service.id] && renderServiceOptions(service)}
+              {isOn && renderServiceOptions(service)}
             </div>
-          ))}
-        </div>
+          )
+        })}
+      </div>
 
-        <h3 style={sectionTitle}>2. Location &amp; details</h3>
+      <h3 style={sectionTitle}>2. Location &amp; details</h3>
 
-        <div style={{ display: 'grid', gap: 13 }}>
-          <label style={fieldStyle}>
-            Street address *
-            <input
-              required
-              style={controlStyle}
-              placeholder="Enter street address"
-              value={details.street}
-              onChange={(event) =>
-                setDetails((previous) => ({
-                  ...previous,
-                  street: event.target.value,
-                }))
-              }
-            />
-          </label>
-
-          <label style={fieldStyle}>
-            Area *
-            <input
-              required
-              style={controlStyle}
-              placeholder="Enter area or neighbourhood"
-              value={details.area}
-              onChange={(event) =>
-                setDetails((previous) => ({
-                  ...previous,
-                  area: event.target.value,
-                }))
-              }
-            />
-          </label>
-
-          <label style={fieldStyle}>
-            Preferred date for your service
-            <input
-              type="date"
-              min={todayLocal()}
-              style={controlStyle}
-              value={details.date}
-              onChange={(event) =>
-                setDetails((previous) => ({
-                  ...previous,
-                  date: event.target.value,
-                }))
-              }
-            />
-          </label>
-
-          <label style={fieldStyle}>
-            Notes
-            <textarea
-              rows={4}
-              style={{
-                ...controlStyle,
-                resize: 'vertical',
-                minHeight: 90,
-              }}
-              placeholder="Any additional information about the booking?"
-              value={details.notes}
-              onChange={(event) =>
-                setDetails((previous) => ({
-                  ...previous,
-                  notes: event.target.value,
-                }))
-              }
-            />
-          </label>
-        </div>
-
-        <h3 style={sectionTitle}>3. Your contact</h3>
-
-        <div style={{ display: 'grid', gap: 13 }}>
-          <label style={fieldStyle}>
-            Full name *
-            <input
-              required
-              style={controlStyle}
-              placeholder="Enter customer's full name"
-              value={contact.name}
-              onChange={(event) =>
-                setContact((previous) => ({
-                  ...previous,
-                  name: event.target.value,
-                }))
-              }
-            />
-          </label>
-
-          <label style={fieldStyle}>
-            Phone number *
-            <input
-              required
-              type="tel"
-              style={controlStyle}
-              placeholder="Enter customer's phone number"
-              value={contact.phone}
-              onChange={(event) =>
-                setContact((previous) => ({
-                  ...previous,
-                  phone: event.target.value,
-                }))
-              }
-            />
-          </label>
-
-          <label style={fieldStyle}>
-            Email address (optional)
-            <input
-              type="email"
-              style={controlStyle}
-              placeholder="Enter email address"
-              value={contact.email}
-              onChange={(event) =>
-                setContact((previous) => ({
-                  ...previous,
-                  email: event.target.value,
-                }))
-              }
-            />
-          </label>
-        </div>
-
-        {(validationError || error) && (
-          <div
-            role="alert"
-            style={{
-              marginTop: 16,
-              padding: 12,
-              borderRadius: 8,
-              background: '#FEF2F2',
-              border: '1px solid #FECACA',
-              color: '#991B1B',
-              fontSize: 13,
-            }}
-          >
-            {validationError || error}
-          </div>
-        )}
-
-        <button
-          type="submit"
-          disabled={saving}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,220px),1fr))',
+          gap: 13,
+        }}
+      >
+        <label
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 8,
-            width: '100%',
-            minHeight: 46,
-            marginTop: 20,
-            padding: '12px 16px',
-            border: 'none',
-            borderRadius: 8,
-            background: saving ? '#8AA5B8' : '#16365E',
-            color: '#fff',
-            fontSize: 14,
-            fontWeight: 700,
-            cursor: saving ? 'not-allowed' : 'pointer',
+            ...fieldStyle,
+            gridColumn: '1 / -1',
           }}
         >
-          {saving ? 'Saving booking...' : 'Create booking'}
-        </button>
+          Street address *
+
+          <input
+            style={controlStyle}
+            value={details.street}
+            disabled={saving}
+            onChange={(event) =>
+              setDetails((previous) => ({
+                ...previous,
+                street: event.target.value,
+              }))
+            }
+            placeholder="Street address"
+            autoComplete="street-address"
+          />
+        </label>
+
+        <label style={fieldStyle}>
+          Area *
+
+          <input
+            style={controlStyle}
+            value={details.area}
+            disabled={saving}
+            onChange={(event) =>
+              setDetails((previous) => ({
+                ...previous,
+                area: event.target.value,
+              }))
+            }
+            placeholder="Area (e.g. Lekki, Yaba)"
+          />
+        </label>
+
+        <label style={fieldStyle}>
+          Preferred date for your service
+
+          <input
+            type="date"
+            min={todayLocal()}
+            style={controlStyle}
+            value={details.date}
+            disabled={saving}
+            onChange={(event) =>
+              setDetails((previous) => ({
+                ...previous,
+                date: event.target.value,
+              }))
+            }
+          />
+        </label>
+
+        <label
+          style={{
+            ...fieldStyle,
+            gridColumn: '1 / -1',
+          }}
+        >
+          Notes
+
+          <textarea
+            rows={4}
+            style={{
+              ...controlStyle,
+              minHeight: 90,
+              resize: 'vertical',
+            }}
+            value={details.notes}
+            disabled={saving}
+            onChange={(event) =>
+              setDetails((previous) => ({
+                ...previous,
+                notes: event.target.value,
+              }))
+            }
+            placeholder="Notes (condition, access, special items...)"
+          />
+        </label>
       </div>
+
+      <h3 style={sectionTitle}>3. Your contact</h3>
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,220px),1fr))',
+          gap: 13,
+        }}
+      >
+        <label style={fieldStyle}>
+          Full name *
+
+          <input
+            style={controlStyle}
+            value={contact.name}
+            disabled={saving}
+            onChange={(event) =>
+              setContact((previous) => ({
+                ...previous,
+                name: event.target.value,
+              }))
+            }
+            placeholder="Customer full name"
+            autoComplete="name"
+          />
+        </label>
+
+        <label style={fieldStyle}>
+          Phone number *
+
+          <input
+            type="tel"
+            style={controlStyle}
+            value={contact.phone}
+            disabled={saving}
+            onChange={(event) =>
+              setContact((previous) => ({
+                ...previous,
+                phone: event.target.value,
+              }))
+            }
+            placeholder="Customer phone number"
+            autoComplete="tel"
+          />
+        </label>
+
+        <label
+          style={{
+            ...fieldStyle,
+            gridColumn: '1 / -1',
+          }}
+        >
+          Email address (optional)
+
+          <input
+            type="email"
+            style={controlStyle}
+            value={contact.email}
+            disabled={saving}
+            onChange={(event) =>
+              setContact((previous) => ({
+                ...previous,
+                email: event.target.value,
+              }))
+            }
+            placeholder="you@example.com"
+            autoComplete="email"
+          />
+        </label>
+      </div>
+
+      {(validationError || error) && (
+        <p
+          role="alert"
+          style={{
+            color: '#A12626',
+            background: '#FFF5F5',
+            border: '1px solid #F2CACA',
+            borderRadius: 8,
+            padding: 10,
+            fontSize: 13,
+            marginTop: 14,
+          }}
+        >
+          {validationError || error}
+        </p>
+      )}
+
+      <button
+        type="submit"
+        disabled={saving}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 8,
+          minHeight: 43,
+          marginTop: 17,
+          padding: '10px 16px',
+          border: 0,
+          borderRadius: 8,
+          background: '#16365E',
+          color: '#fff',
+          fontWeight: 750,
+          fontSize: 13,
+          cursor: saving ? 'wait' : 'pointer',
+          opacity: saving ? 0.7 : 1,
+        }}
+      >
+        {saving ? 'Creating booking...' : 'Create booking'}
+      </button>
     </form>
   )
 }
