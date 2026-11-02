@@ -148,6 +148,7 @@ const emptyInvoiceForm = {
   booking_id: '',
   customer_name: '',
   amount: '',
+  discount_percent: '0',
   description: '',
   issue_date: new Date().toISOString().slice(0, 10),
   due_date: '',
@@ -296,7 +297,7 @@ export default function AdminDashboard() {
   const [bookingStatusFilter, setBookingStatusFilter] = useState('all')
   const [bookingSearch, setBookingSearch] = useState('')
   const [invoiceSearch, setInvoiceSearch] = useState('')
-  const [showBookingForm, setShowBookingForm] = useState(true)
+  const [showBookingForm, setShowBookingForm] = useState(false)
 
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -766,7 +767,11 @@ export default function AdminDashboard() {
     setSavingInvoice(true)
 
     try {
-      const amount = Number(invoiceForm.amount)
+      const subtotal = Number(invoiceForm.amount)
+      const discountPercent = Number(invoiceForm.discount_percent || 0)
+      if (!Number.isFinite(discountPercent) || discountPercent < 0 || discountPercent > 100) throw new Error('Discount must be between 0 and 100%.')
+      const discountAmount = Math.round(subtotal * discountPercent) / 100
+      const amount = Math.round((subtotal - discountAmount) * 100) / 100
 
       if (!invoiceForm.customer_name.trim()) {
         throw new Error('Enter the customer name.')
@@ -791,6 +796,7 @@ export default function AdminDashboard() {
         due_date: invoiceForm.due_date || null,
         notes: [
           invoiceForm.description.trim(),
+          `Subtotal: ${formatMoney(subtotal)}. Discount: ${discountPercent}% (${formatMoney(discountAmount)}). Final total: ${formatMoney(amount)}.`,
           invoiceForm.notes.trim(),
           invoiceForm.payment_option === 'deposit'
             ? `70% deposit due: ${formatMoney(depositAmount)}. Balance: ${formatMoney(amount - depositAmount)}.`
@@ -1302,6 +1308,11 @@ export default function AdminDashboard() {
                   </label>
 
                   <label style={labelStyle}>
+                    Discount (%)
+                    <input type="number" min="0" max="100" step="0.01" style={inputStyle} value={invoiceForm.discount_percent ?? '0'} onChange={(event) => setInvoiceForm({ ...invoiceForm, discount_percent: event.target.value })} />
+                  </label>
+
+                  <label style={labelStyle}>
                     Payment option
                     <select
                       style={inputStyle}
@@ -1344,11 +1355,12 @@ export default function AdminDashboard() {
                   </label>
                 </div>
 
-                {invoiceForm.payment_option === 'deposit' && Number(invoiceForm.amount) > 0 && (
+                {Number(invoiceForm.amount) > 0 && (
                   <div style={{ background: '#f0faf5', border: `1px solid ${BORDER}`, borderRadius: 8, padding: 12, marginTop: 14, fontSize: 13 }}>
-                    <strong>70% deposit:</strong> {formatMoney(Number(invoiceForm.amount) * 0.7)}
-                    <span style={{ margin: '0 12px', color: MUTED }}>·</span>
-                    <strong>Remaining balance:</strong> {formatMoney(Number(invoiceForm.amount) * 0.3)}
+                    <div><strong>Subtotal:</strong> {formatMoney(Number(invoiceForm.amount))}</div>
+                    <div><strong>Discount:</strong> {Number(invoiceForm.discount_percent || 0)}% ({formatMoney(Number(invoiceForm.amount) * Number(invoiceForm.discount_percent || 0) / 100)})</div>
+                    <div><strong>Final invoice total:</strong> {formatMoney(Number(invoiceForm.amount) * (1 - Number(invoiceForm.discount_percent || 0) / 100))}</div>
+                    {invoiceForm.payment_option === 'deposit' && <><strong>70% deposit:</strong> {formatMoney(Number(invoiceForm.amount) * (1 - Number(invoiceForm.discount_percent || 0) / 100) * 0.7)}<span style={{ margin: '0 12px', color: MUTED }}>·</span><strong>Remaining balance:</strong> {formatMoney(Number(invoiceForm.amount) * (1 - Number(invoiceForm.discount_percent || 0) / 100) * 0.3)}</>}
                   </div>
                 )}
 
