@@ -1,6 +1,6 @@
-
 export const GARMENT_PRICES = [
   { id: 'white-shirt', name: 'White Shirt', price: 600 },
+  { id: 'shirt', name: 'Shirt', price: 500 },
   { id: 'white-t-shirt', name: 'T-Shirt White', price: 500 },
   { id: 't-shirt', name: 'T-Shirt', price: 400 },
   { id: 'blazers', name: 'Blazers', price: 1500 },
@@ -35,6 +35,20 @@ export const GARMENT_PRICES = [
   { id: 'small-curtain', name: 'Small Curtain', price: 1500 },
   { id: 'outer-curtains', name: 'Outer Curtains', price: 2500 },
   { id: 'inner-curtains', name: 'Inner Curtains', price: 1000 },
+];
+
+export const BASKET_PRICES = [
+  { id: 'white-basket', name: 'Laundry Basket (White)', price: 5000 },
+  { id: 'regular-basket', name: 'Laundry Basket (Regular)', price: 4000 },
+];
+
+export const PRESSING_PRICES = [
+  { id: 'pressing-shirt', name: 'Shirt', price: 300 },
+  { id: 'pressing-trouser', name: 'Trouser', price: 300 },
+  { id: 'pressing-gown', name: 'Gown', price: 500 },
+  { id: 'pressing-native', name: 'Native', price: 600 },
+  { id: 'pressing-t-shirt', name: 'T-Shirt', price: 300 },
+  { id: 'pressing-agbada', name: 'Agbada', price: 1000 },
 ];
 
 export const formatNaira = (amount) =>
