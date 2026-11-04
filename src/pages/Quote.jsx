@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Check, MessageCircle } from 'lucide-react'
 import { SERVICES } from '../data/services'
-import LaundryCalculator from '../components/LaundryCalculator'
+import LaundryQuantityFields from '../components/LaundryQuantityFields'
 import { emptyLaundry, summarizeLaundry, buildLaundryLines } from '../lib/laundry'
 import { supabase } from '../lib/supabase'
 
@@ -216,7 +216,7 @@ export default function Quote() {
 
   const renderServiceOptions = (service) => {
     if (service.id === 'laundry') {
-      return <LaundryCalculator value={laundry} onChange={setLaundry} disabled={submitting} />
+      return <LaundryQuantityFields value={laundry} onChange={setLaundry} disabled={submitting} />
     }
 
     if (service.id === 'upholstery') {
