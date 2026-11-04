@@ -1,18 +1,13 @@
-
 import { useMemo, useState } from 'react'
-import { Check, ClipboardList } from 'lucide-react'
+import { Check } from 'lucide-react'
 import { SERVICES } from '../data/services'
-import { GARMENT_PRICES, formatNaira } from '../config'
+import LaundryCalculator from './LaundryCalculator'
+import { emptyLaundry, summarizeLaundry, buildLaundryLines } from '../lib/laundry'
 
 const BEDBUG_TREATMENTS = [
   '1-visit intensive',
   '2-visit with follow-up',
 ]
-
-const emptyGarments = () =>
-  Object.fromEntries(
-    GARMENT_PRICES.map((item) => [item.id, 0])
-  )
 
 const todayLocal = () => {
   const now = new Date()
@@ -70,7 +65,7 @@ export default function MultiServiceBookingFields({
 
   const [bedbugTreatment, setBedbugTreatment] = useState(0)
   const [upholsteryQty, setUpholsteryQty] = useState('1')
-  const [garments, setGarments] = useState(emptyGarments)
+  const [laundry, setLaundry] = useState(emptyLaundry)
 
   const [details, setDetails] = useState({
     street: '',
@@ -87,27 +82,7 @@ export default function MultiServiceBookingFields({
 
   const [validationError, setValidationError] = useState('')
 
-  const selectedGarments = useMemo(
-    () =>
-      GARMENT_PRICES
-        .filter((item) => Number(garments[item.id]) > 0)
-        .map((item) => ({
-          ...item,
-          quantity: Number(garments[item.id]),
-          total: item.price * Number(garments[item.id]),
-        })),
-    [garments]
-  )
-
-  const garmentCount = selectedGarments.reduce(
-    (sum, item) => sum + item.quantity,
-    0
-  )
-
-  const laundryTotal = selectedGarments.reduce(
-    (sum, item) => sum + item.total,
-    0
-  )
+  const laundrySummary = useMemo(() => summarizeLaundry(laundry), [laundry])
 
   const toggleService = (id) => {
     setChecked((previous) => ({
@@ -123,23 +98,6 @@ export default function MultiServiceBookingFields({
     }))
   }
 
-  const updateGarment = (id, value) => {
-    if (value === '') {
-      setGarments((previous) => ({
-        ...previous,
-        [id]: 0,
-      }))
-      return
-    }
-
-    if (!/^\d+$/.test(value)) return
-
-    setGarments((previous) => ({
-      ...previous,
-      [id]: Number(value),
-    }))
-  }
-
   const buildServiceLines = () => {
     const lines = []
 
@@ -149,19 +107,7 @@ export default function MultiServiceBookingFields({
         const option = service.options[choice[service.id]]
 
         if (service.id === 'laundry') {
-          lines.push(`• ${service.title}`)
-
-          selectedGarments.forEach((item) => {
-            lines.push(
-              `   - ${item.name}: ${item.quantity} × ${formatNaira(item.price)} = ${formatNaira(item.total)}`
-            )
-          })
-
-          lines.push(`   Total garments: ${garmentCount}`)
-          lines.push(
-            `   Estimated laundry total: ${formatNaira(laundryTotal)}`
-          )
-
+          lines.push(...buildLaundryLines(service.title, laundrySummary))
           return
         }
 
@@ -201,9 +147,9 @@ export default function MultiServiceBookingFields({
       return
     }
 
-    if (checked.laundry && garmentCount === 0) {
+    if (checked.laundry && laundrySummary.count === 0) {
       setValidationError(
-        'Please enter a quantity for at least one garment.'
+        'Please enter a quantity for at least one laundry item, basket, or pressing service.'
       )
       return
     }
@@ -273,180 +219,11 @@ export default function MultiServiceBookingFields({
   const renderServiceOptions = (service) => {
     if (service.id === 'laundry') {
       return (
-        <div
-          style={{
-            marginTop: 14,
-            padding: 13,
-            borderRadius: 9,
-            background: '#F5F8FB',
-            border: '1px solid #DCE5ED',
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              marginBottom: 12,
-            }}
-          >
-            <ClipboardList size={23} color="#16365E" />
-
-            <div>
-              <strong
-                style={{
-                  color: '#16365E',
-                  fontSize: 14,
-                }}
-              >
-                Laundry Price Calculator
-              </strong>
-
-              <p
-                style={{
-                  margin: '3px 0 0',
-                  color: '#667789',
-                  fontSize: 12,
-                }}
-              >
-                Enter the quantity of each garment to calculate the estimated laundry bill.
-              </p>
-            </div>
-          </div>
-
-          <div style={{ display: 'grid', gap: 7 }}>
-            {GARMENT_PRICES.map((item) => (
-              <div
-                key={item.id}
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'minmax(0,1fr) 90px minmax(90px,auto)',
-                  alignItems: 'center',
-                  gap: 9,
-                  padding: '7px 0',
-                  borderBottom: '1px solid #E1E8EF',
-                }}
-              >
-                <div>
-                  <strong
-                    style={{
-                      display: 'block',
-                      fontSize: 13,
-                      color: '#172B3F',
-                    }}
-                  >
-                    {item.name}
-                  </strong>
-
-                  <span
-                    style={{
-                      color: '#667789',
-                      fontSize: 11,
-                    }}
-                  >
-                    {formatNaira(item.price)} per item
-                  </span>
-                </div>
-
-                <input
-                  aria-label={`Quantity of ${item.name}`}
-                  type="number"
-                  min="0"
-                  step="1"
-                  inputMode="numeric"
-                  style={controlStyle}
-                  value={garments[item.id]}
-                  onChange={(event) =>
-                    updateGarment(item.id, event.target.value)
-                  }
-                />
-
-                <strong
-                  style={{
-                    textAlign: 'right',
-                    fontSize: 12,
-                    color: '#16365E',
-                  }}
-                >
-                  {formatNaira(
-                    item.price * Number(garments[item.id] || 0)
-                  )}
-                </strong>
-              </div>
-            ))}
-          </div>
-
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              flexWrap: 'wrap',
-              gap: 10,
-              marginTop: 13,
-            }}
-          >
-            <div>
-              <span
-                style={{
-                  display: 'block',
-                  color: '#667789',
-                  fontSize: 12,
-                }}
-              >
-                Estimated laundry total
-              </span>
-
-              <strong
-                style={{
-                  display: 'block',
-                  color: '#16365E',
-                  fontSize: 18,
-                }}
-              >
-                {formatNaira(laundryTotal)}
-              </strong>
-
-              <span
-                style={{
-                  color: '#667789',
-                  fontSize: 11,
-                }}
-              >
-                {garmentCount}{' '}
-                {garmentCount === 1 ? 'garment' : 'garments'} selected
-              </span>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setGarments(emptyGarments())}
-              disabled={saving}
-              style={{
-                border: '1px solid #16365E',
-                borderRadius: 7,
-                background: '#fff',
-                color: '#16365E',
-                padding: '8px 11px',
-                cursor: saving ? 'not-allowed' : 'pointer',
-                fontWeight: 700,
-                fontSize: 12,
-              }}
-            >
-              Reset quantities
-            </button>
-          </div>
-
-          <p
-            style={{
-              margin: '10px 0 0',
-              color: '#667789',
-              fontSize: 11,
-            }}
-          >
-            The total is an estimate. Confirm the final amount with Opet Realms before placing the order.
-          </p>
-        </div>
+        <LaundryCalculator
+          value={laundry}
+          onChange={setLaundry}
+          disabled={saving}
+        />
       )
     }
 
@@ -621,7 +398,7 @@ export default function MultiServiceBookingFields({
                 {isOn && (
                   <Check
                     size={17}
-                    color="#087F5B"
+                    color="#21C9D0"
                     style={{
                       marginLeft: 'auto',
                       flexShrink: 0,
