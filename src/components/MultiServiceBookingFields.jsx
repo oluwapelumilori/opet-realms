@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Check } from 'lucide-react'
 import { SERVICES } from '../data/services'
-import LaundryCalculator from './LaundryCalculator'
+import LaundryQuantityFields from './LaundryQuantityFields'
 import { emptyLaundry, summarizeLaundry, buildLaundryLines } from '../lib/laundry'
 
 const BEDBUG_TREATMENTS = [
@@ -219,7 +219,7 @@ export default function MultiServiceBookingFields({
   const renderServiceOptions = (service) => {
     if (service.id === 'laundry') {
       return (
-        <LaundryCalculator
+        <LaundryQuantityFields
           value={laundry}
           onChange={setLaundry}
           disabled={saving}
