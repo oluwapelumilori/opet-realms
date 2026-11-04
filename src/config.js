@@ -33,8 +33,11 @@ export const GARMENT_PRICES = [
   { id: 'white-sweatshirt', name: 'White Sweatshirt', price: 800 },
   { id: 'thick-curtain', name: 'Thick Curtain', price: 2500 },
   { id: 'small-curtain', name: 'Small Curtain', price: 1500 },
-  { id: 'outer-curtains', name: 'Outer Curtains', price: 2500 },
   { id: 'inner-curtains', name: 'Inner Curtains', price: 1000 },
+  { id: 'white-socks', name: 'Socks White', price: 300 },
+  { id: 'socks', name: 'Socks', price: 200 },
+  { id: 'white-singlet', name: 'Singlet White', price: 300 },
+  { id: 'singlet', name: 'Singlet', price: 200 },
 ];
 
 export const BASKET_PRICES = [
