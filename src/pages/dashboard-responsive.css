@@ -1,15 +1,61 @@
 /* Opet Realms dashboards: mobile layout (768px and below).
    Desktop layout and all React/Supabase behaviour are unchanged.
    Hooks used by this file: opet-* class names and data-label attributes in
-   AdminDashboard.jsx and StaffDashboard.jsx. */
+   AdminDashboard.jsx and StaffDashboard.jsx.
+
+   Colour system
+   - Navy and ink carry text, headers and primary UI.
+   - Teal (#21C9D0) is decorative only (underlines, icons on dark). It is too
+     light to use as text on white, so text-sized teal uses --opet-teal-ink.
+   - Status colours are pastel tints with a dark ink of the same hue, so every
+     label meets WCAG AA contrast. */
+
+/* ---------- Design tokens ---------- */
+:root {
+  /* Brand */
+  --opet-navy-900: #0E2A4A;
+  --opet-navy-700: #16365E;
+  --opet-teal: #21C9D0;
+  --opet-teal-ink: #0A7C82;     /* teal safe for text/focus on white */
+
+  /* Neutrals */
+  --opet-ink: #0F2238;
+  --opet-muted: #5A6B80;
+  --opet-line: #DCE6F0;
+  --opet-bg: #F4F8FC;
+  --opet-card: #FFFFFF;
+  --opet-on-dark: #FFFFFF;
+  --opet-on-dark-soft: #D7E7F2;
+
+  /* Status: tint + readable ink */
+  --opet-new-bg: #E8F1FF;        --opet-new-ink: #1E4FA3;
+  --opet-contacted-bg: #FFF4D6;  --opet-contacted-ink: #8A5A00;
+  --opet-inspection-bg: #F3E8FF; --opet-inspection-ink: #6B2FB3;
+  --opet-done-bg: #DFF7E9;       --opet-done-ink: #1B7A44;
+  --opet-cancelled-bg: #FEE2E2;  --opet-cancelled-ink: #B42323;
+
+  /* Elevation */
+  --opet-shadow-sm: 0 2px 10px rgba(15, 34, 56, .06);
+  --opet-shadow-md: 0 6px 18px rgba(15, 34, 56, .16);
+  --opet-shadow-sheet: 0 -10px 30px rgba(15, 34, 56, .22);
+
+  /* Side gutter (grows on notched phones in landscape) */
+  --opet-gutter: max(14px, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+}
 
 /* ---------- Base rules (all screen sizes) ---------- */
 .opet-admin-dashboard,
 .opet-staff-dashboard {
   width: 100%;
   min-width: 0;
-  overflow-x: clip;
+  color-scheme: light;
   -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+/* clip (not hidden) so the sticky tab row keeps working */
+@supports (overflow: clip) {
+  .opet-admin-dashboard,
+  .opet-staff-dashboard { overflow-x: clip; }
 }
 .opet-admin-dashboard *,
 .opet-staff-dashboard * { box-sizing: border-box; }
@@ -30,23 +76,43 @@
 /* Shown only on mobile (inside booking cards) */
 .opet-mobile-only { display: none; }
 
+/* ---------- Tablet (769px to 1024px): keep wide tables usable ---------- */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .opet-dashboard-shell .opet-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .opet-dashboard-shell .opet-table { min-width: 720px; }
+}
+
 /* ---------- Mobile ---------- */
 @media (max-width: 768px) {
   .opet-admin-dashboard,
   .opet-staff-dashboard {
     min-height: 100vh !important;
-    padding: 0 0 32px !important;
-    background: #F4F8FC !important;
+    min-height: 100dvh !important;
+    padding: 0 0 calc(32px + env(safe-area-inset-bottom, 0px)) !important;
+    background: var(--opet-bg) !important;
   }
   .opet-dashboard-shell {
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 auto !important;
-    padding: 0 14px !important;
+    padding: 0 var(--opet-gutter) !important;
   }
 
-  /* Visually hidden but readable by screen readers */
-  .opet-dashboard-shell .opet-btn-text,
+  /* Keyboard and switch users get a clear, on-brand focus ring */
+  .opet-dashboard-shell :focus-visible {
+    outline: 3px solid var(--opet-teal-ink);
+    outline-offset: 2px;
+  }
+  .opet-dashboard-shell .opet-dashboard-header :focus-visible {
+    outline-color: var(--opet-teal);
+  }
+
+  /* Visually hidden but readable by screen readers.
+     Add class "opet-keep-text" to any button that should keep its label. */
+  .opet-dashboard-shell .opet-btn-text:not(.opet-keep-text),
   .opet-dashboard-shell .opet-table thead {
     position: absolute !important;
     width: 1px !important;
@@ -60,17 +126,30 @@
   .opet-dashboard-shell .opet-dashboard-header {
     flex-wrap: nowrap !important;
     gap: 10px !important;
-    margin: 0 -14px 0 !important;
-    padding: 16px 14px 18px !important;
+    margin: 0 calc(-1 * var(--opet-gutter)) 0 !important;
+    padding: calc(16px + env(safe-area-inset-top, 0px)) var(--opet-gutter) 18px !important;
     border: 0 !important;
     border-radius: 0 0 20px 20px !important;
-    background: linear-gradient(135deg, #0E2A4A 0%, #16365E 100%) !important;
-    box-shadow: 0 6px 18px rgba(15, 34, 56, .16) !important;
+    background: linear-gradient(135deg, var(--opet-navy-900) 0%, var(--opet-navy-700) 100%) !important;
+    box-shadow: var(--opet-shadow-md) !important;
   }
   .opet-dashboard-shell .opet-header-text { min-width: 0; flex: 1 1 auto; }
-  .opet-dashboard-shell .opet-header-text p:first-child { color: #21C9D0 !important; }
-  .opet-dashboard-shell .opet-header-text h1 { color: #fff !important; font-size: 21px !important; }
-  .opet-dashboard-shell .opet-header-text p:last-child { color: #D7E7F2 !important; font-size: 13px !important; }
+  .opet-dashboard-shell .opet-header-text p:first-child {
+    color: var(--opet-teal) !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  .opet-dashboard-shell .opet-header-text h1 {
+    color: var(--opet-on-dark) !important;
+    font-size: 21px !important;
+    line-height: 1.2 !important;
+  }
+  .opet-dashboard-shell .opet-header-text p:last-child {
+    color: var(--opet-on-dark-soft) !important;
+    font-size: 13px !important;
+  }
   .opet-dashboard-shell .opet-header-actions {
     display: flex !important;
     flex: 0 0 auto;
@@ -85,10 +164,15 @@
     border: 1px solid rgba(255, 255, 255, .28) !important;
     border-radius: 12px !important;
     background: rgba(255, 255, 255, .12) !important;
-    color: #fff !important;
+    color: var(--opet-on-dark) !important;
+    transition: background-color .15s ease, transform .1s ease;
+  }
+  .opet-dashboard-shell .opet-header-btn:active {
+    background: rgba(255, 255, 255, .22) !important;
+    transform: scale(.96);
   }
 
-  /* ----- Tab row: one scrollable line, sticky ----- */
+  /* ----- Tab row: one scrollable line, sticky, with edge fade hints ----- */
   .opet-dashboard-shell .opet-dashboard-nav {
     position: sticky !important;
     top: 0;
@@ -96,15 +180,27 @@
     display: flex !important;
     flex-wrap: nowrap !important;
     gap: 2px !important;
-    margin: 0 -14px 12px !important;
+    margin: 0 calc(-1 * var(--opet-gutter)) 12px !important;
     padding: 0 8px !important;
     overflow-x: auto !important;
     overflow-y: hidden;
-    background: #fff;
-    border-bottom: 1px solid #DCE6F0;
+    border-bottom: 1px solid var(--opet-line);
     box-shadow: 0 2px 8px rgba(15, 34, 56, .06);
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    overscroll-behavior-x: contain;
+    /* White fades appear on whichever side still has tabs to scroll to */
+    background-color: var(--opet-card);
+    background-image:
+      linear-gradient(to right, var(--opet-card) 30%, rgba(255, 255, 255, 0)),
+      linear-gradient(to left, var(--opet-card) 30%, rgba(255, 255, 255, 0)),
+      radial-gradient(farthest-side at 0 50%, rgba(15, 34, 56, .18), rgba(15, 34, 56, 0)),
+      radial-gradient(farthest-side at 100% 50%, rgba(15, 34, 56, .18), rgba(15, 34, 56, 0));
+    background-repeat: no-repeat;
+    background-position: left center, right center, left center, right center;
+    background-size: 36px 100%, 36px 100%, 12px 100%, 12px 100%;
+    background-attachment: local, local, scroll, scroll;
   }
   .opet-dashboard-shell .opet-dashboard-nav::-webkit-scrollbar { display: none; }
   .opet-dashboard-shell .opet-nav-btn {
@@ -115,16 +211,18 @@
     border-bottom: 3px solid transparent !important;
     border-radius: 0 !important;
     background: transparent !important;
-    color: #5A6B80 !important;
+    color: var(--opet-muted) !important;
     font-size: 13px !important;
+    font-weight: 600 !important;
     white-space: nowrap !important;
+    scroll-snap-align: center;
   }
   .opet-dashboard-shell .opet-nav-btn svg { stroke: currentColor; }
   .opet-dashboard-shell .opet-nav-btn[aria-current="page"] {
-    color: #16365E !important;
-    border-bottom-color: #21C9D0 !important;
+    color: var(--opet-navy-700) !important;
+    border-bottom-color: var(--opet-teal) !important;
   }
-  .opet-dashboard-shell .opet-nav-btn[aria-current="page"] svg { stroke: #21C9D0; }
+  .opet-dashboard-shell .opet-nav-btn[aria-current="page"] svg { stroke: var(--opet-teal-ink); }
 
   /* ----- Banners and panels ----- */
   .opet-dashboard-shell > [role="alert"],
@@ -143,7 +241,13 @@
     border-radius: 14px !important;
     overflow-wrap: anywhere;
   }
-  .opet-dashboard-shell button { max-width: 100%; min-height: 44px !important; }
+
+  /* Touch targets: main buttons only, so small pills and chips stay compact.
+     Add class "opet-compact" to any button that should stay small. */
+  .opet-dashboard-shell button:not(.opet-pill):not(.opet-chip):not(.opet-compact) {
+    max-width: 100%;
+    min-height: 44px !important;
+  }
 
   /* ----- Section headings: action button drops below at full width ----- */
   .opet-dashboard-shell .opet-heading {
@@ -171,9 +275,12 @@
   .opet-dashboard-shell .opet-stat-grid > section {
     min-height: 96px;
     padding: 12px !important;
+    border: 1px solid var(--opet-line);
+    box-shadow: var(--opet-shadow-sm);
   }
   .opet-dashboard-shell .opet-stat-grid > section strong {
     display: block;
+    color: var(--opet-navy-700);
     font-size: 20px !important;
     line-height: 1.2;
     overflow-wrap: anywhere;
@@ -186,19 +293,41 @@
     gap: 8px !important;
   }
   .opet-dashboard-shell .opet-stage-card {
+    --stage-bg: var(--opet-new-bg);
+    --stage-ink: var(--opet-new-ink);
     min-height: 66px !important;
     padding: 10px 6px !important;
+    border: 0 !important;
+    border-top: 3px solid var(--stage-ink) !important;
     border-radius: 12px !important;
+    background: var(--stage-bg) !important;
     text-align: center !important;
   }
-  .opet-dashboard-shell .opet-stage-card span { font-size: 12px !important; color: #0F2238 !important; }
-  .opet-dashboard-shell .opet-stage-card strong { font-size: 22px !important; }
-  .opet-dashboard-shell .opet-stage-card[data-status="new"] { background: #E8F1FF !important; }
-  .opet-dashboard-shell .opet-stage-card[data-status="contacted"] { background: #FFF4D6 !important; }
-  .opet-dashboard-shell .opet-stage-card[data-status="inspection"] { background: #F3E8FF !important; }
+  .opet-dashboard-shell .opet-stage-card span {
+    font-size: 12px !important;
+    font-weight: 600;
+    color: var(--opet-ink) !important;
+  }
+  .opet-dashboard-shell .opet-stage-card strong {
+    font-size: 22px !important;
+    color: var(--stage-ink) !important;
+  }
+  .opet-dashboard-shell .opet-stage-card[data-status="new"] {
+    --stage-bg: var(--opet-new-bg); --stage-ink: var(--opet-new-ink);
+  }
+  .opet-dashboard-shell .opet-stage-card[data-status="contacted"] {
+    --stage-bg: var(--opet-contacted-bg); --stage-ink: var(--opet-contacted-ink);
+  }
+  .opet-dashboard-shell .opet-stage-card[data-status="inspection"] {
+    --stage-bg: var(--opet-inspection-bg); --stage-ink: var(--opet-inspection-ink);
+  }
   .opet-dashboard-shell .opet-stage-card[data-status="booked"],
-  .opet-dashboard-shell .opet-stage-card[data-status="completed"] { background: #DFF7E9 !important; }
-  .opet-dashboard-shell .opet-stage-card[data-status="cancelled"] { background: #FEE2E2 !important; }
+  .opet-dashboard-shell .opet-stage-card[data-status="completed"] {
+    --stage-bg: var(--opet-done-bg); --stage-ink: var(--opet-done-ink);
+  }
+  .opet-dashboard-shell .opet-stage-card[data-status="cancelled"] {
+    --stage-bg: var(--opet-cancelled-bg); --stage-ink: var(--opet-cancelled-ink);
+  }
 
   /* ----- Form controls ----- */
   .opet-dashboard-shell input:not([type="checkbox"]),
@@ -211,7 +340,12 @@
     padding-bottom: 10px !important;
     padding-right: 12px !important;
     border-radius: 10px !important;
-    font-size: 16px !important;
+    font-size: 16px !important; /* 16px stops iPhone zoom-on-focus */
+  }
+  .opet-dashboard-shell input:not([type="checkbox"]):focus,
+  .opet-dashboard-shell select:focus,
+  .opet-dashboard-shell textarea:focus {
+    border-color: var(--opet-teal-ink) !important;
   }
   .opet-dashboard-shell textarea { min-height: 90px !important; }
   .opet-dashboard-shell input[type="checkbox"] {
@@ -219,6 +353,7 @@
     height: 20px !important;
     min-height: 0 !important;
     flex: 0 0 auto;
+    accent-color: var(--opet-navy-700);
   }
   .opet-dashboard-shell .opet-check {
     min-height: 44px;
@@ -244,8 +379,48 @@
     height: 44px !important;
     min-height: 44px !important;
   }
-  .opet-menu { max-width: calc(100vw - 16px); }
-  .opet-menu .opet-menu-item { min-height: 46px !important; font-size: 14px !important; }
+  /* Menu opens as a bottom sheet so it can never run off the screen edge */
+  .opet-menu {
+    position: fixed !important;
+    top: auto !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    z-index: 100;
+    width: 100% !important;
+    max-width: none !important;
+    max-height: 70vh;
+    max-height: 70dvh;
+    margin: 0 !important;
+    padding: 18px 12px calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+    overflow-y: auto;
+    transform: none !important;
+    border: 0 !important;
+    border-radius: 20px 20px 0 0 !important;
+    background: var(--opet-card) !important;
+    box-shadow: var(--opet-shadow-sheet) !important;
+  }
+  .opet-menu::before {            /* grab handle */
+    content: "";
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    width: 40px;
+    height: 4px;
+    margin-left: -20px;
+    border-radius: 2px;
+    background: var(--opet-line);
+  }
+  .opet-menu .opet-menu-item {
+    width: 100%;
+    min-height: 48px !important;
+    padding: 0 12px !important;
+    border-radius: 10px !important;
+    color: var(--opet-ink);
+    font-size: 15px !important;
+    text-align: left;
+  }
+  .opet-menu .opet-menu-item:active { background: var(--opet-bg) !important; }
 
   /* ----- Tables become one card per row ----- */
   .opet-dashboard-shell .opet-table-wrap { overflow: visible !important; }
@@ -260,11 +435,11 @@
     grid-template-columns: minmax(0, 1fr) auto;
     column-gap: 10px;
     align-items: start;
-    padding: 12px;
-    border: 1px solid #DCE6F0;
+    padding: 14px;
+    border: 1px solid var(--opet-line);
     border-radius: 14px;
-    background: #fff;
-    box-shadow: 0 2px 10px rgba(15, 34, 56, .05);
+    background: var(--opet-card);
+    box-shadow: var(--opet-shadow-sm);
   }
   .opet-dashboard-shell .opet-table td {
     grid-column: 1 / -1;
@@ -275,26 +450,30 @@
     min-width: 0 !important;
     padding: 5px 0 !important;
     border: 0 !important;
-    font-size: 13px;
+    color: var(--opet-ink);
+    font-size: 14px;
+    line-height: 1.4;
     overflow-wrap: anywhere;
   }
   .opet-dashboard-shell .opet-table td::before {
     content: attr(data-label);
     grid-column: 1;
-    grid-row: 1 / span 4;
-    color: #5A6B80;
+    grid-row: 1 / span 12;       /* label stays put however many children a cell has */
+    color: var(--opet-muted);
     font-size: 12px;
     font-weight: 600;
   }
+  .opet-dashboard-shell .opet-table td > * { grid-column: 2; }
   .opet-dashboard-shell .opet-table td > * + * { margin-top: 4px; }
-  .opet-dashboard-shell .opet-table td select { grid-column: 2; }
 
   /* Reference cell (top left) */
   .opet-dashboard-shell .opet-table td.opet-c-ref {
     grid-column: 1;
     order: -2;
     display: block;
+    color: var(--opet-navy-700);
     font-size: 15px;
+    font-weight: 700;
   }
   .opet-dashboard-shell .opet-table td.opet-c-ref::before { display: none; }
   .opet-dashboard-shell .opet-table td.opet-c-ref .opet-mobile-only {
@@ -324,16 +503,16 @@
   /* Amount shown prominently */
   .opet-dashboard-shell .opet-table td.opet-c-amount {
     display: block;
+    color: var(--opet-navy-700);
     font-size: 20px;
     font-weight: 800;
-    color: #16365E;
   }
   .opet-dashboard-shell .opet-table td.opet-c-amount::before {
     display: block;
     margin-bottom: 2px;
+    color: var(--opet-muted);
     font-size: 12px;
     font-weight: 600;
-    color: #5A6B80;
   }
 
   /* Full-width action button at the bottom of a card */
@@ -345,7 +524,7 @@
   .opet-dashboard-shell .opet-table td.opet-c-action button {
     width: 100%;
     min-height: 44px !important;
-    font-size: 13px !important;
+    font-size: 14px !important;
   }
 
   /* Quotes: reference left, status select right */
@@ -361,16 +540,17 @@
     margin-top: 4px;
     padding: 8px !important;
     border-radius: 10px;
-    background: #F4F8FC;
+    background: var(--opet-bg);
+    color: var(--opet-ink);
     font-size: 13px;
     font-weight: 700;
   }
   .opet-dashboard-shell .opet-row--invoice td.opet-c-money::before {
     display: block;
     margin-bottom: 2px;
+    color: var(--opet-muted);
     font-size: 11px;
     font-weight: 600;
-    color: #5A6B80;
   }
 
   /* ----- Staff management ----- */
@@ -387,13 +567,20 @@
   .opet-dashboard-shell .opet-reset-row { grid-template-columns: minmax(0, 1fr) !important; }
   .opet-dashboard-shell .opet-reset-row button { width: 100% !important; }
 
-  .opet-dashboard-shell footer { padding: 12px 0 !important; font-size: 11px !important; }
+  .opet-dashboard-shell footer {
+    padding: 12px 0 !important;
+    color: var(--opet-muted);
+    font-size: 12px !important;
+  }
 }
 
 @media (max-width: 390px) {
-  .opet-dashboard-shell { padding-left: 12px !important; padding-right: 12px !important; }
-  .opet-dashboard-shell .opet-dashboard-header,
-  .opet-dashboard-shell .opet-dashboard-nav { margin-left: -12px !important; margin-right: -12px !important; }
+  .opet-admin-dashboard,
+  .opet-staff-dashboard { --opet-gutter: max(12px, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px)); }
   .opet-dashboard-shell .opet-header-text h1 { font-size: 19px !important; }
   .opet-dashboard-shell .opet-table td { grid-template-columns: 84px minmax(0, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .opet-dashboard-shell * { transition: none !important; scroll-behavior: auto !important; }
 }
