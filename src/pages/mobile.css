@@ -1,0 +1,416 @@
+/* Opet Realms dashboards: mobile app layout (768px and below).
+   Desktop layout and all React/Supabase behaviour are unchanged.
+   Import AFTER dashboard-responsive.css:  import './mobile.css'
+
+   Hooks used: opet-* class names added in the JSX (see JSX_EDITS.md) plus
+   data-label / data-status / data-initial attributes added at runtime by
+   useMobileCardLabels(). Inline styles in the JSX win by default, so
+   rules here use !important where they must override them. */
+
+:root {
+  --opet-navy-900: #0E2A4A;
+  --opet-navy-700: #16365E;
+  --opet-teal: #21C9D0;
+  --opet-teal-ink: #0A7C82;      /* teal that is safe as text on white */
+  --opet-teal-soft: #E3F8F9;
+
+  --opet-ink: #0F2238;
+  --opet-muted: #5A6B80;
+  --opet-line: #DCE6F0;
+  --opet-bg: #F4F8FC;
+  --opet-card: #FFFFFF;
+  --opet-on-dark: #FFFFFF;
+  --opet-on-dark-soft: #D7E7F2;
+
+  --opet-new-bg: #E8F1FF;        --opet-new-ink: #1E4FA3;
+  --opet-contacted-bg: #FFF4D6;  --opet-contacted-ink: #8A5A00;
+  --opet-inspection-bg: #F3E8FF; --opet-inspection-ink: #6B2FB3;
+  --opet-done-bg: #DFF7E9;       --opet-done-ink: #1B7A44;
+  --opet-cancelled-bg: #FEE2E2;  --opet-cancelled-ink: #B42323;
+  --opet-neutral-bg: #EEF2F7;    --opet-neutral-ink: #3B4B5F;
+
+  --opet-shadow-sm: 0 2px 10px rgba(15, 34, 56, .06);
+  --opet-shadow-md: 0 6px 18px rgba(15, 34, 56, .16);
+  --opet-shadow-sheet: 0 -10px 30px rgba(15, 34, 56, .22);
+  --opet-gutter: max(14px, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+  --opet-bottom-nav: 64px;
+}
+
+/* ---------- Base (all sizes) ---------- */
+.opet-admin-dashboard,
+.opet-staff-dashboard {
+  width: 100%;
+  min-width: 0;
+  color-scheme: light;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+@supports (overflow: clip) {
+  .opet-admin-dashboard,
+  .opet-staff-dashboard { overflow-x: clip; }
+}
+.opet-admin-dashboard *,
+.opet-staff-dashboard * { box-sizing: border-box; }
+.opet-admin-dashboard button,
+.opet-staff-dashboard button {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.opet-admin-dashboard input, .opet-admin-dashboard select, .opet-admin-dashboard textarea,
+.opet-staff-dashboard input, .opet-staff-dashboard select, .opet-staff-dashboard textarea {
+  max-width: 100%; min-width: 0;
+}
+
+/* Mobile-only pieces are hidden on desktop */
+.opet-bottom-nav, .opet-fab, .opet-more-backdrop, .opet-more-sheet, .opet-chips { display: none; }
+
+/* ---------- Tablet: keep wide tables usable ---------- */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .opet-dashboard-shell .opet-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 768px) {
+  .opet-admin-dashboard,
+  .opet-staff-dashboard {
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+    padding: 0 0 calc(var(--opet-bottom-nav) + 40px + env(safe-area-inset-bottom, 0px)) !important;
+    background: var(--opet-bg) !important;
+  }
+  .opet-dashboard-shell {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 0 var(--opet-gutter) !important;
+  }
+  .opet-dashboard-shell :focus-visible { outline: 3px solid var(--opet-teal-ink); outline-offset: 2px; }
+  .opet-dashboard-shell .opet-dashboard-header :focus-visible { outline-color: var(--opet-teal); }
+
+  /* Icon-only buttons: label stays readable by screen readers */
+  .opet-dashboard-shell .opet-btn-text {
+    position: absolute !important; width: 1px !important; height: 1px !important;
+    overflow: hidden !important; clip: rect(0 0 0 0) !important; white-space: nowrap !important;
+  }
+
+  /* ----- Header ----- */
+  .opet-dashboard-shell .opet-dashboard-header {
+    flex-wrap: nowrap !important;
+    gap: 10px !important;
+    margin: 0 calc(-1 * var(--opet-gutter)) 14px !important;
+    padding: calc(16px + env(safe-area-inset-top, 0px)) var(--opet-gutter) 20px !important;
+    border: 0 !important;
+    border-radius: 0 0 22px 22px !important;
+    background: linear-gradient(135deg, var(--opet-navy-900) 0%, var(--opet-navy-700) 100%) !important;
+    box-shadow: var(--opet-shadow-md) !important;
+  }
+  .opet-dashboard-shell .opet-header-text { min-width: 0; flex: 1 1 auto; }
+  .opet-dashboard-shell .opet-header-text p:first-child {
+    color: var(--opet-teal) !important; font-size: 12px !important; font-weight: 700 !important; letter-spacing: .04em !important;
+  }
+  .opet-dashboard-shell .opet-header-text h1 { color: var(--opet-on-dark) !important; font-size: 24px !important; line-height: 1.2 !important; }
+  .opet-dashboard-shell .opet-header-text p:last-child { color: var(--opet-on-dark-soft) !important; font-size: 13px !important; }
+  .opet-dashboard-shell .opet-header-actions { display: flex !important; flex: 0 0 auto; flex-wrap: nowrap !important; gap: 8px !important; }
+  .opet-dashboard-shell .opet-header-btn {
+    width: 44px !important; height: 44px !important; min-height: 44px !important; padding: 0 !important;
+    border: 1px solid rgba(255, 255, 255, .28) !important; border-radius: 12px !important;
+    background: rgba(255, 255, 255, .12) !important; color: var(--opet-on-dark) !important;
+  }
+  .opet-dashboard-shell .opet-header-btn svg { stroke: currentColor; }
+  .opet-dashboard-shell .opet-header-btn:active { background: rgba(255, 255, 255, .22) !important; transform: scale(.96); }
+
+  /* The bottom bar replaces the top tab row */
+  .opet-dashboard-shell .opet-dashboard-nav { display: none !important; }
+
+  /* ----- Bottom navigation ----- */
+  .opet-bottom-nav {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+    display: flex;
+    padding: 0 6px env(safe-area-inset-bottom, 0px);
+    background: var(--opet-card);
+    border-top: 1px solid var(--opet-line);
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -6px 20px rgba(15, 34, 56, .1);
+  }
+  .opet-bn-item {
+    position: relative; flex: 1 1 0; min-width: 0; min-height: var(--opet-bottom-nav);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    padding: 6px 2px; border: 0; background: transparent; color: var(--opet-muted);
+    font: inherit; font-size: 11px; font-weight: 600; cursor: pointer;
+  }
+  .opet-bn-item svg { width: 22px; height: 22px; stroke: currentColor; }
+  .opet-bn-item[aria-current="page"] { color: var(--opet-navy-700); }
+  .opet-bn-item[aria-current="page"] svg { stroke: var(--opet-teal-ink); }
+  .opet-bn-item[aria-current="page"]::after {
+    content: ""; position: absolute; left: 22%; right: 22%; bottom: 4px; height: 3px; border-radius: 2px; background: var(--opet-teal);
+  }
+  .opet-bottom-nav :focus-visible { outline: 3px solid var(--opet-teal-ink); outline-offset: -3px; border-radius: 12px; }
+
+  /* "More" sheet */
+  .opet-more-backdrop { display: block; position: fixed; inset: 0; z-index: 80; background: rgba(15, 34, 56, .45); }
+  .opet-more-sheet {
+    display: block; position: fixed; left: 0; right: 0; bottom: 0; z-index: 90;
+    padding: 22px 12px calc(12px + env(safe-area-inset-bottom, 0px));
+    border-radius: 20px 20px 0 0; background: var(--opet-card); box-shadow: var(--opet-shadow-sheet);
+  }
+  .opet-more-sheet::before {
+    content: ""; position: absolute; top: 8px; left: 50%; width: 40px; height: 4px; margin-left: -20px; border-radius: 2px; background: var(--opet-line);
+  }
+  .opet-more-sheet button {
+    display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; padding: 0 12px;
+    border: 0; border-radius: 12px; background: transparent; color: var(--opet-ink);
+    font: inherit; font-size: 15px; font-weight: 600; text-align: left;
+  }
+  .opet-more-sheet button svg { width: 20px; height: 20px; stroke: var(--opet-teal-ink); }
+  .opet-more-sheet button[aria-current="page"] { background: var(--opet-teal-soft); }
+  .opet-more-sheet button:active { background: var(--opet-bg); }
+
+  /* Floating add button */
+  .opet-fab {
+    display: grid; place-items: center; position: fixed; z-index: 60;
+    right: max(16px, env(safe-area-inset-right, 0px));
+    bottom: calc(var(--opet-bottom-nav) + 16px + env(safe-area-inset-bottom, 0px));
+    width: 56px; height: 56px; padding: 0; border: 0; border-radius: 50%;
+    background: var(--opet-teal-ink); color: #fff; box-shadow: var(--opet-shadow-md); cursor: pointer;
+  }
+  .opet-fab svg { width: 26px; height: 26px; stroke: #fff; }
+  .opet-fab:active { transform: scale(.94); }
+
+  /* ----- Banners and panels ----- */
+  .opet-dashboard-shell > [role="alert"],
+  .opet-dashboard-shell > [role="status"] {
+    padding: 12px !important; font-size: 13px !important; border-radius: 12px !important; overflow-wrap: anywhere;
+  }
+  .opet-admin-dashboard section,
+  .opet-staff-dashboard section {
+    min-width: 0 !important; max-width: 100% !important; margin-bottom: 12px !important;
+    padding: 14px !important; border-radius: 16px !important; overflow-wrap: anywhere;
+  }
+  .opet-dashboard-shell button:not(.opet-chip):not(.opet-bn-item):not(.opet-fab):not(.opet-compact) {
+    max-width: 100%; min-height: 44px !important;
+  }
+
+  /* ----- Section headings ----- */
+  .opet-dashboard-shell .opet-heading { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; margin-bottom: 14px !important; }
+  .opet-dashboard-shell .opet-heading-action { width: 100%; }
+  .opet-dashboard-shell .opet-heading-action button { width: 100% !important; }
+
+  /* ----- Summary cards: icon in a tinted circle, label and number beside it ----- */
+  .opet-dashboard-shell .opet-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important; margin-bottom: 12px !important;
+  }
+  .opet-dashboard-shell .opet-stat-grid > section {
+    display: grid; grid-template-columns: 44px minmax(0, 1fr); column-gap: 10px; align-items: center;
+    min-height: 84px; padding: 12px !important; border: 1px solid var(--opet-line) !important; box-shadow: var(--opet-shadow-sm);
+  }
+  .opet-dashboard-shell .opet-stat-grid > section > svg {
+    grid-row: 1 / span 2; width: 44px !important; height: 44px !important; padding: 11px;
+    border-radius: 50%; background: var(--opet-new-bg); stroke: var(--opet-new-ink);
+  }
+  .opet-dashboard-shell .opet-stat-grid > section:nth-child(2) > svg { background: var(--opet-inspection-bg); stroke: var(--opet-inspection-ink); }
+  .opet-dashboard-shell .opet-stat-grid > section:nth-child(3) > svg { background: var(--opet-contacted-bg); stroke: var(--opet-contacted-ink); }
+  .opet-dashboard-shell .opet-stat-grid > section:nth-child(4) > svg { background: var(--opet-done-bg); stroke: var(--opet-done-ink); }
+  .opet-dashboard-shell .opet-stat-grid > section:nth-child(5) > svg { background: var(--opet-teal-soft); stroke: var(--opet-teal-ink); }
+  .opet-dashboard-shell .opet-stat-grid > section:nth-child(6) > svg { background: var(--opet-cancelled-bg); stroke: var(--opet-cancelled-ink); }
+  .opet-dashboard-shell .opet-stat-grid > section > p { grid-column: 2; margin: 0 !important; font-size: 12px !important; line-height: 1.3; }
+  .opet-dashboard-shell .opet-stat-grid > section > strong {
+    grid-column: 2; color: var(--opet-navy-700); font-size: 22px !important; line-height: 1.2; overflow-wrap: anywhere;
+  }
+  .opet-dashboard-shell .opet-stat-grid > section:last-child:nth-child(odd) { grid-column: 1 / -1; }
+
+  /* ----- Status filter chips ----- */
+  .opet-dashboard-shell .opet-chips {
+    display: flex; gap: 8px; margin: 0 calc(-1 * var(--opet-gutter)) 12px; padding: 2px var(--opet-gutter) 6px;
+    overflow-x: auto; scrollbar-width: none; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch;
+  }
+  .opet-dashboard-shell .opet-chips::-webkit-scrollbar { display: none; }
+  .opet-dashboard-shell .opet-chip {
+    flex: 0 0 auto; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px;
+    border: 1px solid var(--opet-line); border-radius: 14px; background: var(--opet-card); color: var(--opet-ink);
+    font: inherit; font-size: 14px; font-weight: 600; scroll-snap-align: start; cursor: pointer;
+  }
+  .opet-dashboard-shell .opet-chip::before {
+    content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--dot, var(--opet-new-ink));
+  }
+  .opet-dashboard-shell .opet-chip span {
+    min-width: 28px; padding: 2px 8px; border-radius: 999px; background: var(--opet-neutral-bg); font-size: 12px; text-align: center;
+  }
+  .opet-dashboard-shell .opet-chip[aria-pressed="true"] { background: var(--opet-navy-700); border-color: var(--opet-navy-700); color: #fff; }
+  .opet-dashboard-shell .opet-chip[aria-pressed="true"] span { background: rgba(255, 255, 255, .2); color: #fff; }
+  .opet-dashboard-shell .opet-chip[data-status="new"] { --dot: var(--opet-new-ink); }
+  .opet-dashboard-shell .opet-chip[data-status="contacted"] { --dot: #E3A008; }
+  .opet-dashboard-shell .opet-chip[data-status="inspection"] { --dot: var(--opet-inspection-ink); }
+  .opet-dashboard-shell .opet-chip[data-status="booked"] { --dot: var(--opet-teal); }
+  .opet-dashboard-shell .opet-chip[data-status="completed"] { --dot: var(--opet-done-ink); }
+  .opet-dashboard-shell .opet-chip[data-status="cancelled"] { --dot: var(--opet-cancelled-ink); }
+  .opet-dashboard-shell .opet-chip[data-status="all"] { --dot: var(--opet-navy-700); }
+  .opet-dashboard-shell .opet-chip[aria-pressed="true"][data-status="all"]::before { background: var(--opet-teal); }
+  /* The chips replace the status dropdown */
+  .opet-dashboard-shell .opet-filter-select { display: none !important; }
+
+  /* ----- Booking stage cards ----- */
+  .opet-dashboard-shell .opet-stage-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 8px !important; }
+  .opet-dashboard-shell .opet-stage-card {
+    --stage-bg: var(--opet-new-bg); --stage-ink: var(--opet-new-ink);
+    min-height: 66px !important; padding: 10px 6px !important; border: 0 !important;
+    border-top: 3px solid var(--stage-ink) !important; border-radius: 12px !important;
+    background: var(--stage-bg) !important; text-align: center !important;
+  }
+  .opet-dashboard-shell .opet-stage-card span { font-size: 12px !important; font-weight: 600; color: var(--opet-ink) !important; }
+  .opet-dashboard-shell .opet-stage-card strong { font-size: 22px !important; color: var(--stage-ink) !important; }
+  .opet-dashboard-shell .opet-stage-card[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--stage-ink); }
+  .opet-dashboard-shell .opet-stage-card[data-status="contacted"] { --stage-bg: var(--opet-contacted-bg); --stage-ink: var(--opet-contacted-ink); }
+  .opet-dashboard-shell .opet-stage-card[data-status="inspection"] { --stage-bg: var(--opet-inspection-bg); --stage-ink: var(--opet-inspection-ink); }
+  .opet-dashboard-shell .opet-stage-card[data-status="booked"],
+  .opet-dashboard-shell .opet-stage-card[data-status="completed"] { --stage-bg: var(--opet-done-bg); --stage-ink: var(--opet-done-ink); }
+  .opet-dashboard-shell .opet-stage-card[data-status="cancelled"] { --stage-bg: var(--opet-cancelled-bg); --stage-ink: var(--opet-cancelled-ink); }
+
+  /* ----- Form controls ----- */
+  .opet-dashboard-shell input:not([type="checkbox"]),
+  .opet-dashboard-shell select,
+  .opet-dashboard-shell textarea {
+    width: 100% !important; min-width: 0 !important; min-height: 46px !important;
+    padding-top: 10px !important; padding-bottom: 10px !important; padding-right: 12px !important;
+    border-radius: 12px !important; font-size: 16px !important; /* 16px stops iPhone zoom-on-focus */
+  }
+  .opet-dashboard-shell input:not([type="checkbox"]):focus,
+  .opet-dashboard-shell select:focus,
+  .opet-dashboard-shell textarea:focus { border-color: var(--opet-teal-ink) !important; }
+  .opet-dashboard-shell textarea { min-height: 90px !important; }
+  .opet-dashboard-shell input[type="checkbox"] {
+    width: 20px !important; height: 20px !important; min-height: 0 !important; flex: 0 0 auto; accent-color: var(--opet-navy-700);
+  }
+  .opet-dashboard-shell form button[type="submit"] { width: 100% !important; min-height: 48px !important; }
+  .opet-dashboard-shell .opet-reset-row { grid-template-columns: minmax(0, 1fr) !important; }
+  .opet-dashboard-shell .opet-reset-row button { width: 100% !important; }
+
+  /* ----- Row menu (three dots) becomes a bottom sheet ----- */
+  .opet-dashboard-shell .opet-menu-btn { width: 44px !important; height: 44px !important; min-height: 44px !important; }
+  .opet-menu {
+    position: fixed !important; top: auto !important; right: 0 !important; bottom: 0 !important; left: 0 !important;
+    z-index: 100; width: 100% !important; max-width: none !important; max-height: 70dvh; margin: 0 !important;
+    padding: 22px 12px calc(12px + env(safe-area-inset-bottom, 0px)) !important; overflow-y: auto; transform: none !important;
+    border: 0 !important; border-radius: 20px 20px 0 0 !important; background: var(--opet-card) !important;
+    box-shadow: var(--opet-shadow-sheet) !important;
+  }
+  .opet-menu::before { content: ""; position: absolute; top: 8px; left: 50%; width: 40px; height: 4px; margin-left: -20px; border-radius: 2px; background: var(--opet-line); }
+  .opet-menu .opet-menu-item {
+    width: 100% !important; min-height: 52px !important; padding: 0 12px !important; border-radius: 12px !important;
+    color: var(--opet-ink) !important; font-size: 15px !important; text-align: left;
+  }
+  .opet-menu .opet-menu-item:active { background: var(--opet-bg) !important; }
+
+  /* ===== Tables become one card per row ===== */
+  .opet-dashboard-shell .opet-table-wrap { overflow: visible !important; }
+  .opet-dashboard-shell .opet-table { display: block !important; width: 100% !important; min-width: 0 !important; }
+  .opet-dashboard-shell .opet-table thead {
+    position: absolute !important; width: 1px !important; height: 1px !important; overflow: hidden !important; clip: rect(0 0 0 0) !important;
+  }
+  .opet-dashboard-shell .opet-table tbody { display: grid; gap: 12px; }
+  .opet-dashboard-shell .opet-table tr {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 10px; align-items: start;
+    padding: 14px; border: 1px solid var(--opet-line); border-radius: 16px; background: var(--opet-card); box-shadow: var(--opet-shadow-sm);
+  }
+  .opet-dashboard-shell .opet-table td {
+    grid-column: 1 / -1; display: grid; grid-template-columns: 96px minmax(0, 1fr); column-gap: 8px;
+    min-width: 0 !important; padding: 5px 0 !important; border: 0 !important;
+    color: var(--opet-ink); font-size: 14px; line-height: 1.4; overflow-wrap: anywhere;
+  }
+  .opet-dashboard-shell .opet-table td::before {
+    content: attr(data-label); grid-column: 1; grid-row: 1 / span 12; color: var(--opet-muted); font-size: 12px; font-weight: 600;
+  }
+  .opet-dashboard-shell .opet-table td > * { grid-column: 2; }
+  .opet-dashboard-shell .opet-table td > * + * { margin-top: 4px; }
+
+  .opet-dashboard-shell .opet-table td.opet-c-ref {
+    grid-column: 1; order: -2; display: block; color: var(--opet-navy-700); font-size: 15px; font-weight: 700;
+  }
+  .opet-dashboard-shell .opet-table td.opet-c-ref::before,
+  .opet-dashboard-shell .opet-table td.opet-c-status::before,
+  .opet-dashboard-shell .opet-table td.opet-c-action::before,
+  .opet-dashboard-shell .opet-table td.opet-c-menu::before { display: none; }
+  .opet-dashboard-shell .opet-table td.opet-c-status { grid-column: 2; order: -2; display: block; }
+  .opet-dashboard-shell .opet-table td.opet-c-status select { width: 100% !important; }
+  .opet-dashboard-shell .opet-table td.opet-c-amount { display: block; color: var(--opet-navy-700); font-size: 20px; font-weight: 800; }
+  .opet-dashboard-shell .opet-table td.opet-c-amount::before { display: block; margin-bottom: 2px; font-size: 12px; font-weight: 600; color: var(--opet-muted); }
+  .opet-dashboard-shell .opet-table td.opet-c-action { display: block; padding-top: 8px !important; }
+  .opet-dashboard-shell .opet-table td.opet-c-action button { width: 100%; min-height: 44px !important; font-size: 14px !important; }
+  .opet-dashboard-shell .opet-table[data-kind="quotes"] tr { grid-template-columns: minmax(0, 1fr) minmax(112px, 150px); }
+
+  /* ===== Booking card (matches the mockup) =====
+     avatar | ref, name, service, date, address | status + menu
+     phone and email sit in a footer under a divider. */
+  .opet-dashboard-shell .opet-table[data-kind="bookings"] tr {
+    grid-template-columns: 48px minmax(0, 1fr) auto; column-gap: 12px; row-gap: 0;
+  }
+  .opet-dashboard-shell .opet-table[data-kind="bookings"] td { display: block; padding: 2px 0 !important; position: relative; }
+  .opet-dashboard-shell .opet-table[data-kind="bookings"] td::before { display: none; }
+  .opet-dashboard-shell .opet-table[data-kind="bookings"] td > * { margin: 0; }
+
+  .opet-table[data-kind="bookings"] td[data-label="Received"] { display: none !important; }
+  .opet-table[data-kind="bookings"] td[data-label="Reference"] {
+    grid-column: 2; grid-row: 1; order: 0; justify-self: start; margin-bottom: 4px;
+    padding: 2px 8px !important; border-radius: 8px; background: var(--opet-neutral-bg);
+    color: var(--opet-neutral-ink); font-size: 12px; font-weight: 700;
+  }
+  .opet-table[data-kind="bookings"] td[data-label="Customer"] { grid-column: 2; grid-row: 2; font-size: 17px; font-weight: 700; color: var(--opet-ink); }
+  .opet-table[data-kind="bookings"] td[data-label="Customer"]::before {
+    display: grid !important; content: attr(data-initial); position: absolute; left: -60px; top: -2px;
+    width: 48px; height: 48px; place-items: center; border-radius: 50%;
+    background: var(--opet-teal-soft); color: var(--opet-teal-ink); font-size: 19px; font-weight: 800;
+  }
+  .opet-table[data-kind="bookings"] td[data-label="Service / Property"] { grid-column: 2; grid-row: 3; color: var(--opet-muted); font-size: 14px; }
+  .opet-table[data-kind="bookings"] td[data-label="Preferred date"] { grid-column: 2; grid-row: 4; color: var(--opet-ink); font-size: 14px; }
+  .opet-table[data-kind="bookings"] td[data-label="Address"] { grid-column: 2; grid-row: 5; color: var(--opet-ink); font-size: 14px; }
+  .opet-table[data-kind="bookings"] td[data-label="Notes"] { grid-column: 2 / -1; grid-row: 6; color: var(--opet-muted); font-size: 13px; }
+  .opet-table[data-kind="bookings"] td[data-label="Notes"]::before { display: inline !important; content: "Notes: "; font-weight: 600; }
+  .opet-table[data-kind="bookings"] td[data-label="Phone"] {
+    grid-column: 1 / -1; grid-row: 7; margin-top: 10px; padding-top: 10px !important; border-top: 1px solid var(--opet-line) !important; font-size: 14px;
+  }
+  .opet-table[data-kind="bookings"] td[data-label="Email"] { grid-column: 1 / -1; grid-row: 8; font-size: 14px; color: var(--opet-muted); }
+  .opet-table[data-kind="bookings"] td[data-label="Phone"]::before,
+  .opet-table[data-kind="bookings"] td[data-label="Email"]::before {
+    display: inline !important; font-weight: 600; color: var(--opet-muted); margin-right: 6px;
+  }
+  .opet-table[data-kind="bookings"] td[data-label="Phone"]::before { content: "Phone:"; }
+  .opet-table[data-kind="bookings"] td[data-label="Email"]::before { content: "Email:"; }
+  .opet-table[data-kind="bookings"] td[data-label="Status"] { grid-column: 3; grid-row: 1 / span 2; justify-self: end; align-self: start; }
+  .opet-table[data-kind="bookings"] td[data-label="Actions"] { grid-column: 3; grid-row: 3 / span 2; justify-self: end; padding: 0 !important; }
+
+  /* Status select looks like the pill in the mockup */
+  .opet-table td[data-label="Status"] { --pill-bg: var(--opet-neutral-bg); --pill-ink: var(--opet-neutral-ink); }
+  .opet-table td[data-status="new"] { --pill-bg: var(--opet-new-bg); --pill-ink: var(--opet-new-ink); }
+  .opet-table td[data-status="contacted"],
+  .opet-table td[data-status="draft"],
+  .opet-table td[data-status="pending"] { --pill-bg: var(--opet-contacted-bg); --pill-ink: var(--opet-contacted-ink); }
+  .opet-table td[data-status="inspection"] { --pill-bg: var(--opet-inspection-bg); --pill-ink: var(--opet-inspection-ink); }
+  .opet-table td[data-status="booked"],
+  .opet-table td[data-status="completed"],
+  .opet-table td[data-status="paid"],
+  .opet-table td[data-status="accepted"] { --pill-bg: var(--opet-done-bg); --pill-ink: var(--opet-done-ink); }
+  .opet-table td[data-status="cancelled"],
+  .opet-table td[data-status="declined"],
+  .opet-table td[data-status="expired"],
+  .opet-table td[data-status="unpaid"] { --pill-bg: var(--opet-cancelled-bg); --pill-ink: var(--opet-cancelled-ink); }
+  .opet-dashboard-shell .opet-table td[data-label="Status"] select {
+    -webkit-appearance: none; appearance: none; width: auto !important; min-height: 36px !important;
+    padding: 4px 14px !important; border: 0 !important; border-radius: 999px !important;
+    background: var(--pill-bg) !important; color: var(--pill-ink) !important; font-size: 14px !important; font-weight: 700;
+    text-align: center; text-align-last: center;
+  }
+  .opet-dashboard-shell .opet-table[data-kind="quotes"] td[data-label="Status"] select,
+  .opet-dashboard-shell .opet-table[data-kind="invoices"] td[data-label="Status"] select { width: 100% !important; }
+
+  /* ----- Staff management ----- */
+  .opet-dashboard-shell footer { padding: 12px 0 !important; color: var(--opet-muted); font-size: 12px !important; }
+}
+
+@media (max-width: 390px) {
+  .opet-admin-dashboard, .opet-staff-dashboard { --opet-gutter: max(12px, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px)); }
+  .opet-dashboard-shell .opet-header-text h1 { font-size: 21px !important; }
+  .opet-dashboard-shell .opet-table td { grid-template-columns: 84px minmax(0, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .opet-dashboard-shell *, .opet-bottom-nav * { transition: none !important; scroll-behavior: auto !important; }
+}
