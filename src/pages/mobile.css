@@ -85,7 +85,7 @@
     padding: 0 var(--opet-gutter) !important;
   }
   .opet-dashboard-shell :focus-visible { outline: 3px solid var(--opet-teal-ink); outline-offset: 2px; }
-  .opet-dashboard-shell .opet-dashboard-header :focus-visible { outline-color: var(--opet-teal); }
+  .opet-dashboard-shell > header :focus-visible { outline-color: var(--opet-teal); }
 
   /* Icon-only buttons: label stays readable by screen readers */
   .opet-dashboard-shell .opet-btn-text {
@@ -94,7 +94,7 @@
   }
 
   /* ----- Header ----- */
-  .opet-dashboard-shell .opet-dashboard-header {
+  .opet-dashboard-shell > header {
     flex-wrap: nowrap !important;
     gap: 10px !important;
     margin: 0 calc(-1 * var(--opet-gutter)) 14px !important;
@@ -104,23 +104,24 @@
     background: linear-gradient(135deg, var(--opet-navy-900) 0%, var(--opet-navy-700) 100%) !important;
     box-shadow: var(--opet-shadow-md) !important;
   }
-  .opet-dashboard-shell .opet-header-text { min-width: 0; flex: 1 1 auto; }
-  .opet-dashboard-shell .opet-header-text p:first-child {
+  .opet-dashboard-shell > header > div:first-child { min-width: 0; flex: 1 1 auto; }
+  .opet-dashboard-shell > header > div:first-child p:first-child {
     color: var(--opet-teal) !important; font-size: 12px !important; font-weight: 700 !important; letter-spacing: .04em !important;
   }
-  .opet-dashboard-shell .opet-header-text h1 { color: var(--opet-on-dark) !important; font-size: 24px !important; line-height: 1.2 !important; }
-  .opet-dashboard-shell .opet-header-text p:last-child { color: var(--opet-on-dark-soft) !important; font-size: 13px !important; }
-  .opet-dashboard-shell .opet-header-actions { display: flex !important; flex: 0 0 auto; flex-wrap: nowrap !important; gap: 8px !important; }
-  .opet-dashboard-shell .opet-header-btn {
+  .opet-dashboard-shell > header > div:first-child h1 { color: var(--opet-on-dark) !important; font-size: 24px !important; line-height: 1.2 !important; }
+  .opet-dashboard-shell > header > div:first-child p:last-child { color: var(--opet-on-dark-soft) !important; font-size: 13px !important; }
+  .opet-dashboard-shell > header > div:last-child { display: flex !important; flex: 0 0 auto; flex-wrap: nowrap !important; gap: 8px !important; }
+  .opet-dashboard-shell > header button {
     width: 44px !important; height: 44px !important; min-height: 44px !important; padding: 0 !important;
     border: 1px solid rgba(255, 255, 255, .28) !important; border-radius: 12px !important;
     background: rgba(255, 255, 255, .12) !important; color: var(--opet-on-dark) !important;
   }
-  .opet-dashboard-shell .opet-header-btn svg { stroke: currentColor; }
-  .opet-dashboard-shell .opet-header-btn:active { background: rgba(255, 255, 255, .22) !important; transform: scale(.96); }
+  .opet-dashboard-shell > header button { font-size: 0 !important; gap: 0 !important; }
+  .opet-dashboard-shell > header button svg { width: 20px !important; height: 20px !important; stroke: currentColor; }
+  .opet-dashboard-shell > header button:active { background: rgba(255, 255, 255, .22) !important; transform: scale(.96); }
 
   /* The bottom bar replaces the top tab row */
-  .opet-dashboard-shell .opet-dashboard-nav { display: none !important; }
+  .opet-dashboard-shell > nav { display: none !important; }
 
   /* ----- Bottom navigation ----- */
   .opet-bottom-nav {
@@ -193,7 +194,7 @@
   /* ----- Section headings ----- */
   .opet-dashboard-shell .opet-heading { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; margin-bottom: 14px !important; }
   .opet-dashboard-shell .opet-heading-action { width: 100%; }
-  .opet-dashboard-shell .opet-heading-action button { width: 100% !important; }
+  .opet-dashboard-shell .opet-heading-action { width: 100% !important; }
 
   /* ----- Summary cards: icon in a tinted circle, label and number beside it ----- */
   .opet-dashboard-shell .opet-stat-grid {
@@ -285,20 +286,20 @@
   .opet-dashboard-shell .opet-reset-row button { width: 100% !important; }
 
   /* ----- Row menu (three dots) becomes a bottom sheet ----- */
-  .opet-dashboard-shell .opet-menu-btn { width: 44px !important; height: 44px !important; min-height: 44px !important; }
-  .opet-menu {
+  .opet-dashboard-shell button[aria-haspopup="menu"] { width: 44px !important; height: 44px !important; min-height: 44px !important; }
+  .opet-dashboard-shell [role="menu"] {
     position: fixed !important; top: auto !important; right: 0 !important; bottom: 0 !important; left: 0 !important;
     z-index: 100; width: 100% !important; max-width: none !important; max-height: 70dvh; margin: 0 !important;
     padding: 22px 12px calc(12px + env(safe-area-inset-bottom, 0px)) !important; overflow-y: auto; transform: none !important;
     border: 0 !important; border-radius: 20px 20px 0 0 !important; background: var(--opet-card) !important;
     box-shadow: var(--opet-shadow-sheet) !important;
   }
-  .opet-menu::before { content: ""; position: absolute; top: 8px; left: 50%; width: 40px; height: 4px; margin-left: -20px; border-radius: 2px; background: var(--opet-line); }
-  .opet-menu .opet-menu-item {
+  .opet-dashboard-shell [role="menu"]::before { content: ""; position: absolute; top: 8px; left: 50%; width: 40px; height: 4px; margin-left: -20px; border-radius: 2px; background: var(--opet-line); }
+  .opet-dashboard-shell [role="menu"] [role="menuitem"] {
     width: 100% !important; min-height: 52px !important; padding: 0 12px !important; border-radius: 12px !important;
     color: var(--opet-ink) !important; font-size: 15px !important; text-align: left;
   }
-  .opet-menu .opet-menu-item:active { background: var(--opet-bg) !important; }
+  .opet-dashboard-shell [role="menu"] [role="menuitem"]:active { background: var(--opet-bg) !important; }
 
   /* ===== Tables become one card per row ===== */
   .opet-dashboard-shell .opet-table-wrap { overflow: visible !important; }
@@ -407,7 +408,7 @@
 
 @media (max-width: 390px) {
   .opet-admin-dashboard, .opet-staff-dashboard { --opet-gutter: max(12px, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px)); }
-  .opet-dashboard-shell .opet-header-text h1 { font-size: 21px !important; }
+  .opet-dashboard-shell > header > div:first-child h1 { font-size: 21px !important; }
   .opet-dashboard-shell .opet-table td { grid-template-columns: 84px minmax(0, 1fr); }
 }
 
