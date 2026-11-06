@@ -2,8 +2,8 @@
    Desktop layout and all React/Supabase behaviour are unchanged.
    Import AFTER dashboard-responsive.css:  import './mobile.css'
 
-   Hooks used: opet-* class names added in the JSX (see JSX_EDITS.md) plus
-   data-label / data-status / data-initial attributes added at runtime by
+   Hooks used: opet-* class names added in the JSX plus
+   data-label / data-status attributes added at runtime by
    useMobileCardLabels(). Inline styles in the JSX win by default, so
    rules here use !important where they must override them. */
 
@@ -120,8 +120,12 @@
   .opet-dashboard-shell > header button svg { width: 20px !important; height: 20px !important; stroke: currentColor; }
   .opet-dashboard-shell > header button:active { background: rgba(255, 255, 255, .22) !important; transform: scale(.96); }
 
-  /* The bottom bar replaces the top tab row */
-  .opet-dashboard-shell > nav { display: none !important; }
+  /* The bottom bar replaces the top tab row.
+     Both selectors are needed: dashboard-responsive.css forces
+     .opet-dashboard-nav to display:flex !important, so this rule matches
+     its specificity and, being loaded later, wins. */
+  .opet-dashboard-shell > nav,
+  .opet-dashboard-shell .opet-dashboard-nav { display: none !important; }
 
   /* ----- Bottom navigation ----- */
   .opet-bottom-nav {
@@ -193,7 +197,6 @@
 
   /* ----- Section headings ----- */
   .opet-dashboard-shell .opet-heading { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; margin-bottom: 14px !important; }
-  .opet-dashboard-shell .opet-heading-action { width: 100%; }
   .opet-dashboard-shell .opet-heading-action { width: 100% !important; }
 
   /* ----- Summary cards: icon in a tinted circle, label and number beside it ----- */
@@ -338,35 +341,53 @@
   .opet-dashboard-shell .opet-table td.opet-c-action button { width: 100%; min-height: 44px !important; font-size: 14px !important; }
   .opet-dashboard-shell .opet-table[data-kind="quotes"] tr { grid-template-columns: minmax(0, 1fr) minmax(112px, 150px); }
 
-  /* ===== Booking card (matches the mockup) =====
-     avatar | ref, name, service, date, address | status + menu
-     phone and email sit in a footer under a divider. */
+  /* ===== Booking card: reference + status on top, details use the full width =====
+     No avatar circle. Name, services, date and address run edge to edge.
+     Phone and email sit in a footer under a divider. */
   .opet-dashboard-shell .opet-table[data-kind="bookings"] tr {
-    grid-template-columns: 48px minmax(0, 1fr) auto; column-gap: 12px; row-gap: 0;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 10px;
+    row-gap: 0;
   }
-  .opet-dashboard-shell .opet-table[data-kind="bookings"] td { display: block; padding: 2px 0 !important; position: relative; }
-  .opet-dashboard-shell .opet-table[data-kind="bookings"] td::before { display: none; }
+  .opet-dashboard-shell .opet-table[data-kind="bookings"] td {
+    display: block;
+    padding: 3px 0 !important;
+  }
+  .opet-dashboard-shell .opet-table[data-kind="bookings"] td::before { display: none !important; }
   .opet-dashboard-shell .opet-table[data-kind="bookings"] td > * { margin: 0; }
 
   .opet-table[data-kind="bookings"] td[data-label="Received"] { display: none !important; }
+
+  /* Row 1: reference (left) and status (right) */
   .opet-table[data-kind="bookings"] td[data-label="Reference"] {
-    grid-column: 2; grid-row: 1; order: 0; justify-self: start; margin-bottom: 4px;
-    padding: 2px 8px !important; border-radius: 8px; background: var(--opet-neutral-bg);
-    color: var(--opet-neutral-ink); font-size: 12px; font-weight: 700;
+    grid-column: 1; grid-row: 1; order: 0; justify-self: start; align-self: center;
+    padding: 2px 8px !important; border-radius: 8px;
+    background: var(--opet-neutral-bg); color: var(--opet-neutral-ink);
+    font-size: 12px; font-weight: 700;
   }
-  .opet-table[data-kind="bookings"] td[data-label="Customer"] { grid-column: 2; grid-row: 2; font-size: 17px; font-weight: 700; color: var(--opet-ink); }
-  .opet-table[data-kind="bookings"] td[data-label="Customer"]::before {
-    display: grid !important; content: attr(data-initial); position: absolute; left: -60px; top: -2px;
-    width: 48px; height: 48px; place-items: center; border-radius: 50%;
-    background: var(--opet-teal-soft); color: var(--opet-teal-ink); font-size: 19px; font-weight: 800;
+  .opet-table[data-kind="bookings"] td[data-label="Status"] {
+    grid-column: 2; grid-row: 1; order: 0; justify-self: end; align-self: center;
   }
-  .opet-table[data-kind="bookings"] td[data-label="Service / Property"] { grid-column: 2; grid-row: 3; color: var(--opet-muted); font-size: 14px; }
-  .opet-table[data-kind="bookings"] td[data-label="Preferred date"] { grid-column: 2; grid-row: 4; color: var(--opet-ink); font-size: 14px; }
-  .opet-table[data-kind="bookings"] td[data-label="Address"] { grid-column: 2; grid-row: 5; color: var(--opet-ink); font-size: 14px; }
-  .opet-table[data-kind="bookings"] td[data-label="Notes"] { grid-column: 2 / -1; grid-row: 6; color: var(--opet-muted); font-size: 13px; }
-  .opet-table[data-kind="bookings"] td[data-label="Notes"]::before { display: inline !important; content: "Notes: "; font-weight: 600; }
+
+  /* Row 2: full customer name, menu button on the right */
+  .opet-table[data-kind="bookings"] td[data-label="Customer"] {
+    grid-column: 1; grid-row: 2; margin-top: 6px;
+    font-size: 17px; font-weight: 700; color: var(--opet-ink);
+  }
+  .opet-table[data-kind="bookings"] td[data-label="Actions"] {
+    grid-column: 2; grid-row: 2; order: 0; justify-self: end; align-self: start; padding: 0 !important;
+  }
+
+  /* Everything else spans the full card width */
+  .opet-table[data-kind="bookings"] td[data-label="Service / Property"] { grid-column: 1 / -1; grid-row: 3; color: var(--opet-ink); font-size: 14px; margin-top: 4px; }
+  .opet-table[data-kind="bookings"] td[data-label="Preferred date"]    { grid-column: 1 / -1; grid-row: 4; font-size: 14px; }
+  .opet-table[data-kind="bookings"] td[data-label="Address"]           { grid-column: 1 / -1; grid-row: 5; font-size: 14px; }
+  .opet-table[data-kind="bookings"] td[data-label="Notes"]             { grid-column: 1 / -1; grid-row: 6; color: var(--opet-muted); font-size: 13px; }
+  .opet-table[data-kind="bookings"] td[data-label="Notes"]::before     { display: inline !important; content: "Notes: "; font-weight: 600; }
+
   .opet-table[data-kind="bookings"] td[data-label="Phone"] {
-    grid-column: 1 / -1; grid-row: 7; margin-top: 10px; padding-top: 10px !important; border-top: 1px solid var(--opet-line) !important; font-size: 14px;
+    grid-column: 1 / -1; grid-row: 7; margin-top: 10px;
+    padding-top: 10px !important; border-top: 1px solid var(--opet-line) !important; font-size: 14px;
   }
   .opet-table[data-kind="bookings"] td[data-label="Email"] { grid-column: 1 / -1; grid-row: 8; font-size: 14px; color: var(--opet-muted); }
   .opet-table[data-kind="bookings"] td[data-label="Phone"]::before,
@@ -375,10 +396,8 @@
   }
   .opet-table[data-kind="bookings"] td[data-label="Phone"]::before { content: "Phone:"; }
   .opet-table[data-kind="bookings"] td[data-label="Email"]::before { content: "Email:"; }
-  .opet-table[data-kind="bookings"] td[data-label="Status"] { grid-column: 3; grid-row: 1 / span 2; justify-self: end; align-self: start; }
-  .opet-table[data-kind="bookings"] td[data-label="Actions"] { grid-column: 3; grid-row: 3 / span 2; justify-self: end; padding: 0 !important; }
 
-  /* Status select looks like the pill in the mockup */
+  /* Status select looks like a pill */
   .opet-table td[data-label="Status"] { --pill-bg: var(--opet-neutral-bg); --pill-ink: var(--opet-neutral-ink); }
   .opet-table td[data-status="new"] { --pill-bg: var(--opet-new-bg); --pill-ink: var(--opet-new-ink); }
   .opet-table td[data-status="contacted"],
@@ -402,7 +421,11 @@
   .opet-dashboard-shell .opet-table[data-kind="quotes"] td[data-label="Status"] select,
   .opet-dashboard-shell .opet-table[data-kind="invoices"] td[data-label="Status"] select { width: 100% !important; }
 
-  /* ----- Staff management ----- */
+  /* Stop the inline min-width (120px) on the booking status dropdown from squeezing the card */
+  .opet-dashboard-shell .opet-table[data-kind="bookings"] td[data-label="Status"] select {
+    min-width: 0 !important;
+  }
+
   .opet-dashboard-shell footer { padding: 12px 0 !important; color: var(--opet-muted); font-size: 12px !important; }
 }
 
