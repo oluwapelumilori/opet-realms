@@ -7,7 +7,10 @@ import {
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import MultiServiceBookingFields from '../components/MultiServiceBookingFields'
+import MobileBottomNav from '../components/MobileBottomNav'
+import useMobileCardLabels from '../lib/useMobileCardLabels'
 import './dashboard-responsive.css'
+import './mobile.css'
 
 /* ------------------------------------------------------------------ */
 /* Design tokens (Opet Realms navy, cyan and white)                    */
@@ -196,6 +199,7 @@ function RowMenu({ label: ariaLabel, items }) {
 /* ------------------------------------------------------------------ */
 export default function AdminDashboard() {
   const navigate = useNavigate()
+  useMobileCardLabels()
   const [loading, setLoading] = useState(true)
   const [savingBooking, setSavingBooking] = useState(false)
   const [savingInvoice, setSavingInvoice] = useState(false)
@@ -803,5 +807,7 @@ export default function AdminDashboard() {
     </section>}
 
     <footer style={{ textAlign: 'center', color: MUTED, fontSize: 11, padding: '8px 0' }}>Opet Realms · Admin dashboard</footer>
-  </div></main>
+  </div>
+  <MobileBottomNav items={navItems} active={activeSection} onSelect={(id) => { setActiveSection(id); clearMessages() }} fab={activeSection === 'bookings' ? { label: 'Create booking', onClick: () => { setShowBookingForm(true); window.scrollTo({ top: document.body.scrollHeight * 0.3, behavior: 'smooth' }) } } : undefined} />
+  </main>
 }
