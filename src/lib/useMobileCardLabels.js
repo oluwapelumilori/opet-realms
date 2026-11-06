@@ -65,7 +65,7 @@ export default function useMobileCardLabels() {
             const select = td.querySelector('select')
             td.dataset.status = (select ? select.value : td.textContent).trim().toLowerCase()
           }
-          if (label === 'Customer') td.dataset.initial = (td.textContent.trim().charAt(0) || '?').toUpperCase()
+          // (avatar initial removed: booking cards no longer show the circle)
           if (label === 'Amount' || label === 'Amount received') td.classList.add('opet-c-amount')
         })
       })
