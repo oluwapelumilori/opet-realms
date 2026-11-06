@@ -7,7 +7,10 @@ import {
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import MultiServiceBookingFields from '../components/MultiServiceBookingFields'
+import MobileBottomNav from '../components/MobileBottomNav'
+import useMobileCardLabels from '../lib/useMobileCardLabels'
 import './dashboard-responsive.css'
+import './mobile.css'
 
 /* ------------------------------------------------------------------ */
 /* Design tokens (Opet Realms navy, cyan and white)                    */
@@ -167,6 +170,7 @@ function RowMenu({ label: ariaLabel, items }) {
 /* ------------------------------------------------------------------ */
 export default function StaffDashboard() {
   const navigate = useNavigate()
+  useMobileCardLabels()
   const [loading, setLoading] = useState(true)
   const [savingBooking, setSavingBooking] = useState(false)
   const [savingInvoice, setSavingInvoice] = useState(false)
@@ -566,5 +570,7 @@ export default function StaffDashboard() {
       <section style={panel}><Heading description="Print or save each saved receipt as PDF.">Receipt history</Heading><label style={{ ...label, maxWidth: 420, marginBottom: 14 }}>Search receipts<input style={input} value={receiptSearch} onChange={(e) => setReceiptSearch(e.target.value)} placeholder="Receipt reference, customer or payment ref" /></label>{filteredReceipts.length ? <div style={{ overflowX: 'auto' }}><table style={table}><thead><tr>{['Receipt', 'Customer', 'Invoice', 'Service category', 'Amount received', 'Payment date', 'Method', 'Actions'].map((h) => <th key={h} style={th}>{h}</th>)}</tr></thead><tbody>{filteredReceipts.map((r) => { const inv = invoices.find((i) => i.id === r.invoice_id); return <tr key={r.id}><td style={td}><strong>{r.receipt_ref || '—'}</strong></td><td style={td}>{r.customer_name || '—'}</td><td style={td}>{inv?.invoice_ref || '—'}</td><td style={{ ...td, minWidth: 190, whiteSpace: 'pre-wrap' }}>{bookings.find((b) => b.id === (r.booking_id || inv?.booking_id))?.service || 'Manual invoice / service not linked'}</td><td style={td}>{money(r.amount_received)}</td><td style={td}>{dateLabel(r.payment_date)}</td><td style={td}>{String(r.payment_method || '').replaceAll('_', ' ')}</td><td style={td}><button type="button" style={smallButton} onClick={() => printReceipt(r)}>Download / Print PDF</button></td></tr> })}</tbody></table></div> : <p style={{ color: MUTED, fontSize: 13 }}>No receipts recorded yet.</p>}</section>
     </>}
     <footer style={{ textAlign: 'center', color: MUTED, fontSize: 11, padding: '8px 0' }}>Opet Realms · Staff dashboard</footer>
-  </div></main>
+  </div>
+  <MobileBottomNav items={navItems} active={currentSection} onSelect={(id) => { setActiveSection(id); clearMessages() }} fab={currentSection === 'bookings' && permissions.manage_bookings ? { label: 'Create booking', onClick: () => { setShowBookingForm(true); window.scrollTo({ top: document.body.scrollHeight * 0.3, behavior: 'smooth' }) } } : undefined} />
+  </main>
 }
