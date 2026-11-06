@@ -1,12 +1,49 @@
 import { useEffect } from 'react'
 
-/* Presentation only. After every render it tags the dashboard tables so
-   mobile.css can show each row as a card: header text becomes data-label,
-   and a few helper classes/attributes are added. It never changes data,
-   handlers or table content, and has no effect on the desktop layout. */
+/* Presentation only. After every render it adds class names and attributes
+   to the dashboard's existing elements so mobile.css can restyle them.
+   It never changes data, handlers or visible text, and has no effect on the
+   desktop layout. */
 export default function useMobileCardLabels() {
   useEffect(() => {
-    document.querySelectorAll('.opet-dashboard-shell table').forEach((table) => {
+    const shell = document.querySelector('.opet-dashboard-shell')
+    if (!shell) return
+
+    // Section headings: stack the action button under the title
+    shell.querySelectorAll('h2').forEach((h2) => {
+      const titleBox = h2.parentElement
+      const heading = titleBox?.parentElement
+      if (heading?.parentElement?.tagName === 'SECTION') {
+        heading.classList.add('opet-heading')
+        titleBox.nextElementSibling?.classList.add('opet-heading-action')
+      }
+    })
+
+    // Summary cards (icon + label + number)
+    shell.querySelectorAll(':scope > div').forEach((div) => {
+      if (div.querySelector(':scope > section > svg')) div.classList.add('opet-stat-grid')
+    })
+
+    // Booking stage cards
+    shell.querySelectorAll('button[aria-pressed]').forEach((btn) => {
+      btn.parentElement?.classList.add('opet-stage-grid')
+      btn.classList.add('opet-stage-card')
+      const name = btn.querySelector('span')?.textContent.trim().toLowerCase()
+      if (name) btn.dataset.status = name
+    })
+
+    // Header buttons become icon-only on mobile, so keep their names for screen readers
+    shell.querySelectorAll(':scope > header button').forEach((btn) => {
+      if (!btn.getAttribute('aria-label')) btn.setAttribute('aria-label', btn.textContent.trim())
+    })
+
+    // Staff management: password reset row
+    shell.querySelectorAll('div > label + button').forEach((btn) => {
+      if (btn.previousElementSibling?.querySelector('input[type="password"]')) btn.parentElement.classList.add('opet-reset-row')
+    })
+
+    // Tables become cards
+    shell.querySelectorAll('table').forEach((table) => {
       const heads = [...table.querySelectorAll('thead th')].map((th) => th.textContent.trim())
       const kind = heads.includes('Preferred date') ? 'bookings'
         : heads.includes('Valid until') ? 'quotes'
