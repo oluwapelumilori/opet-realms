@@ -80,6 +80,15 @@ function dateLabel(value) {
   const date = new Date(`${String(value).slice(0, 10)}T00:00:00`)
   return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' })
 }
+/* Month helpers for the payment summary. Month keys look like "2026-10". */
+function monthKeyOf(value) {
+  const key = String(value || '').slice(0, 7)
+  return /^\d{4}-\d{2}$/.test(key) ? key : ''
+}
+function monthLabel(key) {
+  const date = new Date(`${key}-01T00:00:00`)
+  return Number.isNaN(date.getTime()) ? key : date.toLocaleDateString('en-NG', { month: 'long', year: 'numeric' })
+}
 function reference(prefix) { return `${prefix}-${Date.now().toString().slice(-8)}` }
 function generateBookingReference() {
   const now = new Date()
@@ -213,6 +222,7 @@ export default function AdminDashboard() {
   const [quoteSearch, setQuoteSearch] = useState('')
   const [invoiceSearch, setInvoiceSearch] = useState('')
   const [receiptSearch, setReceiptSearch] = useState('')
+  const [receiptMonth, setReceiptMonth] = useState('current') // 'current' | 'YYYY-MM' | 'all'
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [loadWarnings, setLoadWarnings] = useState([])
@@ -307,6 +317,22 @@ export default function AdminDashboard() {
       return totals
     }, { today: 0, week: 0, month: 0 })
   }, [receipts])
+
+  /* Month selector for the payment summary: current month first, then every earlier month that has receipts, then all time. */
+  const currentMonthKey = today().slice(0, 7)
+  const receiptMonthOptions = useMemo(() => {
+    const keys = new Set()
+    receipts.forEach((r) => { const k = monthKeyOf(r.payment_date); if (k && k !== currentMonthKey) keys.add(k) })
+    const past = Array.from(keys).sort().reverse().map((k) => ({ value: k, label: monthLabel(k) }))
+    return [{ value: 'current', label: `This month (${monthLabel(currentMonthKey)})` }, ...past, { value: 'all', label: 'All time' }]
+  }, [receipts, currentMonthKey])
+  const selectedMonthKey = receiptMonth === 'current' ? currentMonthKey : receiptMonth
+  const periodReceipts = useMemo(() => (
+    receiptMonth === 'all' ? receipts : receipts.filter((r) => monthKeyOf(r.payment_date) === selectedMonthKey)
+  ), [receipts, receiptMonth, selectedMonthKey])
+  const periodTotal = useMemo(() => periodReceipts.reduce((sum, r) => sum + Number(r.amount_received || 0), 0), [periodReceipts])
+  const periodTitle = receiptMonth === 'all' ? 'All time' : receiptMonth === 'current' ? 'This month' : monthLabel(selectedMonthKey)
+
   const filteredBookings = useMemo(() => {
     const q = bookingSearch.trim().toLowerCase()
     return bookings.filter((b) => {
@@ -325,8 +351,8 @@ export default function AdminDashboard() {
   }, [invoices, invoiceSearch])
   const filteredReceipts = useMemo(() => {
     const q = receiptSearch.trim().toLowerCase()
-    return receipts.filter((item) => !q || [item.receipt_ref, item.customer_name, item.payment_reference, item.payment_method].filter(Boolean).join(' ').toLowerCase().includes(q))
-  }, [receipts, receiptSearch])
+    return periodReceipts.filter((item) => !q || [item.receipt_ref, item.customer_name, item.payment_reference, item.payment_method].filter(Boolean).join(' ').toLowerCase().includes(q))
+  }, [periodReceipts, receiptSearch])
   const quotableBookings = useMemo(() => bookings.filter((b) => !['cancelled', 'completed'].includes(normalizeStatus(b.status)) && !quotes.some((q) => q.booking_id === b.id)).slice(0, 8), [bookings, quotes])
   const invoiceableBookings = useMemo(() => bookings.filter((b) => normalizeStatus(b.status) !== 'cancelled' && !invoices.some((i) => i.booking_id === b.id)).slice(0, 8), [bookings, invoices])
 
@@ -699,11 +725,19 @@ export default function AdminDashboard() {
 
     {/* RECEIPTS */}
     {activeSection === 'receipts' && <>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 190px), 1fr))', gap: 12, marginBottom: 16 }}><section style={{ ...panel, marginBottom: 0 }}><ReceiptText size={21} color={CYAN} /><p style={{ color: MUTED, margin: '8px 0 3px', fontSize: 12 }}>Receipts issued</p><strong style={{ fontSize: 26 }}>{receipts.length}</strong></section><section style={{ ...panel, marginBottom: 0 }}><Wallet size={21} color={CYAN} /><p style={{ color: MUTED, margin: '8px 0 3px', fontSize: 12 }}>Received today</p><strong style={{ fontSize: 22 }}>{money(paymentPeriodTotals.today)}</strong></section><section style={{ ...panel, marginBottom: 0 }}><Wallet size={21} color={CYAN} /><p style={{ color: MUTED, margin: '8px 0 3px', fontSize: 12 }}>Received this week</p><strong style={{ fontSize: 22 }}>{money(paymentPeriodTotals.week)}</strong></section><section style={{ ...panel, marginBottom: 0 }}><Wallet size={21} color={CYAN} /><p style={{ color: MUTED, margin: '8px 0 3px', fontSize: 12 }}>Received this month</p><strong style={{ fontSize: 22 }}>{money(paymentPeriodTotals.month)}</strong></section><section style={{ ...panel, marginBottom: 0 }}><Wallet size={21} color={CYAN} /><p style={{ color: MUTED, margin: '8px 0 3px', fontSize: 12 }}>Total payments received</p><strong style={{ fontSize: 22 }}>{money(totalReceived)}</strong></section></div>
+      <section style={panel}>
+        <Heading description={`Showing payments for: ${periodTitle}. Today and this week always show the current period.`}>Payment summary</Heading>
+        <label style={{ ...label, maxWidth: 360 }}>Select month
+          <select aria-label="Select month for payment summary" style={input} value={receiptMonth} onChange={(e) => setReceiptMonth(e.target.value)}>
+            {receiptMonthOptions.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+          </select>
+        </label>
+      </section>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 190px), 1fr))', gap: 12, marginBottom: 16 }}><section style={{ ...panel, marginBottom: 0 }}><ReceiptText size={21} color={CYAN} /><p style={{ color: MUTED, margin: '8px 0 3px', fontSize: 12 }}>Receipts issued ({periodTitle})</p><strong style={{ fontSize: 26 }}>{periodReceipts.length}</strong></section><section style={{ ...panel, marginBottom: 0 }}><Wallet size={21} color={CYAN} /><p style={{ color: MUTED, margin: '8px 0 3px', fontSize: 12 }}>Received today</p><strong style={{ fontSize: 22 }}>{money(paymentPeriodTotals.today)}</strong></section><section style={{ ...panel, marginBottom: 0 }}><Wallet size={21} color={CYAN} /><p style={{ color: MUTED, margin: '8px 0 3px', fontSize: 12 }}>Received this week</p><strong style={{ fontSize: 22 }}>{money(paymentPeriodTotals.week)}</strong></section><section style={{ ...panel, marginBottom: 0 }}><Wallet size={21} color={CYAN} /><p style={{ color: MUTED, margin: '8px 0 3px', fontSize: 12 }}>Received ({periodTitle})</p><strong style={{ fontSize: 22 }}>{money(periodTotal)}</strong></section><section style={{ ...panel, marginBottom: 0 }}><Wallet size={21} color={CYAN} /><p style={{ color: MUTED, margin: '8px 0 3px', fontSize: 12 }}>Total payments received (all time)</p><strong style={{ fontSize: 22 }}>{money(totalReceived)}</strong></section></div>
       <section style={panel}><Heading description="Record only payments that have been verified. The form stays closed until opened." action={<button type="button" style={button} onClick={() => setShowReceiptForm((v) => !v)}>{showReceiptForm ? <X size={15} /> : <Plus size={15} />}{showReceiptForm ? 'Close form' : 'Record Payment and Create Receipt'}</button>}>Record a payment</Heading>
         {showReceiptForm && <form onSubmit={handleCreateReceipt}><div style={grid}><label style={label}>Invoice *<select required style={input} value={receiptForm.invoice_id} onChange={(e) => { const i = invoices.find((x) => x.id === e.target.value); const paid = paidByInvoice[e.target.value] || 0; setReceiptForm((f) => ({ ...f, invoice_id: e.target.value, amount_received: i ? String(Math.max(0, Number(i.amount || 0) - paid)) : '' })) }}><option value="">Select invoice</option>{invoices.filter((i) => i.status !== 'paid' && i.status !== 'cancelled').map((i) => <option key={i.id} value={i.id}>{i.invoice_ref || 'Invoice'} — {i.customer_name} ({money(i.amount)})</option>)}</select></label><label style={label}>Amount received (₦) *<input type="number" min="0.01" step="0.01" required style={input} value={receiptForm.amount_received} onChange={(e) => setReceiptForm((f) => ({ ...f, amount_received: e.target.value }))} /></label><label style={label}>Payment date<input type="date" style={input} value={receiptForm.payment_date} onChange={(e) => setReceiptForm((f) => ({ ...f, payment_date: e.target.value }))} /></label><label style={label}>Payment method<select style={input} value={receiptForm.payment_method} onChange={(e) => setReceiptForm((f) => ({ ...f, payment_method: e.target.value }))}>{['bank_transfer', 'cash', 'card', 'other'].map((m) => <option key={m} value={m}>{m.replace('_', ' ').replace(/^./, (c) => c.toUpperCase())}</option>)}</select></label><label style={label}>Payment reference<input style={input} value={receiptForm.payment_reference} onChange={(e) => setReceiptForm((f) => ({ ...f, payment_reference: e.target.value }))} placeholder="Bank transaction reference" /></label></div><label style={{ ...label, marginTop: 14 }}>Notes<textarea style={{ ...input, minHeight: 65, resize: 'vertical' }} value={receiptForm.notes} onChange={(e) => setReceiptForm((f) => ({ ...f, notes: e.target.value }))} /></label><label style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 14, fontSize: 13, color: DARK }}><input type="checkbox" checked={receiptForm.verified} onChange={(e) => setReceiptForm((f) => ({ ...f, verified: e.target.checked }))} /> I confirm this payment has been verified.</label><button type="submit" style={{ ...button, marginTop: 14 }} disabled={savingReceipt}>{savingReceipt ? <LoaderCircle size={15} /> : <Save size={15} />}{savingReceipt ? 'Recording payment...' : 'Record payment and create receipt'}</button></form>}
       </section>
-      <section style={panel}><Heading description="Print or save each saved receipt as PDF.">Receipt history</Heading><label style={{ ...label, maxWidth: 420, marginBottom: 14 }}>Search receipts<input style={input} value={receiptSearch} onChange={(e) => setReceiptSearch(e.target.value)} placeholder="Receipt reference, customer or payment ref" /></label>{filteredReceipts.length ? <div style={{ overflowX: 'auto' }}><table style={table}><thead><tr>{['Receipt', 'Customer', 'Invoice', 'Service category', 'Amount received', 'Payment date', 'Method', 'Actions'].map((h) => <th key={h} style={th}>{h}</th>)}</tr></thead><tbody>{filteredReceipts.map((r) => { const inv = invoices.find((i) => i.id === r.invoice_id); return <tr key={r.id}><td style={td}><strong>{r.receipt_ref || '—'}</strong></td><td style={td}>{r.customer_name || '—'}</td><td style={td}>{inv?.invoice_ref || '—'}</td><td style={{ ...td, minWidth: 190, whiteSpace: 'pre-wrap' }}>{bookings.find((b) => b.id === (r.booking_id || inv?.booking_id))?.service || 'Manual invoice / service not linked'}</td><td style={td}>{money(r.amount_received)}</td><td style={td}>{dateLabel(r.payment_date)}</td><td style={td}>{String(r.payment_method || '').replaceAll('_', ' ')}</td><td style={td}><button type="button" style={smallButton} onClick={() => printReceipt(r)}>Download / Print PDF</button></td></tr> })}</tbody></table></div> : <p style={{ color: MUTED, fontSize: 13 }}>No receipts recorded yet.</p>}</section>
+      <section style={panel}><Heading description={`${filteredReceipts.length} receipt(s) · ${periodTitle}. Print or save each saved receipt as PDF.`}>Receipt history</Heading><label style={{ ...label, maxWidth: 420, marginBottom: 14 }}>Search receipts<input style={input} value={receiptSearch} onChange={(e) => setReceiptSearch(e.target.value)} placeholder="Receipt reference, customer or payment ref" /></label>{filteredReceipts.length ? <div style={{ overflowX: 'auto' }}><table style={table}><thead><tr>{['Receipt', 'Customer', 'Invoice', 'Service category', 'Amount received', 'Payment date', 'Method', 'Actions'].map((h) => <th key={h} style={th}>{h}</th>)}</tr></thead><tbody>{filteredReceipts.map((r) => { const inv = invoices.find((i) => i.id === r.invoice_id); return <tr key={r.id}><td style={td}><strong>{r.receipt_ref || '—'}</strong></td><td style={td}>{r.customer_name || '—'}</td><td style={td}>{inv?.invoice_ref || '—'}</td><td style={{ ...td, minWidth: 190, whiteSpace: 'pre-wrap' }}>{bookings.find((b) => b.id === (r.booking_id || inv?.booking_id))?.service || 'Manual invoice / service not linked'}</td><td style={td}>{money(r.amount_received)}</td><td style={td}>{dateLabel(r.payment_date)}</td><td style={td}>{String(r.payment_method || '').replaceAll('_', ' ')}</td><td style={td}><button type="button" style={smallButton} onClick={() => printReceipt(r)}>Download / Print PDF</button></td></tr> })}</tbody></table></div> : <p style={{ color: MUTED, fontSize: 13 }}>No receipts recorded for {periodTitle.toLowerCase()}.</p>}</section>
     </>}
 
     {/* STAFF MANAGEMENT */}
